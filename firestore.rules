@@ -1,0 +1,43 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users can only access their own user document
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Trainer profiles can be read by authenticated users, but only owned by trainers
+    match /trainerProfiles/{trainerId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == trainerId;
+    }
+    
+    // Workout programs - public ones can be read by all, private ones only by owner
+    match /workoutPrograms/{programId} {
+      allow read: if request.auth != null && 
+        (resource.data.visibility == 'public' || 
+         resource.data.trainerId == request.auth.uid);
+      allow write: if request.auth != null && 
+        resource.data.trainerId == request.auth.uid;
+    }
+    
+    // Workout logs - users can only access their own logs
+    match /workoutLogs/{logId} {
+      allow read, write: if request.auth != null && 
+        resource.data.userId == request.auth.uid;
+    }
+    
+    // Metric snapshots - users can only access their own metrics
+    match /metricSnapshots/{snapshotId} {
+      allow read, write: if request.auth != null && 
+        resource.data.userId == request.auth.uid;
+    }
+    
+    // Exercise library - read-only for authenticated users
+    match /exercises/{exerciseId} {
+      allow read: if request.auth != null;
+      // Only admins can write exercises (implement admin check later)
+      allow write: if false; // TODO: Add admin role check
+    }
+  }
+} 

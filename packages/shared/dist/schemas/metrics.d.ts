@@ -1,0 +1,138 @@
+import { z } from 'zod';
+export declare const MetricSnapshotSchema: z.ZodObject<{
+    id: z.ZodString;
+    userId: z.ZodString;
+    timestamp: z.ZodDate;
+    heartRate: z.ZodOptional<z.ZodNumber>;
+    heartRateVariability: z.ZodOptional<z.ZodNumber>;
+    sleepHours: z.ZodOptional<z.ZodNumber>;
+    sleepQuality: z.ZodOptional<z.ZodNumber>;
+    calories: z.ZodOptional<z.ZodNumber>;
+    steps: z.ZodOptional<z.ZodNumber>;
+    weight: z.ZodOptional<z.ZodNumber>;
+    bodyFatPercentage: z.ZodOptional<z.ZodNumber>;
+    muscleMass: z.ZodOptional<z.ZodNumber>;
+    hydration: z.ZodOptional<z.ZodNumber>;
+    stressLevel: z.ZodOptional<z.ZodNumber>;
+    energy: z.ZodOptional<z.ZodNumber>;
+    mood: z.ZodOptional<z.ZodNumber>;
+    notes: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    userId: string;
+    id: string;
+    timestamp: Date;
+    weight?: number | undefined;
+    notes?: string | undefined;
+    heartRate?: number | undefined;
+    heartRateVariability?: number | undefined;
+    sleepHours?: number | undefined;
+    sleepQuality?: number | undefined;
+    calories?: number | undefined;
+    steps?: number | undefined;
+    bodyFatPercentage?: number | undefined;
+    muscleMass?: number | undefined;
+    hydration?: number | undefined;
+    stressLevel?: number | undefined;
+    energy?: number | undefined;
+    mood?: number | undefined;
+}, {
+    userId: string;
+    id: string;
+    timestamp: Date;
+    weight?: number | undefined;
+    notes?: string | undefined;
+    heartRate?: number | undefined;
+    heartRateVariability?: number | undefined;
+    sleepHours?: number | undefined;
+    sleepQuality?: number | undefined;
+    calories?: number | undefined;
+    steps?: number | undefined;
+    bodyFatPercentage?: number | undefined;
+    muscleMass?: number | undefined;
+    hydration?: number | undefined;
+    stressLevel?: number | undefined;
+    energy?: number | undefined;
+    mood?: number | undefined;
+}>;
+export declare const BiometricEntrySchema: z.ZodObject<{
+    weight: z.ZodOptional<z.ZodNumber>;
+    bodyFatPercentage: z.ZodOptional<z.ZodNumber>;
+    muscleMass: z.ZodOptional<z.ZodNumber>;
+    measurements: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodNumber>>;
+}, "strip", z.ZodTypeAny, {
+    weight?: number | undefined;
+    bodyFatPercentage?: number | undefined;
+    muscleMass?: number | undefined;
+    measurements?: Record<string, number> | undefined;
+}, {
+    weight?: number | undefined;
+    bodyFatPercentage?: number | undefined;
+    muscleMass?: number | undefined;
+    measurements?: Record<string, number> | undefined;
+}>;
+export declare const CreateMetricSnapshotSchema: z.ZodObject<{
+    heartRate: z.ZodOptional<z.ZodNumber>;
+    heartRateVariability: z.ZodOptional<z.ZodNumber>;
+    sleepHours: z.ZodOptional<z.ZodNumber>;
+    sleepQuality: z.ZodOptional<z.ZodNumber>;
+    calories: z.ZodOptional<z.ZodNumber>;
+    steps: z.ZodOptional<z.ZodNumber>;
+    weight: z.ZodOptional<z.ZodNumber>;
+    bodyFatPercentage: z.ZodOptional<z.ZodNumber>;
+    muscleMass: z.ZodOptional<z.ZodNumber>;
+    hydration: z.ZodOptional<z.ZodNumber>;
+    stressLevel: z.ZodOptional<z.ZodNumber>;
+    energy: z.ZodOptional<z.ZodNumber>;
+    mood: z.ZodOptional<z.ZodNumber>;
+    notes: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    weight?: number | undefined;
+    notes?: string | undefined;
+    heartRate?: number | undefined;
+    heartRateVariability?: number | undefined;
+    sleepHours?: number | undefined;
+    sleepQuality?: number | undefined;
+    calories?: number | undefined;
+    steps?: number | undefined;
+    bodyFatPercentage?: number | undefined;
+    muscleMass?: number | undefined;
+    hydration?: number | undefined;
+    stressLevel?: number | undefined;
+    energy?: number | undefined;
+    mood?: number | undefined;
+}, {
+    weight?: number | undefined;
+    notes?: string | undefined;
+    heartRate?: number | undefined;
+    heartRateVariability?: number | undefined;
+    sleepHours?: number | undefined;
+    sleepQuality?: number | undefined;
+    calories?: number | undefined;
+    steps?: number | undefined;
+    bodyFatPercentage?: number | undefined;
+    muscleMass?: number | undefined;
+    hydration?: number | undefined;
+    stressLevel?: number | undefined;
+    energy?: number | undefined;
+    mood?: number | undefined;
+}>;
+export declare const WearableDataSchema: z.ZodObject<{
+    source: z.ZodEnum<["apple_health", "google_fit", "whoop", "fitbit", "garmin", "manual"]>;
+    deviceId: z.ZodOptional<z.ZodString>;
+    syncedAt: z.ZodDate;
+    data: z.ZodRecord<z.ZodString, z.ZodUnknown>;
+}, "strip", z.ZodTypeAny, {
+    source: "apple_health" | "google_fit" | "whoop" | "fitbit" | "garmin" | "manual";
+    syncedAt: Date;
+    data: Record<string, unknown>;
+    deviceId?: string | undefined;
+}, {
+    source: "apple_health" | "google_fit" | "whoop" | "fitbit" | "garmin" | "manual";
+    syncedAt: Date;
+    data: Record<string, unknown>;
+    deviceId?: string | undefined;
+}>;
+export type MetricSnapshot = z.infer<typeof MetricSnapshotSchema>;
+export type BiometricEntry = z.infer<typeof BiometricEntrySchema>;
+export type CreateMetricSnapshot = z.infer<typeof CreateMetricSnapshotSchema>;
+export type WearableData = z.infer<typeof WearableDataSchema>;
