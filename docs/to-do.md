@@ -51,28 +51,49 @@ Establish the complete development environment, CI/CD pipeline, and project stru
 
 ### 🚧 **Milestone 2: Core User & Auth Flow (MVP Part 1)**
 
-**Goal:** Implement complete user onboarding, login, and profile management. Enables personalized experiences.  
-**ETA:** August 15, 2025 (4 Weeks)
+🚀 Milestone 2: Core User & Auth Flow (MVP Part 1) - IN PROGRESS
+Goal: Implement the complete user registration, login, and profile management using Firebase client SDK. This allows users to get into the system, which is the first critical step of the user journey.
+Estimated Completion: August 22, 2025 (4 Weeks)
 
-#### To-Do List
+Week 1 (July 21 - July 27): Foundational UI & Auth Logic
 
-**Authentication:**
+[ ] PRIORITY 1: Install all necessary shadcn/ui components (button, input, label, card, form, select, toast).
 
-- [ ] Build UI for Signup/Login pages
-- [ ] Implement Firebase Auth (email/password, Google, Apple)
-- [ ] Create protected routes for logged-in users
+[ ] PRIORITY 2: Build the LoginPage.tsx and SignupPage.tsx UI using shadcn/ui Form components.
 
-**Onboarding & Profile:**
+[ ] PRIORITY 3: Connect the UI to Firebase Auth SDK functions using our existing AuthContext.
 
-- [ ] Multi-step onboarding form using React Hook Form + Zod
-- [ ] tRPC endpoint to create user document in Firestore
-- [ ] "My Profile" page for goals, stats, and preferences
+[ ] PRIORITY 4: Enhance the AuthContext to manage loading states and display errors via toasts.
 
-**Security:**
+[ ] Set up React Router for navigation between auth pages.
 
-- [ ] Firestore rules: users can only access their own data
+Week 2 (July 28 - Aug 3): Onboarding Form & Firebase Integration
 
----
+[ ] HIGH RISK: Build the OnboardingPage.tsx with the multi-step questionnaire. Use React Hook Form for state management.
+
+[ ] ✅ Create the Zod schema in packages/shared to validate all onboarding data. (COMPLETED)
+
+[ ] Save onboarding data directly to Firestore using our Firebase hooks and AuthContext.
+
+[ ] ✅ Implement strict Firestore security rules for the /users/{userId} path. (COMPLETED)
+
+Week 3 (Aug 4 - Aug 10): Profile Management
+
+[ ] Build the ProfilePage.tsx for users to view their data.
+
+[ ] Use our existing Firebase hooks to fetch and display user profile data.
+
+[ ] Add functionality to the ProfilePage.tsx to allow users to update their information using Firestore hooks.
+
+Week 4 (Aug 11 - Aug 17): Testing & Refinement
+
+[ ] Write Vitest/RTL tests for the LoginPage, SignupPage, and OnboardingPage components.
+
+[ ] Write integration tests for the full signup -> onboard -> view profile flow.
+
+[ ] Conduct a manual end-to-end test of the entire Milestone 2 feature set.
+
+[ ] Polish all UI, add missing loading states, and handle edge cases.
 
 ### 🧠 **Milestone 3: Fitness Plan Generation (MVP Part 2)**
 
