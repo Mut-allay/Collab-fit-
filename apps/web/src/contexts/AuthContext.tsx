@@ -3,6 +3,8 @@ import {
   User,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
   signOut,
   onAuthStateChanged,
   updateProfile,
@@ -22,6 +24,7 @@ interface AuthContextType {
     displayName?: string
   ) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   updateUserProfile: (data: Partial<FitSparkUser>) => Promise<void>;
@@ -76,6 +79,31 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   async function login(email: string, password: string) {
     await signInWithEmailAndPassword(auth, email, password);
+  }
+
+  async function loginWithGoogle() {
+    const provider = new GoogleAuthProvider();
+    const { user } = await signInWithPopup(auth, provider);
+
+    // Check if the user is new
+    const userDocRef = doc(db, "users", user.uid);
+    const userDoc = await getDoc(userDocRef);
+
+    // If the user doesn't exist in Firestore, create a new document
+    if (!userDoc.exists()) {
+      const userData: Omit<FitSparkUser, "createdAt" | "updatedAt"> = {
+        uid: user.uid,
+        email: user.email!,
+        displayName: user.displayName || "",
+        role: "user" as UserRole,
+        onboardingCompleted: false,
+      };
+      await setDoc(userDocRef, {
+        ...userData,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    }
   }
 
   async function logout() {
@@ -136,6 +164,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     loading,
     signup,
     login,
+    loginWithGoogle,
     logout,
     resetPassword,
     updateUserProfile,
