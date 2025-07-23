@@ -61,9 +61,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Create user document in Firestore
     const userData: Omit<FitSparkUser, "createdAt" | "updatedAt"> = {
       uid: user.uid,
-      email: user.email || "",
-      displayName: displayName || "",
+      email: user.email!,
+      displayName: user.displayName || "",
       role: "user" as UserRole,
+      onboardingCompleted: false,
     };
 
     await setDoc(doc(db, "users", user.uid), {

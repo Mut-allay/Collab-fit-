@@ -5,14 +5,21 @@
   "description": "FitSpark - AI-powered fitness tracking and coaching platform",
   "scripts": {
     "build": "turbo run build",
+    "build:staging": "turbo run build:staging",
+    "build:production": "turbo run build:production",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck",
     "clean": "turbo run clean",
     "setup": "pnpm install && turbo run setup",
-    "deploy": "pnpm run build && firebase deploy",
-    "deploy:hosting": "pnpm run build --filter=@fitspark/web && firebase deploy --only hosting"
+    "deploy": "pnpm run build:production && firebase deploy",
+    "deploy:staging": "pnpm run build:staging && firebase use fitspark-staging && firebase deploy",
+    "deploy:production": "pnpm run build:production && firebase use fitspark-production && firebase deploy",
+    "deploy:hosting": "pnpm run build:production --filter=@fitspark/web && firebase deploy --only hosting",
+    "deploy:hosting:staging": "pnpm run build:staging --filter=@fitspark/web && firebase use fitspark-staging && firebase deploy --only hosting",
+    "deploy:hosting:production": "pnpm run build:production --filter=@fitspark/web && firebase use fitspark-production && firebase deploy --only hosting",
+    "seed": "cd packages/seeding && node scripts/seed-client.js"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.9",

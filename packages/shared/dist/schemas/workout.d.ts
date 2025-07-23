@@ -10,11 +10,11 @@ export declare const ExerciseSchema: z.ZodObject<{
     videoUrl: z.ZodOptional<z.ZodString>;
     imageUrl: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
+    equipment: string[];
     id: string;
     name: string;
     category: "strength" | "cardio" | "flexibility" | "sports";
     muscleGroups: string[];
-    equipment: string[];
     instructions: string[];
     description?: string | undefined;
     videoUrl?: string | undefined;
@@ -24,8 +24,8 @@ export declare const ExerciseSchema: z.ZodObject<{
     name: string;
     category: "strength" | "cardio" | "flexibility" | "sports";
     muscleGroups: string[];
-    description?: string | undefined;
     equipment?: string[] | undefined;
+    description?: string | undefined;
     instructions?: string[] | undefined;
     videoUrl?: string | undefined;
     imageUrl?: string | undefined;
@@ -42,15 +42,15 @@ export declare const WorkoutSetSchema: z.ZodObject<{
     exerciseId: string;
     sets: number;
     restTime: number;
-    reps?: number | undefined;
     weight?: number | undefined;
+    reps?: number | undefined;
     duration?: number | undefined;
     distance?: number | undefined;
 }, {
     exerciseId: string;
     sets: number;
-    reps?: number | undefined;
     weight?: number | undefined;
+    reps?: number | undefined;
     duration?: number | undefined;
     distance?: number | undefined;
     restTime?: number | undefined;
@@ -71,15 +71,15 @@ export declare const WorkoutSessionSchema: z.ZodObject<{
         exerciseId: string;
         sets: number;
         restTime: number;
-        reps?: number | undefined;
         weight?: number | undefined;
+        reps?: number | undefined;
         duration?: number | undefined;
         distance?: number | undefined;
     }, {
         exerciseId: string;
         sets: number;
-        reps?: number | undefined;
         weight?: number | undefined;
+        reps?: number | undefined;
         duration?: number | undefined;
         distance?: number | undefined;
         restTime?: number | undefined;
@@ -92,8 +92,8 @@ export declare const WorkoutSessionSchema: z.ZodObject<{
         exerciseId: string;
         sets: number;
         restTime: number;
-        reps?: number | undefined;
         weight?: number | undefined;
+        reps?: number | undefined;
         duration?: number | undefined;
         distance?: number | undefined;
     }[];
@@ -105,8 +105,8 @@ export declare const WorkoutSessionSchema: z.ZodObject<{
     exercises: {
         exerciseId: string;
         sets: number;
-        reps?: number | undefined;
         weight?: number | undefined;
+        reps?: number | undefined;
         duration?: number | undefined;
         distance?: number | undefined;
         restTime?: number | undefined;
@@ -139,15 +139,15 @@ export declare const WorkoutProgramSchema: z.ZodObject<{
             exerciseId: string;
             sets: number;
             restTime: number;
-            reps?: number | undefined;
             weight?: number | undefined;
+            reps?: number | undefined;
             duration?: number | undefined;
             distance?: number | undefined;
         }, {
             exerciseId: string;
             sets: number;
-            reps?: number | undefined;
             weight?: number | undefined;
+            reps?: number | undefined;
             duration?: number | undefined;
             distance?: number | undefined;
             restTime?: number | undefined;
@@ -160,8 +160,8 @@ export declare const WorkoutProgramSchema: z.ZodObject<{
             exerciseId: string;
             sets: number;
             restTime: number;
-            reps?: number | undefined;
             weight?: number | undefined;
+            reps?: number | undefined;
             duration?: number | undefined;
             distance?: number | undefined;
         }[];
@@ -173,8 +173,8 @@ export declare const WorkoutProgramSchema: z.ZodObject<{
         exercises: {
             exerciseId: string;
             sets: number;
-            reps?: number | undefined;
             weight?: number | undefined;
+            reps?: number | undefined;
             duration?: number | undefined;
             distance?: number | undefined;
             restTime?: number | undefined;
@@ -187,13 +187,13 @@ export declare const WorkoutProgramSchema: z.ZodObject<{
     createdAt: z.ZodDate;
     updatedAt: z.ZodDate;
 }, "strip", z.ZodTypeAny, {
+    goal: "weight_loss" | "muscle_gain" | "strength" | "endurance" | "general_fitness";
     createdAt: Date;
     updatedAt: Date;
     id: string;
     trainerId: string;
     title: string;
     difficulty: "beginner" | "intermediate" | "advanced";
-    goal: "strength" | "weight_loss" | "muscle_gain" | "endurance" | "general_fitness";
     durationWeeks: number;
     sessionsPerWeek: number;
     phases: {
@@ -203,8 +203,8 @@ export declare const WorkoutProgramSchema: z.ZodObject<{
             exerciseId: string;
             sets: number;
             restTime: number;
-            reps?: number | undefined;
             weight?: number | undefined;
+            reps?: number | undefined;
             duration?: number | undefined;
             distance?: number | undefined;
         }[];
@@ -215,13 +215,13 @@ export declare const WorkoutProgramSchema: z.ZodObject<{
     tags: string[];
     description?: string | undefined;
 }, {
+    goal: "weight_loss" | "muscle_gain" | "strength" | "endurance" | "general_fitness";
     createdAt: Date;
     updatedAt: Date;
     id: string;
     trainerId: string;
     title: string;
     difficulty: "beginner" | "intermediate" | "advanced";
-    goal: "strength" | "weight_loss" | "muscle_gain" | "endurance" | "general_fitness";
     durationWeeks: number;
     sessionsPerWeek: number;
     phases: {
@@ -230,8 +230,8 @@ export declare const WorkoutProgramSchema: z.ZodObject<{
         exercises: {
             exerciseId: string;
             sets: number;
-            reps?: number | undefined;
             weight?: number | undefined;
+            reps?: number | undefined;
             duration?: number | undefined;
             distance?: number | undefined;
             restTime?: number | undefined;
@@ -255,15 +255,15 @@ export declare const LoggedSetSchema: z.ZodObject<{
     exerciseId: string;
     setNumber: number;
     completed: boolean;
-    reps?: number | undefined;
     weight?: number | undefined;
+    reps?: number | undefined;
     duration?: number | undefined;
     distance?: number | undefined;
 }, {
     exerciseId: string;
     setNumber: number;
-    reps?: number | undefined;
     weight?: number | undefined;
+    reps?: number | undefined;
     duration?: number | undefined;
     distance?: number | undefined;
     completed?: boolean | undefined;
@@ -289,15 +289,15 @@ export declare const WorkoutLogSchema: z.ZodObject<{
         exerciseId: string;
         setNumber: number;
         completed: boolean;
-        reps?: number | undefined;
         weight?: number | undefined;
+        reps?: number | undefined;
         duration?: number | undefined;
         distance?: number | undefined;
     }, {
         exerciseId: string;
         setNumber: number;
-        reps?: number | undefined;
         weight?: number | undefined;
+        reps?: number | undefined;
         duration?: number | undefined;
         distance?: number | undefined;
         completed?: boolean | undefined;
@@ -312,8 +312,8 @@ export declare const WorkoutLogSchema: z.ZodObject<{
         exerciseId: string;
         setNumber: number;
         completed: boolean;
-        reps?: number | undefined;
         weight?: number | undefined;
+        reps?: number | undefined;
         duration?: number | undefined;
         distance?: number | undefined;
     }[];
@@ -331,8 +331,8 @@ export declare const WorkoutLogSchema: z.ZodObject<{
     sets: {
         exerciseId: string;
         setNumber: number;
-        reps?: number | undefined;
         weight?: number | undefined;
+        reps?: number | undefined;
         duration?: number | undefined;
         distance?: number | undefined;
         completed?: boolean | undefined;
@@ -368,15 +368,15 @@ export declare const CreateWorkoutProgramSchema: z.ZodObject<{
             exerciseId: string;
             sets: number;
             restTime: number;
-            reps?: number | undefined;
             weight?: number | undefined;
+            reps?: number | undefined;
             duration?: number | undefined;
             distance?: number | undefined;
         }, {
             exerciseId: string;
             sets: number;
-            reps?: number | undefined;
             weight?: number | undefined;
+            reps?: number | undefined;
             duration?: number | undefined;
             distance?: number | undefined;
             restTime?: number | undefined;
@@ -389,8 +389,8 @@ export declare const CreateWorkoutProgramSchema: z.ZodObject<{
             exerciseId: string;
             sets: number;
             restTime: number;
-            reps?: number | undefined;
             weight?: number | undefined;
+            reps?: number | undefined;
             duration?: number | undefined;
             distance?: number | undefined;
         }[];
@@ -402,8 +402,8 @@ export declare const CreateWorkoutProgramSchema: z.ZodObject<{
         exercises: {
             exerciseId: string;
             sets: number;
-            reps?: number | undefined;
             weight?: number | undefined;
+            reps?: number | undefined;
             duration?: number | undefined;
             distance?: number | undefined;
             restTime?: number | undefined;
@@ -414,9 +414,9 @@ export declare const CreateWorkoutProgramSchema: z.ZodObject<{
     visibility: z.ZodDefault<z.ZodEnum<["public", "private", "clients_only"]>>;
     tags: z.ZodDefault<z.ZodArray<z.ZodString, "many">>;
 }, "strip", z.ZodTypeAny, {
+    goal: "weight_loss" | "muscle_gain" | "strength" | "endurance" | "general_fitness";
     title: string;
     difficulty: "beginner" | "intermediate" | "advanced";
-    goal: "strength" | "weight_loss" | "muscle_gain" | "endurance" | "general_fitness";
     durationWeeks: number;
     sessionsPerWeek: number;
     phases: {
@@ -426,8 +426,8 @@ export declare const CreateWorkoutProgramSchema: z.ZodObject<{
             exerciseId: string;
             sets: number;
             restTime: number;
-            reps?: number | undefined;
             weight?: number | undefined;
+            reps?: number | undefined;
             duration?: number | undefined;
             distance?: number | undefined;
         }[];
@@ -438,9 +438,9 @@ export declare const CreateWorkoutProgramSchema: z.ZodObject<{
     tags: string[];
     description?: string | undefined;
 }, {
+    goal: "weight_loss" | "muscle_gain" | "strength" | "endurance" | "general_fitness";
     title: string;
     difficulty: "beginner" | "intermediate" | "advanced";
-    goal: "strength" | "weight_loss" | "muscle_gain" | "endurance" | "general_fitness";
     durationWeeks: number;
     sessionsPerWeek: number;
     phases: {
@@ -449,8 +449,8 @@ export declare const CreateWorkoutProgramSchema: z.ZodObject<{
         exercises: {
             exerciseId: string;
             sets: number;
-            reps?: number | undefined;
             weight?: number | undefined;
+            reps?: number | undefined;
             duration?: number | undefined;
             distance?: number | undefined;
             restTime?: number | undefined;
@@ -478,15 +478,15 @@ export declare const CreateWorkoutLogSchema: z.ZodObject<{
         exerciseId: string;
         setNumber: number;
         completed: boolean;
-        reps?: number | undefined;
         weight?: number | undefined;
+        reps?: number | undefined;
         duration?: number | undefined;
         distance?: number | undefined;
     }, {
         exerciseId: string;
         setNumber: number;
-        reps?: number | undefined;
         weight?: number | undefined;
+        reps?: number | undefined;
         duration?: number | undefined;
         distance?: number | undefined;
         completed?: boolean | undefined;
@@ -498,8 +498,8 @@ export declare const CreateWorkoutLogSchema: z.ZodObject<{
         exerciseId: string;
         setNumber: number;
         completed: boolean;
-        reps?: number | undefined;
         weight?: number | undefined;
+        reps?: number | undefined;
         duration?: number | undefined;
         distance?: number | undefined;
     }[];
@@ -511,8 +511,8 @@ export declare const CreateWorkoutLogSchema: z.ZodObject<{
     sets: {
         exerciseId: string;
         setNumber: number;
-        reps?: number | undefined;
         weight?: number | undefined;
+        reps?: number | undefined;
         duration?: number | undefined;
         distance?: number | undefined;
         completed?: boolean | undefined;

@@ -36,8 +36,8 @@ service cloud.firestore {
     // Exercise library - read-only for authenticated users
     match /exercises/{exerciseId} {
       allow read: if request.auth != null;
-      // Only admins can write exercises (implement admin check later)
-      allow write: if false; // TODO: Add admin role check
+      // Only admins can write exercises (seeding complete)
+      allow write: if false; // TODO: Add admin role check later
     }
   }
 } 

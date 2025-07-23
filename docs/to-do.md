@@ -95,61 +95,94 @@ Week 4 (Aug 11 - Aug 17): Testing & Refinement
 
 [ ] Polish all UI, add missing loading states, and handle edge cases.
 
-### 🧠 **Milestone 3: Fitness Plan Generation (MVP Part 2)**
+### 🧠 **Milestone 3: Pre-defined Plan Selection (MVP Part 2)**
 
-**Goal:** AI-powered fitness plan generation — core value proposition.  
+**Goal:** Implement fitness plan selection and workout execution based on user stories.  
 **ETA:** September 5, 2025 (3 Weeks)
 
-#### To-Do List
+#### Epic 2: Fitness Plan Management
 
-**Backend (AI Logic):**
+**Week 1 (Aug 4 - Aug 10): Firestore Setup & Data Seeding**
 
-- [ ] AI plan generation logic in tRPC procedure or Cloud Function
-- [ ] `plan.generate` endpoint that returns a `FitnessPlan`
-- [ ] Exercise library in Firestore + seeding script
+- [ ] Enable Firestore database in Firebase Console
+- [ ] Install seeding package dependencies
+- [ ] Run seed scripts to populate exercises and workout plans
+- [ ] Verify data in Firestore Console
 
-**Frontend (UI/UX):**
+**Week 2 (Aug 11 - Aug 17): Plan Selection UI**
 
-- [ ] UI to display weekly workout plan
-- [ ] Workout detail screen: exercises, sets, reps, rest
-- [ ] "Generate New Plan" feature
+- [ ] Create PlanSelectionPage.tsx with plan cards
+- [ ] Build ViewPlanPage.tsx to show workout details
+- [ ] Update user profile to store selectedPlanId
+- [ ] Add plan selection to onboarding flow
+
+**Week 3 (Aug 18 - Aug 24): Dashboard Integration**
+
+- [ ] Update Dashboard to show "Today's Workout" from selected plan
+- [ ] Add "Start Workout" CTA button
+- [ ] Implement plan switching functionality
 
 ---
 
-### 🏋️‍♂️ **Milestone 4: Workout Tracking & Logging (MVP Part 3)**
+### 🏋️‍♂️ **Milestone 4: Workout Execution & Logging (MVP Part 3)**
 
-**Goal:** Users can follow and log workouts. Core engagement loop.  
+**Goal:** Interactive workout sessions with real-time logging. Core engagement loop.  
 **ETA:** September 26, 2025 (3 Weeks)
 
-#### To-Do List
+#### Epic 3: Workout Execution & Logging
 
-**Workout Session UI:**
+**Week 1 (Aug 25 - Aug 31): Live Workout Interface**
 
-- [ ] Interactive "Live Workout" screen
-- [ ] Logging UI: weight + reps per set
-- [ ] Automatic rest timer
-- [ ] Skip or replace exercise
+- [ ] Create WorkoutPage.tsx for live workout sessions
+- [ ] Build ExerciseCard component with set logging
+- [ ] Implement automatic rest timer with countdown
+- [ ] Add skip/replace exercise functionality
+- [ ] Install Framer Motion for smooth transitions
 
-**Data & Logic:**
+**Week 2 (Sep 1 - Sep 7): Workout Logging & Data**
 
-- [ ] `activity.logWorkout` tRPC endpoint
-- [ ] Firestore `onSnapshot` to sync session state (stretch goal)
-- [ ] Post-session "Workout Summary" screen
+- [ ] Implement workout logging with Firestore hooks
+- [ ] Create WorkoutSummaryPage.tsx for post-session review
+- [ ] Add workout progress tracking (sets completed, total volume)
+- [ ] Save activity logs to Firestore activityLogs collection
+
+**Week 3 (Sep 8 - Sep 14): UX Polish & Animations**
+
+- [ ] Add Framer Motion animations for exercise transitions
+- [ ] Implement workout pause/resume functionality
+- [ ] Add workout completion celebrations
+- [ ] Polish loading states and error handling
 
 ---
 
 ### 📈 **Milestone 5: Progress Analytics & V1 Polish**
 
-**Goal:** Visual feedback + polish for internal alpha.  
+**Goal:** Visual progress tracking with charts and history. Internal alpha readiness.  
 **ETA:** October 17, 2025 (3 Weeks)
 
-#### To-Do List
+#### Epic 4: Progress Monitoring
 
-**Progress Tracking:**
+**Week 1 (Sep 15 - Sep 21): Progress Data & Charts**
 
-- [ ] "Progress" tab for weight/measurement logs
-- [ ] Charts (Recharts) to show trends
-- [ ] Workout history list view
+- [ ] Install Recharts for data visualization
+- [ ] Create ProgressPage.tsx with weight tracking
+- [ ] Build WeightChart component using Recharts LineChart
+- [ ] Implement weight logging functionality
+- [ ] Add measurement tracking (optional: chest, waist, arms)
+
+**Week 2 (Sep 22 - Sep 28): Workout Analytics**
+
+- [ ] Create WorkoutVolumeChart using Recharts BarChart
+- [ ] Build WorkoutHistoryList component
+- [ ] Add weekly consistency tracker visualization
+- [ ] Implement workout streak calculations
+
+**Week 3 (Sep 29 - Oct 5): Dashboard vs Progress Page**
+
+- [ ] Update Dashboard with action-oriented cards ("Today's Workout")
+- [ ] Enhance ProgressPage with analysis-oriented charts
+- [ ] Add weekly workout consistency tracker to Dashboard
+- [ ] Polish chart animations and responsive design
 
 **Admin & Polish:**
 

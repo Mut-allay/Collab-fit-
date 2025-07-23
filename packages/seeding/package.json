@@ -1,0 +1,22 @@
+{
+  "name": "@fitspark/seeding",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "seed": "node scripts/seed-firestore.js",
+    "seed:exercises": "node scripts/seed-exercises.js",
+    "seed:plans": "node scripts/seed-plans.js",
+    "build": "echo 'No build needed for seeding'",
+    "typecheck": "echo 'No typecheck for seeding'",
+    "lint": "echo 'No lint for seeding'",
+    "setup": "echo 'Seeding package setup complete'"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.0.1",
+    "firebase": "^11.1.0",
+    "@fitspark/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2"
+  }
+}
