@@ -1,8 +1,66 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TrainerProfileUpdateSchema = exports.UserProfileUpdateSchema = exports.TrainerProfileSchema = exports.UserSchema = exports.UserRoleSchema = void 0;
+exports.TrainerProfileUpdateSchema = exports.UserProfileUpdateSchema = exports.TrainerProfileSchema = exports.UserSchema = exports.OnboardingSchema = exports.UserRoleSchema = void 0;
 const zod_1 = require("zod");
 exports.UserRoleSchema = zod_1.z.enum(["user", "trainer", "admin"]);
+// Onboarding form schema
+exports.OnboardingSchema = zod_1.z.object({
+    // Step 1: Basic Info
+    displayName: zod_1.z.string().min(2, "Name must be at least 2 characters"),
+    age: zod_1.z
+        .number()
+        .int()
+        .min(13, "Must be at least 13 years old")
+        .max(120, "Invalid age"),
+    gender: zod_1.z.enum(["male", "female", "other", "prefer_not_to_say"]),
+    // Step 2: Physical Info
+    height: zod_1.z
+        .number()
+        .positive("Height must be positive")
+        .min(100, "Height must be at least 100cm")
+        .max(250, "Height must be less than 250cm"),
+    weight: zod_1.z
+        .number()
+        .positive("Weight must be positive")
+        .min(30, "Weight must be at least 30kg")
+        .max(300, "Weight must be less than 300kg"),
+    targetWeight: zod_1.z
+        .number()
+        .positive("Target weight must be positive")
+        .min(30, "Target weight must be at least 30kg")
+        .max(300, "Target weight must be less than 300kg"),
+    // Step 3: Fitness Goals
+    goal: zod_1.z.enum([
+        "weight_loss",
+        "muscle_gain",
+        "strength",
+        "endurance",
+        "general_fitness",
+    ]),
+    fitnessExperience: zod_1.z.enum(["beginner", "intermediate", "advanced"]),
+    // Step 4: Activity & Schedule
+    activityLevel: zod_1.z.enum([
+        "sedentary",
+        "lightly_active",
+        "moderately_active",
+        "very_active",
+        "extremely_active",
+    ]),
+    workoutDaysPerWeek: zod_1.z
+        .number()
+        .int()
+        .min(1, "At least 1 day per week")
+        .max(7, "Maximum 7 days per week"),
+    workoutDuration: zod_1.z
+        .number()
+        .int()
+        .positive("Duration must be positive")
+        .min(15, "Minimum 15 minutes")
+        .max(180, "Maximum 180 minutes"),
+    // Step 5: Equipment & Health
+    equipment: zod_1.z.array(zod_1.z.string()).min(1, "Select at least one equipment option"),
+    injuries: zod_1.z.array(zod_1.z.string()).optional(),
+});
 exports.UserSchema = zod_1.z.object({
     uid: zod_1.z.string(),
     email: zod_1.z.string().email(),

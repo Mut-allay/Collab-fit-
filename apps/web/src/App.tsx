@@ -12,6 +12,7 @@ import Footer from "@/components/layout/Footer";
 import LandingPage from "@/pages/LandingPage";
 import LoginPage from "@/pages/LoginPage";
 import SignupPage from "@/pages/SignupPage";
+import OnboardingPage from "@/pages/OnboardingPage";
 import DashboardPage from "@/pages/DashboardPage";
 import { DataVerificationPage } from "@/pages/DataVerificationPage";
 import PlanSelectionPage from "@/pages/PlanSelectionPage";
@@ -68,6 +69,15 @@ function App() {
             />
 
             {/* Protected App Routes with app layout */}
+            <Route
+              path="/onboarding"
+              element={
+                <ProtectedRoute>
+                  <OnboardingPage />
+                </ProtectedRoute>
+              }
+            />
+
             <Route
               path="/dashboard"
               element={
