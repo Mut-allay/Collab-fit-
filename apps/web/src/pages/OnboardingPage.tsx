@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion, AnimatePresence } from "framer-motion";
-import { z } from "zod";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -16,7 +15,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -30,112 +28,92 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 import {
+  OnboardingStepOneSchema,
+  OnboardingStepTwoSchema,
+  OnboardingStepThreeSchema,
+  OnboardingStepFourSchema,
+  OnboardingDataSchema,
+  type OnboardingStepOne,
+  type OnboardingStepTwo,
+  type OnboardingStepThree,
+  type OnboardingStepFour,
+  type OnboardingData,
+} from "@fitspark/shared";
+import {
+  Target,
+  User,
+  Activity,
+  Settings,
   ChevronLeft,
   ChevronRight,
-  Target,
-  Activity,
-  User,
-  Ruler,
-  Dumbbell,
   CheckCircle,
+  Dumbbell,
 } from "lucide-react";
 
-// Onboarding form schema
-const OnboardingSchema = z.object({
-  // Step 1: Basic Info
-  displayName: z.string().min(2, "Name must be at least 2 characters"),
-  age: z
-    .number()
-    .int()
-    .min(13, "Must be at least 13 years old")
-    .max(120, "Invalid age"),
-  gender: z.enum(["male", "female", "other", "prefer_not_to_say"]),
-
-  // Step 2: Physical Info
-  height: z
-    .number()
-    .positive("Height must be positive")
-    .min(100, "Height must be at least 100cm")
-    .max(250, "Height must be less than 250cm"),
-  weight: z
-    .number()
-    .positive("Weight must be positive")
-    .min(30, "Weight must be at least 30kg")
-    .max(300, "Weight must be less than 300kg"),
-  targetWeight: z
-    .number()
-    .positive("Target weight must be positive")
-    .min(30, "Target weight must be at least 30kg")
-    .max(300, "Target weight must be less than 300kg"),
-
-  // Step 3: Fitness Goals
-  goal: z.enum([
-    "weight_loss",
-    "muscle_gain",
-    "strength",
-    "endurance",
-    "general_fitness",
-  ]),
-  fitnessExperience: z.enum(["beginner", "intermediate", "advanced"]),
-
-  // Step 4: Activity & Schedule
-  activityLevel: z.enum([
-    "sedentary",
-    "lightly_active",
-    "moderately_active",
-    "very_active",
-    "extremely_active",
-  ]),
-  workoutDaysPerWeek: z
-    .number()
-    .int()
-    .min(1, "At least 1 day per week")
-    .max(7, "Maximum 7 days per week"),
-  workoutDuration: z
-    .number()
-    .int()
-    .positive("Duration must be positive")
-    .min(15, "Minimum 15 minutes")
-    .max(180, "Maximum 180 minutes"),
-
-  // Step 5: Equipment & Health
-  equipment: z.array(z.string()).min(1, "Select at least one equipment option"),
-  injuries: z.array(z.string()).optional(),
-});
-
-type OnboardingData = z.infer<typeof OnboardingSchema>;
+const STEPS = [
+  {
+    id: 1,
+    title: "Fitness Goals",
+    description: "Let's understand what you want to achieve",
+    icon: Target,
+    schema: OnboardingStepOneSchema,
+  },
+  {
+    id: 2,
+    title: "Personal Info",
+    description: "Help us personalize your experience",
+    icon: User,
+    schema: OnboardingStepTwoSchema,
+  },
+  {
+    id: 3,
+    title: "Activity Level",
+    description: "Tell us about your current activity",
+    icon: Activity,
+    schema: OnboardingStepThreeSchema,
+  },
+  {
+    id: 4,
+    title: "Equipment & Preferences",
+    description: "Final details to perfect your plan",
+    icon: Settings,
+    schema: OnboardingStepFourSchema,
+  },
+];
 
 const GOALS = [
   {
     value: "weight_loss",
     label: "Weight Loss",
-    icon: "🔥",
-    description: "Burn fat and get lean",
+    emoji: "🔥",
+    description: "Burn fat and lose weight",
   },
   {
     value: "muscle_gain",
     label: "Muscle Gain",
-    icon: "💪",
-    description: "Build strength and muscle mass",
+    emoji: "💪",
+    description: "Build lean muscle mass",
   },
   {
     value: "strength",
     label: "Strength",
-    icon: "🏋️",
+    emoji: "🏋️",
     description: "Increase overall strength",
   },
   {
     value: "endurance",
     label: "Endurance",
-    icon: "🏃",
+    emoji: "🏃",
     description: "Improve cardiovascular fitness",
   },
   {
     value: "general_fitness",
     label: "General Fitness",
-    icon: "🎯",
-    description: "Overall health and wellness",
+    emoji: "⚡",
+    description: "Stay healthy and active",
   },
 ];
 
@@ -143,7 +121,7 @@ const EXPERIENCE_LEVELS = [
   {
     value: "beginner",
     label: "Beginner",
-    description: "New to fitness or returning after a long break",
+    description: "New to fitness or returning after a break",
   },
   {
     value: "intermediate",
@@ -153,7 +131,7 @@ const EXPERIENCE_LEVELS = [
   {
     value: "advanced",
     label: "Advanced",
-    description: "Experienced with various training methods",
+    description: "Experienced with consistent training",
   },
 ];
 
@@ -186,621 +164,602 @@ const ACTIVITY_LEVELS = [
 ];
 
 const EQUIPMENT_OPTIONS = [
-  "Bodyweight Only",
+  "No Equipment",
   "Dumbbells",
   "Resistance Bands",
   "Pull-up Bar",
-  "Bench",
-  "Barbell",
+  "Yoga Mat",
   "Kettlebell",
-  "Cardio Equipment",
+  "Barbell",
   "Full Gym Access",
-];
-
-const INJURY_OPTIONS = [
-  "None",
-  "Back Pain",
-  "Knee Issues",
-  "Shoulder Problems",
-  "Ankle/Foot Issues",
-  "Wrist/Elbow Issues",
-  "Other",
+  "Treadmill",
+  "Stationary Bike",
 ];
 
 export default function OnboardingPage() {
   const [currentStep, setCurrentStep] = useState(1);
-  const [selectedEquipment, setSelectedEquipment] = useState<string[]>([]);
-  const [selectedInjuries, setSelectedInjuries] = useState<string[]>([]);
+  const [onboardingData, setOnboardingData] = useState<Partial<OnboardingData>>(
+    {}
+  );
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { currentUser } = useAuth();
   const navigate = useNavigate();
-  const { userProfile } = useAuth();
+  const { toast } = useToast();
 
-  const form = useForm<OnboardingData>({
-    resolver: zodResolver(OnboardingSchema),
-    defaultValues: {
-      displayName: userProfile?.displayName || "",
-      age: userProfile?.age || undefined,
-      gender: userProfile?.gender || "prefer_not_to_say",
-      height: userProfile?.height || undefined,
-      weight: userProfile?.weight || undefined,
-      targetWeight: userProfile?.targetWeight || undefined,
-      goal: userProfile?.goal || "general_fitness",
-      fitnessExperience: userProfile?.fitnessExperience || "beginner",
-      activityLevel: userProfile?.activityLevel || "moderately_active",
-      workoutDaysPerWeek: userProfile?.workoutDaysPerWeek || 3,
-      workoutDuration: userProfile?.workoutDuration || 45,
-      equipment: userProfile?.equipment || [],
-      injuries: userProfile?.injuries || [],
-    },
+  const currentStepData = STEPS.find((step) => step.id === currentStep)!;
+
+  const form = useForm({
+    resolver: zodResolver(currentStepData.schema),
+    defaultValues: onboardingData,
+    mode: "onChange",
   });
 
-  const totalSteps = 5;
-  const progress = (currentStep / totalSteps) * 100;
+  const handleNext = async (data: any) => {
+    // Merge current step data
+    const updatedData = { ...onboardingData, ...data };
+    setOnboardingData(updatedData);
 
-  const handleNext = async () => {
-    const isValid = await form.trigger();
-    if (isValid && currentStep < totalSteps) {
+    if (currentStep < STEPS.length) {
       setCurrentStep(currentStep + 1);
+      // Reset form for next step
+      form.reset();
+    } else {
+      // Final step - submit all data
+      await handleSubmit(updatedData);
     }
   };
 
   const handlePrevious = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
+      form.reset();
     }
   };
 
-  const handleEquipmentToggle = (equipment: string) => {
-    setSelectedEquipment((prev) =>
-      prev.includes(equipment)
-        ? prev.filter((e) => e !== equipment)
-        : [...prev, equipment]
-    );
-    form.setValue("equipment", selectedEquipment);
-  };
+  const handleSubmit = async (finalData: OnboardingData) => {
+    if (!currentUser) return;
 
-  const handleInjuryToggle = (injury: string) => {
-    setSelectedInjuries((prev) =>
-      prev.includes(injury)
-        ? prev.filter((i) => i !== injury)
-        : [...prev, injury]
-    );
-    form.setValue("injuries", selectedInjuries);
-  };
-
-  const onSubmit = async (data: OnboardingData) => {
+    setIsSubmitting(true);
     try {
-      // TODO: Implement tRPC procedure to save onboarding data
-      console.log("Onboarding data:", data);
+      // Validate complete data
+      const validatedData = OnboardingDataSchema.parse(finalData);
 
-      // For now, just navigate to dashboard
-      navigate("/dashboard");
+      // TODO: Replace with tRPC call when implemented
+      // await trpc.user.onboardNewUser.mutate(validatedData);
+
+      console.log("Onboarding data:", validatedData);
+
+      toast({
+        title: "Welcome to FitSpark! 🎉",
+        description: "Your profile has been created successfully.",
+      });
+
+      navigate("/plans");
     } catch (error) {
-      console.error("Error saving onboarding data:", error);
+      console.error("Onboarding error:", error);
+      toast({
+        title: "Something went wrong",
+        description: "Please try again or contact support.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const renderStep = () => {
+  const renderStepContent = () => {
     switch (currentStep) {
       case 1:
-        return (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="space-y-6"
-          >
-            <div className="text-center mb-6">
-              <User className="h-12 w-12 mx-auto mb-4 text-spark-600" />
-              <h2 className="text-2xl font-bold mb-2">
-                Tell Us About Yourself
-              </h2>
-              <p className="text-muted-foreground">
-                Let's start with some basic information
-              </p>
-            </div>
-
-            <FormField
-              control={form.control}
-              name="displayName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Full Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter your full name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="age"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Age</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="Enter your age"
-                      {...field}
-                      onChange={(e) =>
-                        field.onChange(parseInt(e.target.value) || undefined)
-                      }
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="gender"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Gender</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select your gender" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="male">Male</SelectItem>
-                      <SelectItem value="female">Female</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                      <SelectItem value="prefer_not_to_say">
-                        Prefer not to say
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </motion.div>
-        );
-
+        return <StepOne form={form} />;
       case 2:
-        return (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="space-y-6"
-          >
-            <div className="text-center mb-6">
-              <Ruler className="h-12 w-12 mx-auto mb-4 text-spark-600" />
-              <h2 className="text-2xl font-bold mb-2">Physical Information</h2>
-              <p className="text-muted-foreground">
-                Help us understand your current physical state
-              </p>
-            </div>
-
-            <FormField
-              control={form.control}
-              name="height"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Height (cm)</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="Enter your height in cm"
-                      {...field}
-                      onChange={(e) =>
-                        field.onChange(parseInt(e.target.value) || undefined)
-                      }
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Enter your height in centimeters
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="weight"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Current Weight (kg)</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="Enter your current weight in kg"
-                      {...field}
-                      onChange={(e) =>
-                        field.onChange(parseInt(e.target.value) || undefined)
-                      }
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Enter your current weight in kilograms
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="targetWeight"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Target Weight (kg)</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="Enter your target weight in kg"
-                      {...field}
-                      onChange={(e) =>
-                        field.onChange(parseInt(e.target.value) || undefined)
-                      }
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Enter your target weight in kilograms
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </motion.div>
-        );
-
+        return <StepTwo form={form} />;
       case 3:
-        return (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="space-y-6"
-          >
-            <div className="text-center mb-6">
-              <Target className="h-12 w-12 mx-auto mb-4 text-spark-600" />
-              <h2 className="text-2xl font-bold mb-2">Fitness Goals</h2>
-              <p className="text-muted-foreground">
-                What do you want to achieve?
-              </p>
-            </div>
-
-            <FormField
-              control={form.control}
-              name="goal"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Primary Goal</FormLabel>
-                  <div className="grid gap-3">
-                    {GOALS.map((goal) => (
-                      <div
-                        key={goal.value}
-                        className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-                          field.value === goal.value
-                            ? "border-spark-500 bg-spark-50"
-                            : "border-gray-200 hover:border-gray-300"
-                        }`}
-                        onClick={() => field.onChange(goal.value)}
-                      >
-                        <div className="flex items-center gap-3">
-                          <span className="text-2xl">{goal.icon}</span>
-                          <div className="flex-1">
-                            <h3 className="font-semibold">{goal.label}</h3>
-                            <p className="text-sm text-muted-foreground">
-                              {goal.description}
-                            </p>
-                          </div>
-                          {field.value === goal.value && (
-                            <CheckCircle className="h-5 w-5 text-spark-600" />
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="fitnessExperience"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Fitness Experience</FormLabel>
-                  <div className="grid gap-3">
-                    {EXPERIENCE_LEVELS.map((level) => (
-                      <div
-                        key={level.value}
-                        className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-                          field.value === level.value
-                            ? "border-spark-500 bg-spark-50"
-                            : "border-gray-200 hover:border-gray-300"
-                        }`}
-                        onClick={() => field.onChange(level.value)}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h3 className="font-semibold">{level.label}</h3>
-                            <p className="text-sm text-muted-foreground">
-                              {level.description}
-                            </p>
-                          </div>
-                          {field.value === level.value && (
-                            <CheckCircle className="h-5 w-5 text-spark-600" />
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </motion.div>
-        );
-
+        return <StepThree form={form} />;
       case 4:
-        return (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="space-y-6"
-          >
-            <div className="text-center mb-6">
-              <Activity className="h-12 w-12 mx-auto mb-4 text-spark-600" />
-              <h2 className="text-2xl font-bold mb-2">Activity & Schedule</h2>
-              <p className="text-muted-foreground">
-                How active are you and how much time can you commit?
-              </p>
-            </div>
-
-            <FormField
-              control={form.control}
-              name="activityLevel"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Current Activity Level</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select your activity level" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {ACTIVITY_LEVELS.map((level) => (
-                        <SelectItem key={level.value} value={level.value}>
-                          <div>
-                            <div className="font-medium">{level.label}</div>
-                            <div className="text-sm text-muted-foreground">
-                              {level.description}
-                            </div>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="workoutDaysPerWeek"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Workout Days per Week</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        min="1"
-                        max="7"
-                        placeholder="3"
-                        {...field}
-                        onChange={(e) =>
-                          field.onChange(parseInt(e.target.value) || undefined)
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="workoutDuration"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Workout Duration (minutes)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        min="15"
-                        max="180"
-                        placeholder="45"
-                        {...field}
-                        onChange={(e) =>
-                          field.onChange(parseInt(e.target.value) || undefined)
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </motion.div>
-        );
-
-      case 5:
-        return (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="space-y-6"
-          >
-            <div className="text-center mb-6">
-              <Dumbbell className="h-12 w-12 mx-auto mb-4 text-spark-600" />
-              <h2 className="text-2xl font-bold mb-2">Equipment & Health</h2>
-              <p className="text-muted-foreground">
-                What equipment do you have access to?
-              </p>
-            </div>
-
-            <FormField
-              control={form.control}
-              name="equipment"
-              render={() => (
-                <FormItem>
-                  <FormLabel>Available Equipment</FormLabel>
-                  <div className="grid grid-cols-2 gap-2">
-                    {EQUIPMENT_OPTIONS.map((equipment) => (
-                      <div
-                        key={equipment}
-                        className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                          selectedEquipment.includes(equipment)
-                            ? "border-spark-500 bg-spark-50"
-                            : "border-gray-200 hover:border-gray-300"
-                        }`}
-                        onClick={() => handleEquipmentToggle(equipment)}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium">
-                            {equipment}
-                          </span>
-                          {selectedEquipment.includes(equipment) && (
-                            <CheckCircle className="h-4 w-4 text-spark-600" />
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="injuries"
-              render={() => (
-                <FormItem>
-                  <FormLabel>Health Considerations (Optional)</FormLabel>
-                  <div className="grid grid-cols-2 gap-2">
-                    {INJURY_OPTIONS.map((injury) => (
-                      <div
-                        key={injury}
-                        className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                          selectedInjuries.includes(injury)
-                            ? "border-spark-500 bg-spark-50"
-                            : "border-gray-200 hover:border-gray-300"
-                        }`}
-                        onClick={() => handleInjuryToggle(injury)}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium">{injury}</span>
-                          {selectedInjuries.includes(injury) && (
-                            <CheckCircle className="h-4 w-4 text-spark-600" />
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <FormDescription>
-                    Select any health considerations that might affect your
-                    workouts
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </motion.div>
-        );
-
+        return <StepFour form={form} />;
       default:
         return null;
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-2xl">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">
-            Welcome to FitSpark!
-          </CardTitle>
-          <CardDescription>
-            Let's personalize your fitness journey
-          </CardDescription>
-
-          {/* Progress Bar */}
-          <div className="w-full bg-gray-200 rounded-full h-2 mt-6">
-            <div
-              className="bg-spark-500 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${progress}%` }}
-            />
+    <div className="min-h-screen bg-gradient-to-br from-spark-50 via-fitness-50 to-background py-8 px-4">
+      <div className="max-w-2xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <Dumbbell className="h-8 w-8 text-spark-500" />
+            <span className="text-2xl font-bold text-spark-500">FitSpark</span>
           </div>
+          <h1 className="text-3xl font-bold mb-2">
+            Welcome to Your Fitness Journey!
+          </h1>
+          <p className="text-muted-foreground">
+            Let's create a personalized workout plan just for you
+          </p>
+        </div>
 
-          <div className="flex justify-between text-sm text-muted-foreground mt-2">
-            <span>
-              Step {currentStep} of {totalSteps}
-            </span>
-            <span>{Math.round(progress)}% Complete</span>
-          </div>
-        </CardHeader>
+        {/* Progress Steps */}
+        <div className="flex items-center justify-between mb-8">
+          {STEPS.map((step, index) => {
+            const isCompleted = step.id < currentStep;
+            const isCurrent = step.id === currentStep;
+            const StepIcon = step.icon;
 
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <AnimatePresence mode="wait">{renderStep()}</AnimatePresence>
-
-              {/* Navigation Buttons */}
-              <div className="flex justify-between pt-6">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handlePrevious}
-                  disabled={currentStep === 1}
-                  className="flex items-center gap-2"
+            return (
+              <div key={step.id} className="flex items-center">
+                <div
+                  className={`flex items-center justify-center w-10 h-10 rounded-full transition-colors ${
+                    isCompleted
+                      ? "bg-green-500 text-white"
+                      : isCurrent
+                        ? "bg-spark-500 text-white"
+                        : "bg-gray-200 text-gray-600"
+                  }`}
                 >
-                  <ChevronLeft className="h-4 w-4" />
-                  Previous
-                </Button>
-
-                {currentStep < totalSteps ? (
-                  <Button
-                    type="button"
-                    onClick={handleNext}
-                    className="flex items-center gap-2"
-                  >
-                    Next
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                ) : (
-                  <Button type="submit" className="flex items-center gap-2">
-                    Complete Setup
-                    <CheckCircle className="h-4 w-4" />
-                  </Button>
+                  {isCompleted ? (
+                    <CheckCircle className="h-5 w-5" />
+                  ) : (
+                    <StepIcon className="h-5 w-5" />
+                  )}
+                </div>
+                {index < STEPS.length - 1 && (
+                  <div
+                    className={`w-full h-1 mx-2 transition-colors ${
+                      isCompleted ? "bg-green-500" : "bg-gray-200"
+                    }`}
+                  />
                 )}
               </div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
+            );
+          })}
+        </div>
+
+        {/* Step Content */}
+        <Card className="border-0 shadow-xl">
+          <CardHeader className="text-center">
+            <CardTitle className="text-xl">
+              Step {currentStep}: {currentStepData.title}
+            </CardTitle>
+            <CardDescription>{currentStepData.description}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(handleNext)}
+                className="space-y-6"
+              >
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentStep}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {renderStepContent()}
+                  </motion.div>
+                </AnimatePresence>
+
+                {/* Navigation Buttons */}
+                <div className="flex justify-between pt-6">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handlePrevious}
+                    disabled={currentStep === 1}
+                    className="flex items-center gap-2"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                    Previous
+                  </Button>
+
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="flex items-center gap-2"
+                    variant={currentStep === STEPS.length ? "spark" : "default"}
+                  >
+                    {currentStep === STEPS.length ? (
+                      isSubmitting ? (
+                        "Creating Profile..."
+                      ) : (
+                        "Complete Setup"
+                      )
+                    ) : (
+                      <>
+                        Next
+                        <ChevronRight className="h-4 w-4" />
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+// Step Components
+function StepOne({ form }: { form: any }) {
+  return (
+    <div className="space-y-6">
+      <FormField
+        control={form.control}
+        name="goal"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="text-base font-semibold">
+              What's your primary fitness goal?
+            </FormLabel>
+            <FormControl>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {GOALS.map((goal) => (
+                  <Card
+                    key={goal.value}
+                    className={`cursor-pointer transition-all hover:shadow-md ${
+                      field.value === goal.value
+                        ? "ring-2 ring-spark-500 bg-spark-50"
+                        : "hover:bg-gray-50"
+                    }`}
+                    onClick={() => field.onChange(goal.value)}
+                  >
+                    <CardContent className="p-4 text-center">
+                      <div className="text-2xl mb-2">{goal.emoji}</div>
+                      <div className="font-medium">{goal.label}</div>
+                      <div className="text-sm text-muted-foreground mt-1">
+                        {goal.description}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="fitnessExperience"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="text-base font-semibold">
+              What's your fitness experience?
+            </FormLabel>
+            <FormControl>
+              <div className="space-y-3">
+                {EXPERIENCE_LEVELS.map((level) => (
+                  <Card
+                    key={level.value}
+                    className={`cursor-pointer transition-all hover:shadow-md ${
+                      field.value === level.value
+                        ? "ring-2 ring-spark-500 bg-spark-50"
+                        : "hover:bg-gray-50"
+                    }`}
+                    onClick={() => field.onChange(level.value)}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="font-medium">{level.label}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {level.description}
+                          </div>
+                        </div>
+                        {field.value === level.value && (
+                          <CheckCircle className="h-5 w-5 text-spark-500" />
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    </div>
+  );
+}
+
+function StepTwo({ form }: { form: any }) {
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <FormField
+          control={form.control}
+          name="age"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Age</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  placeholder="25"
+                  {...field}
+                  onChange={(e) => field.onChange(Number(e.target.value))}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="gender"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Gender</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select gender" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="male">Male</SelectItem>
+                  <SelectItem value="female">Female</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                  <SelectItem value="prefer_not_to_say">
+                    Prefer not to say
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <FormField
+          control={form.control}
+          name="height"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Height (cm)</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  placeholder="175"
+                  {...field}
+                  onChange={(e) => field.onChange(Number(e.target.value))}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="weight"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Current Weight (kg)</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  placeholder="70"
+                  {...field}
+                  onChange={(e) => field.onChange(Number(e.target.value))}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+    </div>
+  );
+}
+
+function StepThree({ form }: { form: any }) {
+  return (
+    <div className="space-y-6">
+      <FormField
+        control={form.control}
+        name="activityLevel"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="text-base font-semibold">
+              What's your current activity level?
+            </FormLabel>
+            <FormControl>
+              <div className="space-y-3">
+                {ACTIVITY_LEVELS.map((level) => (
+                  <Card
+                    key={level.value}
+                    className={`cursor-pointer transition-all hover:shadow-md ${
+                      field.value === level.value
+                        ? "ring-2 ring-spark-500 bg-spark-50"
+                        : "hover:bg-gray-50"
+                    }`}
+                    onClick={() => field.onChange(level.value)}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="font-medium">{level.label}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {level.description}
+                          </div>
+                        </div>
+                        {field.value === level.value && (
+                          <CheckCircle className="h-5 w-5 text-spark-500" />
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <FormField
+          control={form.control}
+          name="workoutDaysPerWeek"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Workout Days Per Week</FormLabel>
+              <Select
+                onValueChange={(value) => field.onChange(Number(value))}
+                defaultValue={field.value?.toString()}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select days" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {[1, 2, 3, 4, 5, 6, 7].map((days) => (
+                    <SelectItem key={days} value={days.toString()}>
+                      {days} {days === 1 ? "day" : "days"}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="workoutDuration"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Preferred Workout Duration (minutes)</FormLabel>
+              <Select
+                onValueChange={(value) => field.onChange(Number(value))}
+                defaultValue={field.value?.toString()}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select duration" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="15">15 minutes</SelectItem>
+                  <SelectItem value="30">30 minutes</SelectItem>
+                  <SelectItem value="45">45 minutes</SelectItem>
+                  <SelectItem value="60">60 minutes</SelectItem>
+                  <SelectItem value="90">90 minutes</SelectItem>
+                  <SelectItem value="120">2 hours</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+    </div>
+  );
+}
+
+function StepFour({ form }: { form: any }) {
+  const [selectedEquipment, setSelectedEquipment] = useState<string[]>([]);
+  const [injuries, setInjuries] = useState<string[]>([]);
+
+  const toggleEquipment = (equipment: string) => {
+    const updated = selectedEquipment.includes(equipment)
+      ? selectedEquipment.filter((e) => e !== equipment)
+      : [...selectedEquipment, equipment];
+    setSelectedEquipment(updated);
+    form.setValue("equipment", updated);
+  };
+
+  return (
+    <div className="space-y-6">
+      <FormField
+        control={form.control}
+        name="equipment"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="text-base font-semibold">
+              What equipment do you have access to?
+            </FormLabel>
+            <FormControl>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {EQUIPMENT_OPTIONS.map((equipment) => (
+                  <Badge
+                    key={equipment}
+                    variant={
+                      selectedEquipment.includes(equipment)
+                        ? "default"
+                        : "outline"
+                    }
+                    className="cursor-pointer p-3 h-auto text-center justify-center hover:bg-spark-100"
+                    onClick={() => toggleEquipment(equipment)}
+                  >
+                    {equipment}
+                  </Badge>
+                ))}
+              </div>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="targetWeight"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Target Weight (kg) - Optional</FormLabel>
+            <FormControl>
+              <Input
+                type="number"
+                placeholder="65"
+                {...field}
+                onChange={(e) =>
+                  field.onChange(
+                    e.target.value ? Number(e.target.value) : undefined
+                  )
+                }
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="injuries"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Any injuries or limitations? (Optional)</FormLabel>
+            <FormControl>
+              <Input
+                placeholder="e.g., knee injury, back problems"
+                value={injuries.join(", ")}
+                onChange={(e) => {
+                  const injuryList = e.target.value
+                    .split(",")
+                    .map((s) => s.trim())
+                    .filter(Boolean);
+                  setInjuries(injuryList);
+                  field.onChange(injuryList);
+                }}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
     </div>
   );
 }

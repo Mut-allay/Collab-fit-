@@ -2,35 +2,8 @@ import { z } from "zod";
 
 export const UserRoleSchema = z.enum(["user", "trainer", "admin"]);
 
-// Onboarding form schema
-export const OnboardingSchema = z.object({
-  // Step 1: Basic Info
-  displayName: z.string().min(2, "Name must be at least 2 characters"),
-  age: z
-    .number()
-    .int()
-    .min(13, "Must be at least 13 years old")
-    .max(120, "Invalid age"),
-  gender: z.enum(["male", "female", "other", "prefer_not_to_say"]),
-
-  // Step 2: Physical Info
-  height: z
-    .number()
-    .positive("Height must be positive")
-    .min(100, "Height must be at least 100cm")
-    .max(250, "Height must be less than 250cm"),
-  weight: z
-    .number()
-    .positive("Weight must be positive")
-    .min(30, "Weight must be at least 30kg")
-    .max(300, "Weight must be less than 300kg"),
-  targetWeight: z
-    .number()
-    .positive("Target weight must be positive")
-    .min(30, "Target weight must be at least 30kg")
-    .max(300, "Target weight must be less than 300kg"),
-
-  // Step 3: Fitness Goals
+// Onboarding-specific schemas for validation
+export const OnboardingStepOneSchema = z.object({
   goal: z.enum([
     "weight_loss",
     "muscle_gain",
@@ -39,8 +12,16 @@ export const OnboardingSchema = z.object({
     "general_fitness",
   ]),
   fitnessExperience: z.enum(["beginner", "intermediate", "advanced"]),
+});
 
-  // Step 4: Activity & Schedule
+export const OnboardingStepTwoSchema = z.object({
+  age: z.number().int().min(13).max(120),
+  gender: z.enum(["male", "female", "other", "prefer_not_to_say"]),
+  height: z.number().positive().min(100).max(250), // in cm
+  weight: z.number().positive().min(30).max(300), // in kg
+});
+
+export const OnboardingStepThreeSchema = z.object({
   activityLevel: z.enum([
     "sedentary",
     "lightly_active",
@@ -48,22 +29,22 @@ export const OnboardingSchema = z.object({
     "very_active",
     "extremely_active",
   ]),
-  workoutDaysPerWeek: z
-    .number()
-    .int()
-    .min(1, "At least 1 day per week")
-    .max(7, "Maximum 7 days per week"),
-  workoutDuration: z
-    .number()
-    .int()
-    .positive("Duration must be positive")
-    .min(15, "Minimum 15 minutes")
-    .max(180, "Maximum 180 minutes"),
-
-  // Step 5: Equipment & Health
-  equipment: z.array(z.string()).min(1, "Select at least one equipment option"),
-  injuries: z.array(z.string()).optional(),
+  workoutDaysPerWeek: z.number().int().min(1).max(7),
+  workoutDuration: z.number().int().min(15).max(180), // in minutes
 });
+
+export const OnboardingStepFourSchema = z.object({
+  equipment: z.array(z.string()).default([]),
+  injuries: z.array(z.string()).default([]),
+  targetWeight: z.number().positive().min(30).max(300).optional(), // in kg
+});
+
+// Complete onboarding schema
+export const OnboardingDataSchema = OnboardingStepOneSchema.merge(
+  OnboardingStepTwoSchema
+)
+  .merge(OnboardingStepThreeSchema)
+  .merge(OnboardingStepFourSchema);
 
 export const UserSchema = z.object({
   uid: z.string(),
@@ -129,6 +110,36 @@ export const TrainerProfileSchema = z.object({
 export const UserProfileUpdateSchema = z.object({
   displayName: z.string().min(1).max(100).optional(),
   avatarUrl: z.string().url().optional(),
+  goal: z
+    .enum([
+      "weight_loss",
+      "muscle_gain",
+      "strength",
+      "endurance",
+      "general_fitness",
+    ])
+    .optional(),
+  activityLevel: z
+    .enum([
+      "sedentary",
+      "lightly_active",
+      "moderately_active",
+      "very_active",
+      "extremely_active",
+    ])
+    .optional(),
+  age: z.number().int().min(13).max(120).optional(),
+  gender: z.enum(["male", "female", "other", "prefer_not_to_say"]).optional(),
+  height: z.number().positive().min(100).max(250).optional(),
+  weight: z.number().positive().min(30).max(300).optional(),
+  targetWeight: z.number().positive().min(30).max(300).optional(),
+  fitnessExperience: z
+    .enum(["beginner", "intermediate", "advanced"])
+    .optional(),
+  workoutDaysPerWeek: z.number().int().min(1).max(7).optional(),
+  workoutDuration: z.number().int().min(15).max(180).optional(),
+  equipment: z.array(z.string()).optional(),
+  injuries: z.array(z.string()).optional(),
 });
 
 export const TrainerProfileUpdateSchema = z.object({
@@ -139,8 +150,14 @@ export const TrainerProfileUpdateSchema = z.object({
 });
 
 export type User = z.infer<typeof UserSchema>;
-export type OnboardingData = z.infer<typeof OnboardingSchema>;
 export type TrainerProfile = z.infer<typeof TrainerProfileSchema>;
 export type UserRole = z.infer<typeof UserRoleSchema>;
 export type UserProfileUpdate = z.infer<typeof UserProfileUpdateSchema>;
 export type TrainerProfileUpdate = z.infer<typeof TrainerProfileUpdateSchema>;
+
+// Onboarding types
+export type OnboardingStepOne = z.infer<typeof OnboardingStepOneSchema>;
+export type OnboardingStepTwo = z.infer<typeof OnboardingStepTwoSchema>;
+export type OnboardingStepThree = z.infer<typeof OnboardingStepThreeSchema>;
+export type OnboardingStepFour = z.infer<typeof OnboardingStepFourSchema>;
+export type OnboardingData = z.infer<typeof OnboardingDataSchema>;

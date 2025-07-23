@@ -14,6 +14,7 @@ import LoginPage from "@/pages/LoginPage";
 import SignupPage from "@/pages/SignupPage";
 import OnboardingPage from "@/pages/OnboardingPage";
 import DashboardPage from "@/pages/DashboardPage";
+import ProfilePage from "@/pages/ProfilePage";
 import { DataVerificationPage } from "@/pages/DataVerificationPage";
 import PlanSelectionPage from "@/pages/PlanSelectionPage";
 import ViewPlanPage from "@/pages/ViewPlanPage";
@@ -54,6 +55,16 @@ function App() {
               }
             />
 
+            {/* Onboarding Route - Protected but with special layout */}
+            <Route
+              path="/onboarding"
+              element={
+                <ProtectedRoute>
+                  <OnboardingPage />
+                </ProtectedRoute>
+              }
+            />
+
             {/* Public verification route */}
             <Route
               path="/verify"
@@ -70,15 +81,6 @@ function App() {
 
             {/* Protected App Routes with app layout */}
             <Route
-              path="/onboarding"
-              element={
-                <ProtectedRoute>
-                  <OnboardingPage />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
               path="/dashboard"
               element={
                 <ProtectedRoute>
@@ -86,6 +88,21 @@ function App() {
                     <Navbar variant="app" />
                     <div className="flex-1">
                       <DashboardPage />
+                    </div>
+                    <Footer variant="app" />
+                  </div>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <div className="min-h-screen flex flex-col">
+                    <Navbar variant="app" />
+                    <div className="flex-1">
+                      <ProfilePage />
                     </div>
                     <Footer variant="app" />
                   </div>
