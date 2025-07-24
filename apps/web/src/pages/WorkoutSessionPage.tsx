@@ -91,6 +91,12 @@ export default function WorkoutSessionPage() {
     new Map()
   );
 
+  // Timer state
+  const [workoutStartTime, setWorkoutStartTime] = useState<Date | null>(null);
+  const [currentWorkoutTime, setCurrentWorkoutTime] = useState(0);
+  const [laps, setLaps] = useState<{ exercise: string; time: number }[]>([]);
+  const [lastLapTime, setLastLapTime] = useState<Date | null>(null);
+
   // Set logging state
   const [currentWeight, setCurrentWeight] = useState("");
   const [currentReps, setCurrentReps] = useState("");
@@ -167,17 +173,33 @@ export default function WorkoutSessionPage() {
   };
 
   const initializeSession = (plan: WorkoutPlan, phase: WorkoutPhase) => {
+    const startTime = new Date();
     const newSession: WorkoutSession = {
       workoutPlanId: plan.id,
       phaseId: phase.id,
       phaseName: phase.name,
-      startTime: new Date(),
+      startTime,
       sets: [],
       totalVolume: 0,
       duration: 0,
     };
     setSession(newSession);
+    setWorkoutStartTime(startTime);
+    setLastLapTime(startTime);
   };
+
+  // Workout timer functionality
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+
+    if (workoutStartTime && !isPaused) {
+      interval = setInterval(() => {
+        setCurrentWorkoutTime((prev) => prev + 1);
+      }, 1000);
+    }
+
+    return () => clearInterval(interval);
+  }, [workoutStartTime, isPaused]);
 
   // Rest timer functionality
   useEffect(() => {
@@ -220,7 +242,10 @@ export default function WorkoutSessionPage() {
     const weight = parseFloat(currentWeight);
     const reps = parseInt(currentReps);
 
+    // Input validation
     if (isNaN(weight) || isNaN(reps)) return;
+    if (weight < 0 || reps < 0) return;
+    if (weight > 2000 || reps > 1000) return; // Reasonable limits
 
     const newSetLog: SetLog = {
       exerciseId: currentExercise.id,
@@ -239,6 +264,18 @@ export default function WorkoutSessionPage() {
 
     // Move to next set or exercise
     if (isLastSet) {
+      // Record lap time when completing an exercise
+      if (lastLapTime && currentExercise) {
+        const lapTime = Math.floor(
+          (new Date().getTime() - lastLapTime.getTime()) / 1000
+        );
+        setLaps((prev) => [
+          ...prev,
+          { exercise: currentExercise.name, time: lapTime },
+        ]);
+        setLastLapTime(new Date());
+      }
+
       if (isLastExercise) {
         // Workout complete
         completeWorkout();
@@ -349,10 +386,39 @@ export default function WorkoutSessionPage() {
             </div>
 
             <div className="flex items-center gap-2">
+              {/* Timer Display */}
+              <div className="text-center">
+                <div className="text-sm font-mono text-spark-600">
+                  {formatTime(currentWorkoutTime)}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Workout Time
+                </div>
+              </div>
+
               <Badge variant="outline">
                 Set {currentSetIndex + 1} of {totalSets}
               </Badge>
+
               {isPaused && <Badge variant="secondary">PAUSED</Badge>}
+
+              {/* Exit Workout Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  if (
+                    confirm(
+                      "Are you sure you want to exit this workout? Your progress will be lost."
+                    )
+                  ) {
+                    navigate("/dashboard");
+                  }
+                }}
+                className="text-red-600 border-red-200 hover:bg-red-50"
+              >
+                Exit
+              </Button>
             </div>
           </div>
         </div>
@@ -458,22 +524,52 @@ export default function WorkoutSessionPage() {
                         <Input
                           id="weight"
                           type="number"
+                          min="0"
+                          max="2000"
+                          step="0.5"
                           value={currentWeight}
-                          onChange={(e) => setCurrentWeight(e.target.value)}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            const numValue = parseFloat(value);
+                            if (
+                              value === "" ||
+                              (numValue >= 0 && numValue <= 2000)
+                            ) {
+                              setCurrentWeight(value);
+                            }
+                          }}
                           placeholder="0"
                           className="mt-1"
                         />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Max: 2000 lbs
+                        </p>
                       </div>
                       <div>
                         <Label htmlFor="reps">Reps</Label>
                         <Input
                           id="reps"
                           type="number"
+                          min="0"
+                          max="1000"
+                          step="1"
                           value={currentReps}
-                          onChange={(e) => setCurrentReps(e.target.value)}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            const numValue = parseInt(value);
+                            if (
+                              value === "" ||
+                              (numValue >= 0 && numValue <= 1000)
+                            ) {
+                              setCurrentReps(value);
+                            }
+                          }}
                           placeholder="0"
                           className="mt-1"
                         />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Max: 1000 reps
+                        </p>
                       </div>
                     </div>
 
@@ -496,34 +592,91 @@ export default function WorkoutSessionPage() {
                   <CardTitle>Today's Progress</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-3 gap-4 text-center">
-                    <div>
-                      <div className="text-2xl font-bold text-spark-600">
-                        {setLogs.length}
+                  <div className="space-y-4">
+                    {/* Overall Stats */}
+                    <div className="grid grid-cols-3 gap-4 text-center">
+                      <div>
+                        <div className="text-2xl font-bold text-spark-600">
+                          {setLogs.length}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          Sets Completed
+                        </div>
                       </div>
-                      <div className="text-sm text-muted-foreground">
-                        Sets Completed
+                      <div>
+                        <div className="text-2xl font-bold text-spark-600">
+                          {formatTime(currentWorkoutTime)}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          Workout Time
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-2xl font-bold text-spark-600">
+                          {laps.length}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          Exercises Done
+                        </div>
                       </div>
                     </div>
-                    <div>
-                      <div className="text-2xl font-bold text-spark-600">
-                        {setLogs.reduce((sum, set) => sum + set.reps, 0)}
+
+                    {/* Exercise Breakdown */}
+                    {currentExercise && (
+                      <div className="border-t pt-4">
+                        <h4 className="font-semibold mb-3 text-center">
+                          Current Exercise: {currentExercise.name}
+                        </h4>
+                        <div className="grid grid-cols-2 gap-4 text-center">
+                          <div>
+                            <div className="text-lg font-bold text-spark-600">
+                              {
+                                setLogs.filter(
+                                  (set) => set.exerciseId === currentExercise.id
+                                ).length
+                              }
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              Sets Done
+                            </div>
+                          </div>
+                          <div>
+                            <div className="text-lg font-bold text-spark-600">
+                              {setLogs
+                                .filter(
+                                  (set) => set.exerciseId === currentExercise.id
+                                )
+                                .reduce((sum, set) => sum + set.reps, 0)}
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              Total Reps
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-sm text-muted-foreground">
-                        Total Reps
+                    )}
+
+                    {/* Lap Times */}
+                    {laps.length > 0 && (
+                      <div className="border-t pt-4">
+                        <h4 className="font-semibold mb-3">Exercise Times</h4>
+                        <div className="space-y-2">
+                          {laps.map((lap, index) => (
+                            <div
+                              key={index}
+                              className="flex justify-between items-center text-sm"
+                            >
+                              <span className="text-muted-foreground">
+                                {lap.exercise}
+                              </span>
+                              <span className="font-mono text-spark-600">
+                                {formatTime(lap.time)}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold text-spark-600">
-                        {setLogs.reduce(
-                          (sum, set) => sum + set.weight * set.reps,
-                          0
-                        )}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        Volume (lbs)
-                      </div>
-                    </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>

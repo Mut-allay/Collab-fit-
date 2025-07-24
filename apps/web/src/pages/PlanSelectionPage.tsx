@@ -48,8 +48,11 @@ const GOAL_ICONS = {
 
 export default function PlanSelectionPage() {
   const [plans, setPlans] = useState<WorkoutPlan[]>([]);
+  const [filteredPlans, setFilteredPlans] = useState<WorkoutPlan[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedDifficulty, setSelectedDifficulty] = useState<string>("all");
   const { currentUser, userProfile, updateUserProfile } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -57,6 +60,44 @@ export default function PlanSelectionPage() {
   useEffect(() => {
     fetchWorkoutPlans();
   }, []);
+
+  useEffect(() => {
+    filterPlans();
+  }, [plans, selectedCategory, selectedDifficulty]);
+
+  const filterPlans = () => {
+    let filtered = [...plans];
+
+    // Filter by category/goal
+    if (selectedCategory !== "all") {
+      filtered = filtered.filter((plan) => plan.goal === selectedCategory);
+    }
+
+    // Filter by difficulty
+    if (selectedDifficulty !== "all") {
+      filtered = filtered.filter(
+        (plan) => plan.difficulty === selectedDifficulty
+      );
+    }
+
+    setFilteredPlans(filtered);
+  };
+
+  const categories = [
+    { id: "all", name: "All", icon: "🏋️" },
+    { id: "strength", name: "Strength", icon: "💪" },
+    { id: "general_fitness", name: "General Fitness", icon: "🏃" },
+    { id: "weight_loss", name: "Weight Loss", icon: "🔥" },
+    { id: "muscle_gain", name: "Muscle Gain", icon: "💪" },
+    { id: "endurance", name: "Endurance", icon: "🏃" },
+  ];
+
+  const difficulties = [
+    { id: "all", name: "All Levels" },
+    { id: "beginner", name: "Beginner" },
+    { id: "intermediate", name: "Intermediate" },
+    { id: "advanced", name: "Advanced" },
+  ];
 
   const fetchWorkoutPlans = async () => {
     try {
@@ -178,9 +219,62 @@ export default function PlanSelectionPage() {
         </motion.div>
       )}
 
+      {/* Filters */}
+      <motion.div
+        className="mb-6 space-y-4"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
+        {/* Category Filters */}
+        <div>
+          <h3 className="text-lg font-semibold mb-3">Categories</h3>
+          <div className="flex flex-wrap gap-2">
+            {categories.map((category) => (
+              <Button
+                key={category.id}
+                variant={
+                  selectedCategory === category.id ? "default" : "outline"
+                }
+                size="sm"
+                onClick={() => setSelectedCategory(category.id)}
+                className="flex items-center gap-2"
+              >
+                <span>{category.icon}</span>
+                {category.name}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        {/* Difficulty Filters */}
+        <div>
+          <h3 className="text-lg font-semibold mb-3">Difficulty</h3>
+          <div className="flex flex-wrap gap-2">
+            {difficulties.map((difficulty) => (
+              <Button
+                key={difficulty.id}
+                variant={
+                  selectedDifficulty === difficulty.id ? "default" : "outline"
+                }
+                size="sm"
+                onClick={() => setSelectedDifficulty(difficulty.id)}
+              >
+                {difficulty.name}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        {/* Results Count */}
+        <div className="text-sm text-muted-foreground">
+          Showing {filteredPlans.length} of {plans.length} plans
+        </div>
+      </motion.div>
+
       {/* Plans Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {plans.map((plan, index) => (
+        {filteredPlans.map((plan, index) => (
           <motion.div
             key={plan.id}
             initial={{ opacity: 0, y: 20 }}
