@@ -57,7 +57,7 @@ import {
 } from "lucide-react";
 import { doc, updateDoc, deleteDoc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
-import { UserSchema } from "@fitspark/shared/schemas/user";
+import { UserSchema } from "@fitspark/shared";
 
 // Form validation schema
 const ProfileFormSchema = UserSchema.pick({

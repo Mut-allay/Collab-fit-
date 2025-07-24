@@ -3,8 +3,6 @@ import {
   User,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-  GoogleAuthProvider,
-  signInWithPopup,
   signOut,
   onAuthStateChanged,
   updateProfile,
@@ -24,7 +22,6 @@ interface AuthContextType {
     displayName?: string
   ) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
-  loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   updateUserProfile: (data: Partial<FitSparkUser>) => Promise<void>;
@@ -78,31 +75,32 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }
 
   async function login(email: string, password: string) {
-    await signInWithEmailAndPassword(auth, email, password);
-  }
-
-  async function loginWithGoogle() {
-    const provider = new GoogleAuthProvider();
-    const { user } = await signInWithPopup(auth, provider);
-
-    // Check if the user is new
-    const userDocRef = doc(db, "users", user.uid);
-    const userDoc = await getDoc(userDocRef);
-
-    // If the user doesn't exist in Firestore, create a new document
-    if (!userDoc.exists()) {
-      const userData: Omit<FitSparkUser, "createdAt" | "updatedAt"> = {
-        uid: user.uid,
-        email: user.email!,
-        displayName: user.displayName || "",
-        role: "user" as UserRole,
-        onboardingCompleted: false,
-      };
-      await setDoc(userDocRef, {
-        ...userData,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (error: any) {
+      // Provide user-friendly error messages
+      switch (error.code) {
+        case "auth/invalid-credential":
+          throw new Error(
+            "The email or password you entered is incorrect. Please check your credentials and try again."
+          );
+        case "auth/user-not-found":
+          throw new Error(
+            "No account found with this email address. Please check your email or create a new account."
+          );
+        case "auth/too-many-requests":
+          throw new Error(
+            "Too many failed login attempts. Please wait a few minutes before trying again."
+          );
+        case "auth/user-disabled":
+          throw new Error(
+            "This account has been disabled. Please contact support for assistance."
+          );
+        default:
+          throw new Error(
+            "Unable to sign in at the moment. Please check your internet connection and try again."
+          );
+      }
     }
   }
 
@@ -164,7 +162,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     loading,
     signup,
     login,
-    loginWithGoogle,
     logout,
     resetPassword,
     updateUserProfile,
