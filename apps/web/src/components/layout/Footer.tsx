@@ -123,7 +123,8 @@ export default function Footer({ variant = "app" }: FooterProps) {
   return (
     <footer className="border-t bg-white mt-auto">
       <div className="container mx-auto px-4 py-6">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="flex flex-col items-center gap-4 text-center">
+          {/* Logo and copyright */}
           <div className="flex items-center gap-2">
             <Dumbbell className="h-5 w-5 text-spark-500" />
             <span className="font-semibold text-spark-500">FitSpark</span>
@@ -132,39 +133,41 @@ export default function Footer({ variant = "app" }: FooterProps) {
             </span>
           </div>
 
-          <div className="flex items-center gap-6 text-sm text-muted-foreground">
+          {/* Navigation links - responsive grid */}
+          <div className="grid grid-cols-2 md:flex md:flex-row gap-4 md:gap-6 text-sm text-muted-foreground">
             <button
               onClick={() => navigate("/help")}
-              className="hover:text-foreground transition-colors"
+              className="hover:text-foreground transition-colors px-2 py-1"
             >
               Help
             </button>
             <button
               onClick={() => navigate("/privacy")}
-              className="hover:text-foreground transition-colors"
+              className="hover:text-foreground transition-colors px-2 py-1"
             >
               Privacy
             </button>
             <button
               onClick={() => navigate("/terms")}
-              className="hover:text-foreground transition-colors"
+              className="hover:text-foreground transition-colors px-2 py-1"
             >
               Terms
             </button>
             <a
               href="mailto:support@fitspark.com"
-              className="hover:text-foreground transition-colors"
+              className="hover:text-foreground transition-colors px-2 py-1"
             >
               Contact
             </a>
           </div>
 
+          {/* Social links */}
           <div className="flex items-center gap-3">
             <a
               href="https://twitter.com/fitspark"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-muted-foreground hover:text-foreground transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors p-2"
             >
               <Twitter className="h-4 w-4" />
             </a>
@@ -172,7 +175,7 @@ export default function Footer({ variant = "app" }: FooterProps) {
               href="https://github.com/fitspark"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-muted-foreground hover:text-foreground transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors p-2"
             >
               <Github className="h-4 w-4" />
             </a>

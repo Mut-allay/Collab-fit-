@@ -183,11 +183,11 @@ export default function PlanSelectionPage() {
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-6xl">
+    <div className="container mx-auto p-4 sm:p-6 max-w-6xl">
       {/* Header */}
-      <div className="text-center mb-8">
+      <div className="text-center mb-6 sm:mb-8">
         <motion.h1
-          className="text-4xl font-bold mb-4"
+          className="text-2xl sm:text-4xl font-bold mb-4"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -195,7 +195,7 @@ export default function PlanSelectionPage() {
           Choose Your Workout Plan 🏋️‍♂️
         </motion.h1>
         <motion.p
-          className="text-xl text-muted-foreground max-w-2xl mx-auto"
+          className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto px-4"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
@@ -238,9 +238,9 @@ export default function PlanSelectionPage() {
                 }
                 size="sm"
                 onClick={() => setSelectedCategory(category.id)}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 text-xs sm:text-sm"
               >
-                <span>{category.icon}</span>
+                <span className="hidden sm:inline">{category.icon}</span>
                 {category.name}
               </Button>
             ))}
@@ -259,6 +259,7 @@ export default function PlanSelectionPage() {
                 }
                 size="sm"
                 onClick={() => setSelectedDifficulty(difficulty.id)}
+                className="text-xs sm:text-sm"
               >
                 {difficulty.name}
               </Button>
@@ -273,7 +274,7 @@ export default function PlanSelectionPage() {
       </motion.div>
 
       {/* Plans Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {filteredPlans.map((plan, index) => (
           <motion.div
             key={plan.id}
@@ -333,7 +334,7 @@ export default function PlanSelectionPage() {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="mt-auto flex gap-2">
+                <div className="mt-auto flex flex-col sm:flex-row gap-2">
                   <Button
                     variant="outline"
                     size="sm"
