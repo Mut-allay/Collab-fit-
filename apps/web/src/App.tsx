@@ -17,6 +17,8 @@ import { DataVerificationPage } from "@/pages/DataVerificationPage";
 import PlanSelectionPage from "@/pages/PlanSelectionPage";
 import ViewPlanPage from "@/pages/ViewPlanPage";
 import ProfilePage from "@/pages/ProfilePage";
+import WorkoutSessionPage from "@/pages/WorkoutSessionPage";
+import WorkoutSummaryPage from "@/pages/WorkoutSummaryPage";
 
 function App() {
   return (
@@ -125,6 +127,26 @@ function App() {
                     </div>
                     <Footer variant="app" />
                   </div>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Workout Session Route */}
+            <Route
+              path="/workout/:planId/:phaseId"
+              element={
+                <ProtectedRoute>
+                  <WorkoutSessionPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Workout Summary Route */}
+            <Route
+              path="/workout-summary/:planId/:phaseId"
+              element={
+                <ProtectedRoute>
+                  <WorkoutSummaryPage />
                 </ProtectedRoute>
               }
             />

@@ -222,6 +222,11 @@ export default function DashboardPage() {
                         size="lg"
                         className="flex-1 h-12 sm:h-11 text-base font-medium"
                         variant="spark"
+                        onClick={() =>
+                          navigate(
+                            `/workout/${selectedPlan.id}/${todaysWorkout.id}`
+                          )
+                        }
                       >
                         <Play className="h-5 w-5 mr-2" />
                         Start Workout
