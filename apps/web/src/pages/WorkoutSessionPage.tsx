@@ -30,11 +30,20 @@ interface Exercise {
   restSeconds: number;
 }
 
+interface WorkoutExercise {
+  exerciseId: string;
+  sets: number;
+  reps: number;
+  weight?: number;
+  restTime: number;
+  duration?: number;
+}
+
 interface WorkoutPhase {
   id: string;
   name: string;
   description: string;
-  exercises: Exercise[];
+  exercises: WorkoutExercise[];
   estimatedDuration: number;
 }
 
@@ -78,6 +87,9 @@ export default function WorkoutSessionPage() {
   const [restTimeLeft, setRestTimeLeft] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [exerciseDetails, setExerciseDetails] = useState<Map<string, Exercise>>(
+    new Map()
+  );
 
   // Set logging state
   const [currentWeight, setCurrentWeight] = useState("");
@@ -85,8 +97,11 @@ export default function WorkoutSessionPage() {
   const [setLogs, setSetLogs] = useState<SetLog[]>([]);
 
   // Get current exercise and set info
-  const currentExercise = currentPhase?.exercises[currentExerciseIndex];
-  const totalSets = currentExercise?.sets || 0;
+  const currentWorkoutExercise = currentPhase?.exercises[currentExerciseIndex];
+  const currentExercise = currentWorkoutExercise
+    ? exerciseDetails.get(currentWorkoutExercise.exerciseId)
+    : null;
+  const totalSets = currentWorkoutExercise?.sets || 0;
   const totalExercises = currentPhase?.exercises.length || 0;
   const isLastSet = currentSetIndex >= totalSets - 1;
   const isLastExercise = currentExerciseIndex >= totalExercises - 1;
@@ -114,12 +129,40 @@ export default function WorkoutSessionPage() {
         if (targetPhase) {
           setCurrentPhase(targetPhase);
           initializeSession(planData, targetPhase);
+
+          // Fetch exercise details for all exercises in this phase
+          await loadExerciseDetails(targetPhase.exercises);
         }
       }
     } catch (error) {
       console.error("Error loading workout plan:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadExerciseDetails = async (workoutExercises: WorkoutExercise[]) => {
+    try {
+      const exerciseIds = workoutExercises.map((ex) => ex.exerciseId);
+      const detailsMap = new Map<string, Exercise>();
+
+      // Fetch each exercise detail
+      for (const exerciseId of exerciseIds) {
+        const exerciseRef = doc(db, "exercises", exerciseId);
+        const exerciseSnap = await getDoc(exerciseRef);
+
+        if (exerciseSnap.exists()) {
+          const exerciseData = {
+            id: exerciseSnap.id,
+            ...exerciseSnap.data(),
+          } as Exercise;
+          detailsMap.set(exerciseId, exerciseData);
+        }
+      }
+
+      setExerciseDetails(detailsMap);
+    } catch (error) {
+      console.error("Error loading exercise details:", error);
     }
   };
 
@@ -203,12 +246,12 @@ export default function WorkoutSessionPage() {
         // Move to next exercise
         setCurrentExerciseIndex((prev) => prev + 1);
         setCurrentSetIndex(0);
-        startRestTimer(currentExercise.restSeconds);
+        startRestTimer(currentWorkoutExercise?.restTime || 60);
       }
     } else {
       // Move to next set
       setCurrentSetIndex((prev) => prev + 1);
-      startRestTimer(currentExercise.restSeconds);
+      startRestTimer(currentWorkoutExercise?.restTime || 60);
     }
   };
 
@@ -389,12 +432,16 @@ export default function WorkoutSessionPage() {
                   <div>
                     <h3 className="font-semibold mb-3">Instructions:</h3>
                     <ol className="list-decimal list-inside space-y-2 text-sm">
-                      {currentExercise.instructions.map(
+                      {currentExercise.instructions?.map(
                         (instruction, index) => (
                           <li key={index} className="text-muted-foreground">
                             {instruction}
                           </li>
                         )
+                      ) || (
+                        <li className="text-muted-foreground">
+                          No specific instructions available for this exercise.
+                        </li>
                       )}
                     </ol>
                   </div>
