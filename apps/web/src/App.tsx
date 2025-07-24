@@ -19,6 +19,8 @@ import ViewPlanPage from "@/pages/ViewPlanPage";
 import ProfilePage from "@/pages/ProfilePage";
 import WorkoutSessionPage from "@/pages/WorkoutSessionPage";
 import WorkoutSummaryPage from "@/pages/WorkoutSummaryPage";
+import WorkoutHistoryPage from "@/pages/WorkoutHistoryPage";
+import ProgressPage from "@/pages/ProgressPage";
 
 function App() {
   return (
@@ -147,6 +149,24 @@ function App() {
               element={
                 <ProtectedRoute>
                   <WorkoutSummaryPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/workout-history"
+              element={
+                <ProtectedRoute>
+                  <WorkoutHistoryPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/progress"
+              element={
+                <ProtectedRoute>
+                  <ProgressPage />
                 </ProtectedRoute>
               }
             />

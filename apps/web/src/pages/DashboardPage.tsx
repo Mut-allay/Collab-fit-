@@ -1,6 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { doc, getDoc } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
 import { motion } from "framer-motion";
 import { db } from "../lib/firebase";
 import { useAuth } from "../contexts/AuthContext";
@@ -59,6 +66,20 @@ export default function DashboardPage() {
   const { currentUser, userProfile, logout } = useAuth();
   const [selectedPlan, setSelectedPlan] = useState<WorkoutPlan | null>(null);
   const [todaysWorkout, setTodaysWorkout] = useState<any>(null);
+  const [weeklyProgress, setWeeklyProgress] = useState<any[]>([]);
+
+  interface WorkoutLog {
+    id: string;
+    userId: string;
+    workoutPlanId: string;
+    phaseId: string;
+    phaseName: string;
+    startTime: Date;
+    endTime?: Date;
+    sets: any[];
+    totalVolume: number;
+    duration: number;
+  }
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -68,7 +89,69 @@ export default function DashboardPage() {
     } else {
       setLoading(false);
     }
+    fetchWeeklyProgress();
   }, [userProfile?.selectedPlanId]);
+
+  const fetchWeeklyProgress = async () => {
+    if (!currentUser) return;
+
+    try {
+      const startOfWeek = new Date();
+      startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay()); // Start of week (Sunday)
+      startOfWeek.setHours(0, 0, 0, 0);
+
+      const endOfWeek = new Date(startOfWeek);
+      endOfWeek.setDate(endOfWeek.getDate() + 6); // End of week (Saturday)
+      endOfWeek.setHours(23, 59, 59, 999);
+
+      // Fetch workout logs for this week
+      const workoutLogsRef = collection(db, "workoutLogs");
+      const q = query(
+        workoutLogsRef,
+        where("userId", "==", currentUser.uid),
+        where("startTime", ">=", startOfWeek),
+        where("startTime", "<=", endOfWeek)
+      );
+
+      const snapshot = await getDocs(q);
+      const logs = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+        startTime: doc.data().startTime?.toDate(),
+      })) as WorkoutLog[];
+
+      // Create weekly progress array
+      const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+      const progress = weekDays.map((day, index) => {
+        const dayDate = new Date(startOfWeek);
+        dayDate.setDate(dayDate.getDate() + index);
+
+        const dayLogs = logs.filter((log) => {
+          const logDate = new Date(log.startTime);
+          return logDate.toDateString() === dayDate.toDateString();
+        });
+
+        return {
+          day,
+          date: dayDate,
+          completed: dayLogs.length > 0,
+          workoutCount: dayLogs.length,
+          totalVolume: dayLogs.reduce(
+            (sum, log) => sum + (log.totalVolume || 0),
+            0
+          ),
+          totalDuration: dayLogs.reduce(
+            (sum, log) => sum + (log.duration || 0),
+            0
+          ),
+        };
+      });
+
+      setWeeklyProgress(progress);
+    } catch (error) {
+      console.error("Error fetching weekly progress:", error);
+    }
+  };
 
   const fetchSelectedPlan = async () => {
     if (!userProfile?.selectedPlanId) return;
@@ -303,51 +386,40 @@ export default function DashboardPage() {
                 </CardHeader>
                 <CardContent className="pt-0">
                   <div className="grid grid-cols-7 gap-2 sm:gap-3">
-                    {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(
-                      (day) => {
-                        const isToday =
-                          new Date().getDay() ===
-                          [
-                            "Sun",
-                            "Mon",
-                            "Tue",
-                            "Wed",
-                            "Thu",
-                            "Fri",
-                            "Sat",
-                          ].indexOf(day);
-                        const isCompleted = Math.random() > 0.6; // Placeholder logic
+                    {weeklyProgress.map((dayProgress) => {
+                      const isToday =
+                        new Date().toDateString() ===
+                        dayProgress.date.toDateString();
+                      const isCompleted = dayProgress.completed;
 
-                        return (
-                          <div key={day} className="text-center">
-                            <p className="text-xs text-muted-foreground mb-2 sm:mb-3">
-                              {day}
-                            </p>
-                            <div
-                              className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-sm font-medium mx-auto ${
-                                isToday
-                                  ? "bg-spark-500 text-white ring-2 ring-spark-200 shadow-lg"
-                                  : isCompleted
-                                    ? "bg-green-100 text-green-800 border-2 border-green-200"
-                                    : "bg-gray-100 text-gray-500 border-2 border-gray-200"
-                              }`}
-                            >
-                              {isCompleted
-                                ? "✓"
-                                : [
-                                    "Sun",
-                                    "Mon",
-                                    "Tue",
-                                    "Wed",
-                                    "Thu",
-                                    "Fri",
-                                    "Sat",
-                                  ].indexOf(day) + 1}
-                            </div>
+                      return (
+                        <div key={dayProgress.day} className="text-center">
+                          <p className="text-xs text-muted-foreground mb-2 sm:mb-3">
+                            {dayProgress.day}
+                          </p>
+                          <div
+                            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-sm font-medium mx-auto ${
+                              isToday
+                                ? "bg-spark-500 text-white ring-2 ring-spark-200 shadow-lg"
+                                : isCompleted
+                                  ? "bg-green-100 text-green-800 border-2 border-green-200"
+                                  : "bg-gray-100 text-gray-500 border-2 border-gray-200"
+                            }`}
+                          >
+                            {isCompleted
+                              ? dayProgress.workoutCount > 1
+                                ? dayProgress.workoutCount
+                                : "✓"
+                              : dayProgress.date.getDate()}
                           </div>
-                        );
-                      }
-                    )}
+                          {isCompleted && (
+                            <p className="text-xs text-green-600 mt-1">
+                              {dayProgress.totalVolume.toLocaleString()} lbs
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </CardContent>
               </Card>
@@ -433,6 +505,7 @@ export default function DashboardPage() {
                   <Button
                     variant="outline"
                     size="sm"
+                    onClick={() => navigate("/progress")}
                     className="w-full h-11 justify-start font-medium"
                   >
                     <TrendingUp className="h-4 w-4 mr-3" />
@@ -441,6 +514,7 @@ export default function DashboardPage() {
                   <Button
                     variant="outline"
                     size="sm"
+                    onClick={() => navigate("/workout-history")}
                     className="w-full h-11 justify-start font-medium"
                   >
                     <Calendar className="h-4 w-4 mr-3" />
@@ -449,6 +523,7 @@ export default function DashboardPage() {
                   <Button
                     variant="outline"
                     size="sm"
+                    onClick={() => navigate("/profile")}
                     className="w-full h-11 justify-start font-medium"
                   >
                     <Settings className="h-4 w-4 mr-3" />

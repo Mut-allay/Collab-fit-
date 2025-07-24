@@ -16,6 +16,7 @@ interface AuthContextType {
   currentUser: User | null;
   userProfile: FitSparkUser | null;
   loading: boolean;
+  sessionExpiry: Date | null;
   signup: (
     email: string,
     password: string,
@@ -25,6 +26,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   updateUserProfile: (data: Partial<FitSparkUser>) => Promise<void>;
+  refreshSession: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -45,6 +47,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<FitSparkUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [sessionExpiry, setSessionExpiry] = useState<Date | null>(null);
+
+  // Session timeout duration (24 hours)
+  const SESSION_TIMEOUT_HOURS = 24;
 
   async function signup(email: string, password: string, displayName?: string) {
     const { user } = await createUserWithEmailAndPassword(
@@ -140,14 +146,49 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
+  async function refreshSession() {
+    if (!currentUser) return;
+
+    // Force token refresh
+    await currentUser.getIdToken(true);
+
+    // Update session expiry
+    const newExpiry = new Date();
+    newExpiry.setHours(newExpiry.getHours() + SESSION_TIMEOUT_HOURS);
+    setSessionExpiry(newExpiry);
+
+    // Store in localStorage
+    localStorage.setItem("sessionExpiry", newExpiry.toISOString());
+  }
+
+  function checkSessionExpiry() {
+    if (!sessionExpiry) return false;
+
+    const now = new Date();
+    if (now > sessionExpiry) {
+      // Session expired, logout user
+      logout();
+      return true;
+    }
+    return false;
+  }
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
 
       if (user) {
         await loadUserProfile(user.uid);
+
+        // Set session expiry
+        const expiry = new Date();
+        expiry.setHours(expiry.getHours() + SESSION_TIMEOUT_HOURS);
+        setSessionExpiry(expiry);
+        localStorage.setItem("sessionExpiry", expiry.toISOString());
       } else {
         setUserProfile(null);
+        setSessionExpiry(null);
+        localStorage.removeItem("sessionExpiry");
       }
 
       setLoading(false);
@@ -156,15 +197,53 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return unsubscribe;
   }, []);
 
+  // Check session expiry every minute
+  useEffect(() => {
+    const interval = setInterval(() => {
+      checkSessionExpiry();
+    }, 60000); // Check every minute
+
+    return () => clearInterval(interval);
+  }, [sessionExpiry]);
+
+  // Refresh session on user activity
+  useEffect(() => {
+    const handleUserActivity = () => {
+      if (currentUser && sessionExpiry) {
+        refreshSession();
+      }
+    };
+
+    // Listen for user activity
+    const events = [
+      "mousedown",
+      "mousemove",
+      "keypress",
+      "scroll",
+      "touchstart",
+    ];
+    events.forEach((event) => {
+      document.addEventListener(event, handleUserActivity, true);
+    });
+
+    return () => {
+      events.forEach((event) => {
+        document.removeEventListener(event, handleUserActivity, true);
+      });
+    };
+  }, [currentUser, sessionExpiry]);
+
   const value: AuthContextType = {
     currentUser,
     userProfile,
     loading,
+    sessionExpiry,
     signup,
     login,
     logout,
     resetPassword,
     updateUserProfile,
+    refreshSession,
   };
 
   return (
