@@ -55,7 +55,7 @@ import {
   Save,
   Edit,
 } from "lucide-react";
-import { doc, updateDoc, deleteDoc } from "firebase/firestore";
+import { doc, updateDoc, deleteDoc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { UserSchema } from "@fitspark/shared/schemas/user";
 
@@ -133,7 +133,7 @@ export default function ProfilePage() {
   });
 
   // Mock motivational stats (replace with real data from Firestore)
-  const [motivationalStats, setMotivationalStats] = useState({
+  const [motivationalStats] = useState({
     currentStreak: 3,
     totalWorkouts: 24,
     timeSpentWorkingOut: 720, // in minutes
@@ -184,15 +184,55 @@ export default function ProfilePage() {
   };
 
   const handleSave = async () => {
-    if (!validateForm() || !currentUser) return;
+    console.log("🔍 Save attempt - Current user:", currentUser?.uid);
+    console.log("🔍 Save attempt - Form data:", formData);
+
+    if (!validateForm()) {
+      console.log("❌ Form validation failed");
+      return;
+    }
+
+    if (!currentUser) {
+      console.log("❌ No current user");
+      toast({
+        title: "Error",
+        description: "You must be logged in to save your profile.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setIsLoading(true);
     try {
+      console.log("🔍 Attempting to update user document...");
       const userRef = doc(db, "users", currentUser.uid);
-      await updateDoc(userRef, {
+      console.log("🔍 User document reference:", userRef.path);
+
+      // Check if user document exists
+      const userDoc = await getDoc(userRef);
+      console.log("🔍 User document exists:", userDoc.exists());
+
+      const updateData = {
         ...formData,
         updatedAt: new Date(),
-      });
+      };
+      console.log("🔍 Update data:", updateData);
+
+      if (userDoc.exists()) {
+        // Document exists, update it
+        await updateDoc(userRef, updateData);
+        console.log("✅ Profile updated successfully");
+      } else {
+        // Document doesn't exist, create it
+        console.log("🔍 Creating new user document...");
+        await setDoc(userRef, {
+          ...updateData,
+          uid: currentUser.uid,
+          email: currentUser.email,
+          createdAt: new Date(),
+        });
+        console.log("✅ Profile created successfully");
+      }
 
       toast({
         title: "Profile Updated",
@@ -200,10 +240,15 @@ export default function ProfilePage() {
       });
       setIsEditing(false);
     } catch (error) {
-      console.error("Error updating profile:", error);
+      console.error("❌ Error updating profile:", error);
+      console.error("❌ Error details:", {
+        code: (error as any)?.code,
+        message: (error as any)?.message,
+        stack: (error as any)?.stack,
+      });
       toast({
         title: "Error",
-        description: "Failed to update profile. Please try again.",
+        description: `Failed to update profile: ${(error as any)?.message || "Unknown error"}`,
         variant: "destructive",
       });
     } finally {
