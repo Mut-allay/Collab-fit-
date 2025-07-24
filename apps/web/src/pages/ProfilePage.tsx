@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "../contexts/AuthContext";
+import { useToast } from "../hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -11,15 +11,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -27,683 +20,879 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
+import { Switch } from "@/components/ui/switch";
 import {
-  UserProfileUpdateSchema,
-  type UserProfileUpdate,
-} from "@fitspark/shared";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import {
   User,
-  Edit,
-  Save,
-  X,
+  Settings,
+  LogOut,
+  Trash2,
+  Lock,
   Target,
-  Activity,
+  TrendingUp,
   Calendar,
-  Weight,
-  Ruler,
-  Award,
+  Clock,
+  AlertTriangle,
+  Save,
+  Edit,
 } from "lucide-react";
+import { doc, updateDoc, deleteDoc } from "firebase/firestore";
+import { db } from "../lib/firebase";
+import { UserSchema } from "@fitspark/shared/schemas/user";
 
-const GOALS = [
-  { value: "weight_loss", label: "Weight Loss", emoji: "🔥" },
-  { value: "muscle_gain", label: "Muscle Gain", emoji: "💪" },
-  { value: "strength", label: "Strength", emoji: "🏋️" },
-  { value: "endurance", label: "Endurance", emoji: "🏃" },
-  { value: "general_fitness", label: "General Fitness", emoji: "⚡" },
+// Form validation schema
+const ProfileFormSchema = UserSchema.pick({
+  displayName: true,
+  age: true,
+  gender: true,
+  height: true,
+  weight: true,
+  goal: true,
+  fitnessExperience: true,
+});
+
+type ProfileFormData = {
+  displayName: string;
+  age: number | undefined;
+  gender: "male" | "female" | "other" | "prefer_not_to_say" | undefined;
+  height: number | undefined;
+  weight: number | undefined;
+  goal:
+    | "weight_loss"
+    | "muscle_gain"
+    | "strength"
+    | "endurance"
+    | "general_fitness"
+    | undefined;
+  fitnessExperience: "beginner" | "intermediate" | "advanced" | undefined;
+};
+
+const GOAL_OPTIONS = [
+  { value: "weight_loss", label: "Lose Weight" },
+  { value: "muscle_gain", label: "Gain Muscle" },
+  { value: "strength", label: "Build Strength" },
+  { value: "endurance", label: "Improve Endurance" },
+  { value: "general_fitness", label: "General Fitness" },
 ];
 
-const EXPERIENCE_LEVELS = [
+const EXPERIENCE_OPTIONS = [
   { value: "beginner", label: "Beginner" },
   { value: "intermediate", label: "Intermediate" },
   { value: "advanced", label: "Advanced" },
 ];
 
-const ACTIVITY_LEVELS = [
-  { value: "sedentary", label: "Sedentary" },
-  { value: "lightly_active", label: "Lightly Active" },
-  { value: "moderately_active", label: "Moderately Active" },
-  { value: "very_active", label: "Very Active" },
-  { value: "extremely_active", label: "Extremely Active" },
-];
-
-const EQUIPMENT_OPTIONS = [
-  "No Equipment",
-  "Dumbbells",
-  "Resistance Bands",
-  "Pull-up Bar",
-  "Yoga Mat",
-  "Kettlebell",
-  "Barbell",
-  "Full Gym Access",
-  "Treadmill",
-  "Stationary Bike",
+const GENDER_OPTIONS = [
+  { value: "male", label: "Male" },
+  { value: "female", label: "Female" },
+  { value: "prefer_not_to_say", label: "Prefer not to say" },
 ];
 
 export default function ProfilePage() {
-  const [isEditing, setIsEditing] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-  const [selectedEquipment, setSelectedEquipment] = useState<string[]>([]);
-  const { currentUser, userProfile } = useAuth();
+  const { currentUser, userProfile, logout } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState<ProfileFormData>({
+    displayName: "",
+    age: undefined,
+    gender: undefined,
+    height: undefined,
+    weight: undefined,
+    goal: undefined,
+    fitnessExperience: undefined,
+  });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [deleteConfirmation, setDeleteConfirmation] = useState("");
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  const form = useForm<UserProfileUpdate>({
-    resolver: zodResolver(UserProfileUpdateSchema),
-    defaultValues: {
-      displayName: "",
-      goal: undefined,
-      activityLevel: undefined,
-      age: undefined,
-      gender: undefined,
-      height: undefined,
-      weight: undefined,
-      targetWeight: undefined,
-      fitnessExperience: undefined,
-      workoutDaysPerWeek: undefined,
-      workoutDuration: undefined,
-      equipment: [],
-      injuries: [],
-    },
+  // App settings state
+  const [settings, setSettings] = useState({
+    darkMode: false,
+    dailyReminders: true,
+    weeklyEmails: true,
+  });
+
+  // Mock motivational stats (replace with real data from Firestore)
+  const [motivationalStats, setMotivationalStats] = useState({
+    currentStreak: 3,
+    totalWorkouts: 24,
+    timeSpentWorkingOut: 720, // in minutes
   });
 
   useEffect(() => {
     if (userProfile) {
-      // Populate form with existing user data
-      form.reset({
-        displayName: userProfile.displayName || currentUser?.displayName || "",
-        goal: userProfile.goal,
-        activityLevel: userProfile.activityLevel,
+      setFormData({
+        displayName: userProfile.displayName || "",
         age: userProfile.age,
         gender: userProfile.gender,
         height: userProfile.height,
         weight: userProfile.weight,
-        targetWeight: userProfile.targetWeight,
+        goal: userProfile.goal,
         fitnessExperience: userProfile.fitnessExperience,
-        workoutDaysPerWeek: userProfile.workoutDaysPerWeek,
-        workoutDuration: userProfile.workoutDuration,
-        equipment: userProfile.equipment || [],
-        injuries: userProfile.injuries || [],
       });
-      setSelectedEquipment(userProfile.equipment || []);
     }
-    setIsLoading(false);
-  }, [userProfile, currentUser, form]);
+  }, [userProfile]);
 
-  const toggleEquipment = (equipment: string) => {
-    const updated = selectedEquipment.includes(equipment)
-      ? selectedEquipment.filter((e) => e !== equipment)
-      : [...selectedEquipment, equipment];
-    setSelectedEquipment(updated);
-    form.setValue("equipment", updated);
+  const calculateBMI = () => {
+    if (!formData.height || !formData.weight) return null;
+
+    const heightInMeters = formData.height / 100;
+    const bmi = formData.weight / (heightInMeters * heightInMeters);
+
+    let category = "";
+    if (bmi < 18.5) category = "Underweight";
+    else if (bmi < 25) category = "Healthy Weight";
+    else if (bmi < 30) category = "Overweight";
+    else category = "Obese";
+
+    return { value: bmi.toFixed(1), category };
   };
 
-  const handleSave = async (data: UserProfileUpdate) => {
-    if (!currentUser) return;
-
-    setIsSaving(true);
+  const validateForm = () => {
     try {
-      // TODO: Replace with tRPC call when implemented
-      // await trpc.user.updateProfile.mutate(data);
+      ProfileFormSchema.parse(formData);
+      setErrors({});
+      return true;
+    } catch (error: any) {
+      const newErrors: Record<string, string> = {};
+      error.errors?.forEach((err: any) => {
+        newErrors[err.path[0]] = err.message;
+      });
+      setErrors(newErrors);
+      return false;
+    }
+  };
 
-      console.log("Profile update data:", data);
+  const handleSave = async () => {
+    if (!validateForm() || !currentUser) return;
 
-      toast({
-        title: "Profile updated! ✅",
-        description: "Your changes have been saved successfully.",
+    setIsLoading(true);
+    try {
+      const userRef = doc(db, "users", currentUser.uid);
+      await updateDoc(userRef, {
+        ...formData,
+        updatedAt: new Date(),
       });
 
+      toast({
+        title: "Profile Updated",
+        description: "Your profile has been successfully updated.",
+      });
       setIsEditing(false);
     } catch (error) {
-      console.error("Profile update error:", error);
+      console.error("Error updating profile:", error);
       toast({
-        title: "Update failed",
-        description: "Please try again or contact support.",
+        title: "Error",
+        description: "Failed to update profile. Please try again.",
         variant: "destructive",
       });
     } finally {
-      setIsSaving(false);
+      setIsLoading(false);
     }
   };
 
-  const handleCancel = () => {
-    form.reset();
-    setIsEditing(false);
-    if (userProfile) {
-      setSelectedEquipment(userProfile.equipment || []);
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/");
+      toast({
+        title: "Logged Out",
+        description: "You have been successfully logged out.",
+      });
+    } catch (error) {
+      console.error("Error logging out:", error);
+      toast({
+        title: "Error",
+        description: "Failed to log out. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="text-4xl mb-4">👤</div>
-          <p className="text-muted-foreground">Loading your profile...</p>
-        </div>
-      </div>
-    );
-  }
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmation !== "DELETE") return;
 
-  const currentGoal = GOALS.find((g) => g.value === userProfile?.goal);
-  const currentExperience = EXPERIENCE_LEVELS.find(
-    (e) => e.value === userProfile?.fitnessExperience
-  );
-  const currentActivity = ACTIVITY_LEVELS.find(
-    (a) => a.value === userProfile?.activityLevel
-  );
+    setIsLoading(true);
+    try {
+      // Delete user data from Firestore
+      const userRef = doc(db, "users", currentUser!.uid);
+      await deleteDoc(userRef);
+
+      // Delete Firebase Auth user
+      await currentUser!.delete();
+
+      toast({
+        title: "Account Deleted",
+        description: "Your account has been permanently deleted.",
+      });
+      navigate("/");
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete account. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+      setShowDeleteDialog(false);
+      setDeleteConfirmation("");
+    }
+  };
+
+  const bmi = calculateBMI();
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-8">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mb-8"
+        >
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Profile</h1>
-              <p className="text-muted-foreground">
-                Manage your personal information and fitness preferences
+              <p className="text-muted-foreground mt-1">
+                Manage your data, track progress, and control your experience
               </p>
             </div>
-            {!isEditing ? (
-              <Button
-                onClick={() => setIsEditing(true)}
-                className="flex items-center gap-2"
-              >
-                <Edit className="h-4 w-4" />
-                Edit Profile
-              </Button>
-            ) : (
-              <div className="flex gap-2">
-                <Button
-                  onClick={handleCancel}
-                  variant="outline"
-                  className="flex items-center gap-2"
-                >
-                  <X className="h-4 w-4" />
-                  Cancel
-                </Button>
-                <Button
-                  onClick={form.handleSubmit(handleSave)}
-                  disabled={isSaving}
-                  className="flex items-center gap-2"
-                >
-                  <Save className="h-4 w-4" />
-                  {isSaving ? "Saving..." : "Save Changes"}
-                </Button>
-              </div>
-            )}
+            <Button
+              variant="outline"
+              onClick={() => navigate("/dashboard")}
+              className="hidden sm:flex"
+            >
+              Back to Dashboard
+            </Button>
           </div>
-        </div>
+        </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Profile Overview */}
-          <div className="lg:col-span-1">
-            <Card className="border-0 shadow-lg">
-              <CardHeader className="text-center">
-                <div className="w-20 h-20 bg-spark-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <User className="h-10 w-10 text-spark-600" />
-                </div>
-                <CardTitle className="text-xl">
-                  {userProfile?.displayName ||
-                    currentUser?.displayName ||
-                    "User"}
-                </CardTitle>
-                <CardDescription>{currentUser?.email}</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {currentGoal && (
-                  <div className="flex items-center gap-3">
-                    <Target className="h-5 w-5 text-spark-600" />
-                    <div>
-                      <p className="font-medium">
-                        {currentGoal.emoji} {currentGoal.label}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Primary Goal
-                      </p>
-                    </div>
+          {/* Main Content */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Profile Information Form */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
+              <Card className="border-0 shadow-lg">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <User className="h-5 w-5 text-spark-600" />
+                      Profile Information
+                    </CardTitle>
+                    <CardDescription>
+                      Update your personal information and fitness goals
+                    </CardDescription>
                   </div>
-                )}
+                  <Button
+                    variant={isEditing ? "outline" : "default"}
+                    size="sm"
+                    onClick={() => setIsEditing(!isEditing)}
+                    disabled={isLoading}
+                  >
+                    {isEditing ? (
+                      <>
+                        <Edit className="h-4 w-4 mr-2" />
+                        Cancel
+                      </>
+                    ) : (
+                      <>
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit
+                      </>
+                    )}
+                  </Button>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Personal Information */}
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">
+                      Personal Information
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="displayName">Display Name</Label>
+                        <Input
+                          id="displayName"
+                          value={formData.displayName}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              displayName: e.target.value,
+                            })
+                          }
+                          disabled={!isEditing}
+                          className={errors.displayName ? "border-red-500" : ""}
+                        />
+                        {errors.displayName && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.displayName}
+                          </p>
+                        )}
+                      </div>
 
-                {currentExperience && (
-                  <div className="flex items-center gap-3">
-                    <Award className="h-5 w-5 text-spark-600" />
-                    <div>
-                      <p className="font-medium">{currentExperience.label}</p>
-                      <p className="text-sm text-muted-foreground">
-                        Experience Level
-                      </p>
-                    </div>
-                  </div>
-                )}
+                      <div>
+                        <Label htmlFor="age">Age</Label>
+                        <Input
+                          id="age"
+                          type="number"
+                          value={formData.age || ""}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              age: e.target.value
+                                ? Number(e.target.value)
+                                : undefined,
+                            })
+                          }
+                          disabled={!isEditing}
+                          className={errors.age ? "border-red-500" : ""}
+                        />
+                        {errors.age && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.age}
+                          </p>
+                        )}
+                      </div>
 
-                {userProfile?.workoutDaysPerWeek && (
-                  <div className="flex items-center gap-3">
-                    <Calendar className="h-5 w-5 text-spark-600" />
-                    <div>
-                      <p className="font-medium">
-                        {userProfile.workoutDaysPerWeek} days/week
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Workout Frequency
-                      </p>
+                      <div>
+                        <Label htmlFor="gender">Gender</Label>
+                        <Select
+                          value={formData.gender}
+                          onValueChange={(value: any) =>
+                            setFormData({ ...formData, gender: value })
+                          }
+                          disabled={!isEditing}
+                        >
+                          <SelectTrigger
+                            className={errors.gender ? "border-red-500" : ""}
+                          >
+                            <SelectValue placeholder="Select gender" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {GENDER_OPTIONS.map((option) => (
+                              <SelectItem
+                                key={option.value}
+                                value={option.value}
+                              >
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {errors.gender && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.gender}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
-                )}
-              </CardContent>
-            </Card>
+
+                  {/* Physical Metrics */}
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">
+                      Physical Metrics
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="height">Height (cm)</Label>
+                        <Input
+                          id="height"
+                          type="number"
+                          value={formData.height || ""}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              height: e.target.value
+                                ? Number(e.target.value)
+                                : undefined,
+                            })
+                          }
+                          disabled={!isEditing}
+                          className={errors.height ? "border-red-500" : ""}
+                        />
+                        {errors.height && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.height}
+                          </p>
+                        )}
+                      </div>
+
+                      <div>
+                        <Label htmlFor="weight">Weight (kg)</Label>
+                        <Input
+                          id="weight"
+                          type="number"
+                          value={formData.weight || ""}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              weight: e.target.value
+                                ? Number(e.target.value)
+                                : undefined,
+                            })
+                          }
+                          disabled={!isEditing}
+                          className={errors.weight ? "border-red-500" : ""}
+                        />
+                        {errors.weight && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.weight}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Fitness Goals */}
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">
+                      Fitness Goals
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="goal">Primary Goal</Label>
+                        <Select
+                          value={formData.goal}
+                          onValueChange={(value: any) =>
+                            setFormData({ ...formData, goal: value })
+                          }
+                          disabled={!isEditing}
+                        >
+                          <SelectTrigger
+                            className={errors.goal ? "border-red-500" : ""}
+                          >
+                            <SelectValue placeholder="Select your goal" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {GOAL_OPTIONS.map((option) => (
+                              <SelectItem
+                                key={option.value}
+                                value={option.value}
+                              >
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {errors.goal && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.goal}
+                          </p>
+                        )}
+                      </div>
+
+                      <div>
+                        <Label htmlFor="experience">Experience Level</Label>
+                        <Select
+                          value={formData.fitnessExperience}
+                          onValueChange={(value: any) =>
+                            setFormData({
+                              ...formData,
+                              fitnessExperience: value,
+                            })
+                          }
+                          disabled={!isEditing}
+                        >
+                          <SelectTrigger
+                            className={
+                              errors.fitnessExperience ? "border-red-500" : ""
+                            }
+                          >
+                            <SelectValue placeholder="Select experience level" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {EXPERIENCE_OPTIONS.map((option) => (
+                              <SelectItem
+                                key={option.value}
+                                value={option.value}
+                              >
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {errors.fitnessExperience && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.fitnessExperience}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Save Button */}
+                  {isEditing && (
+                    <div className="flex justify-end pt-4 border-t">
+                      <Button
+                        onClick={handleSave}
+                        disabled={isLoading}
+                        className="min-w-[120px]"
+                      >
+                        {isLoading ? (
+                          "Saving..."
+                        ) : (
+                          <>
+                            <Save className="h-4 w-4 mr-2" />
+                            Save Changes
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Calculated Stats */}
+            {bmi && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                <Card className="border-0 shadow-lg">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Target className="h-5 w-5 text-spark-600" />
+                      Calculated Stats
+                    </CardTitle>
+                    <CardDescription>
+                      Metrics calculated from your physical data
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="bg-spark-50 p-4 rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-semibold text-gray-900">
+                            Body Mass Index (BMI)
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {bmi.value} - {bmi.category}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-2xl font-bold text-spark-600">
+                            {bmi.value}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
           </div>
 
-          {/* Profile Details */}
-          <div className="lg:col-span-2 space-y-6">
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(handleSave)}
-                className="space-y-6"
-              >
-                {/* Basic Information */}
-                <Card className="border-0 shadow-lg">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <User className="h-5 w-5" />
-                      Basic Information
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <FormField
-                      control={form.control}
-                      name="displayName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Display Name</FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              disabled={!isEditing}
-                              className={!isEditing ? "bg-gray-50" : ""}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="age"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Age</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                {...field}
-                                disabled={!isEditing}
-                                className={!isEditing ? "bg-gray-50" : ""}
-                                onChange={(e) =>
-                                  field.onChange(
-                                    e.target.value
-                                      ? Number(e.target.value)
-                                      : undefined
-                                  )
-                                }
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="gender"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Gender</FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                              disabled={!isEditing}
-                            >
-                              <FormControl>
-                                <SelectTrigger
-                                  className={!isEditing ? "bg-gray-50" : ""}
-                                >
-                                  <SelectValue placeholder="Select gender" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="male">Male</SelectItem>
-                                <SelectItem value="female">Female</SelectItem>
-                                <SelectItem value="other">Other</SelectItem>
-                                <SelectItem value="prefer_not_to_say">
-                                  Prefer not to say
-                                </SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="fitnessExperience"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Experience</FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                              disabled={!isEditing}
-                            >
-                              <FormControl>
-                                <SelectTrigger
-                                  className={!isEditing ? "bg-gray-50" : ""}
-                                >
-                                  <SelectValue placeholder="Select level" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {EXPERIENCE_LEVELS.map((level) => (
-                                  <SelectItem
-                                    key={level.value}
-                                    value={level.value}
-                                  >
-                                    {level.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Motivational Stats */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+            >
+              <Card className="border-0 shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5 text-spark-600" />
+                    Your Progress
+                  </CardTitle>
+                  <CardDescription>
+                    Track your fitness journey achievements
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-green-100 rounded-full">
+                        <Calendar className="h-4 w-4 text-green-600" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-gray-900">
+                          Current Streak
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Consecutive weeks
+                        </p>
+                      </div>
                     </div>
-                  </CardContent>
-                </Card>
+                    <p className="text-2xl font-bold text-green-600">
+                      {motivationalStats.currentStreak}
+                    </p>
+                  </div>
 
-                {/* Physical Information */}
-                <Card className="border-0 shadow-lg">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Weight className="h-5 w-5" />
-                      Physical Information
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="height"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Height (cm)</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                {...field}
-                                disabled={!isEditing}
-                                className={!isEditing ? "bg-gray-50" : ""}
-                                onChange={(e) =>
-                                  field.onChange(
-                                    e.target.value
-                                      ? Number(e.target.value)
-                                      : undefined
-                                  )
-                                }
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="weight"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Weight (kg)</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                {...field}
-                                disabled={!isEditing}
-                                className={!isEditing ? "bg-gray-50" : ""}
-                                onChange={(e) =>
-                                  field.onChange(
-                                    e.target.value
-                                      ? Number(e.target.value)
-                                      : undefined
-                                  )
-                                }
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="targetWeight"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Target Weight (kg)</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                {...field}
-                                disabled={!isEditing}
-                                className={!isEditing ? "bg-gray-50" : ""}
-                                onChange={(e) =>
-                                  field.onChange(
-                                    e.target.value
-                                      ? Number(e.target.value)
-                                      : undefined
-                                  )
-                                }
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                  <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-blue-100 rounded-full">
+                        <Target className="h-4 w-4 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-gray-900">
+                          Total Workouts
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          All time
+                        </p>
+                      </div>
                     </div>
-                  </CardContent>
-                </Card>
+                    <p className="text-2xl font-bold text-blue-600">
+                      {motivationalStats.totalWorkouts}
+                    </p>
+                  </div>
 
-                {/* Fitness Preferences */}
-                <Card className="border-0 shadow-lg">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Activity className="h-5 w-5" />
-                      Fitness Preferences
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <FormField
-                      control={form.control}
-                      name="goal"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Primary Goal</FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                            disabled={!isEditing}
-                          >
-                            <FormControl>
-                              <SelectTrigger
-                                className={!isEditing ? "bg-gray-50" : ""}
-                              >
-                                <SelectValue placeholder="Select goal" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {GOALS.map((goal) => (
-                                <SelectItem key={goal.value} value={goal.value}>
-                                  {goal.emoji} {goal.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="activityLevel"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Activity Level</FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                            disabled={!isEditing}
-                          >
-                            <FormControl>
-                              <SelectTrigger
-                                className={!isEditing ? "bg-gray-50" : ""}
-                              >
-                                <SelectValue placeholder="Select activity level" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {ACTIVITY_LEVELS.map((level) => (
-                                <SelectItem
-                                  key={level.value}
-                                  value={level.value}
-                                >
-                                  {level.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="workoutDaysPerWeek"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Workout Days Per Week</FormLabel>
-                            <Select
-                              onValueChange={(value) =>
-                                field.onChange(Number(value))
-                              }
-                              defaultValue={field.value?.toString()}
-                              disabled={!isEditing}
-                            >
-                              <FormControl>
-                                <SelectTrigger
-                                  className={!isEditing ? "bg-gray-50" : ""}
-                                >
-                                  <SelectValue placeholder="Select days" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {[1, 2, 3, 4, 5, 6, 7].map((days) => (
-                                  <SelectItem
-                                    key={days}
-                                    value={days.toString()}
-                                  >
-                                    {days} {days === 1 ? "day" : "days"}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="workoutDuration"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Workout Duration (minutes)</FormLabel>
-                            <Select
-                              onValueChange={(value) =>
-                                field.onChange(Number(value))
-                              }
-                              defaultValue={field.value?.toString()}
-                              disabled={!isEditing}
-                            >
-                              <FormControl>
-                                <SelectTrigger
-                                  className={!isEditing ? "bg-gray-50" : ""}
-                                >
-                                  <SelectValue placeholder="Select duration" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="15">15 minutes</SelectItem>
-                                <SelectItem value="30">30 minutes</SelectItem>
-                                <SelectItem value="45">45 minutes</SelectItem>
-                                <SelectItem value="60">60 minutes</SelectItem>
-                                <SelectItem value="90">90 minutes</SelectItem>
-                                <SelectItem value="120">2 hours</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                  <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-purple-100 rounded-full">
+                        <Clock className="h-4 w-4 text-purple-600" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-gray-900">
+                          Time Spent
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Working out
+                        </p>
+                      </div>
                     </div>
+                    <p className="text-2xl font-bold text-purple-600">
+                      {Math.round(motivationalStats.timeSpentWorkingOut / 60)}h
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
 
-                    {/* Equipment */}
-                    <FormField
-                      control={form.control}
-                      name="equipment"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Available Equipment</FormLabel>
-                          <FormControl>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                              {EQUIPMENT_OPTIONS.map((equipment) => (
-                                <Badge
-                                  key={equipment}
-                                  variant={
-                                    selectedEquipment.includes(equipment)
-                                      ? "default"
-                                      : "outline"
-                                  }
-                                  className={`cursor-pointer p-2 text-center justify-center hover:bg-spark-100 ${
-                                    !isEditing
-                                      ? "cursor-default opacity-50"
-                                      : ""
-                                  }`}
-                                  onClick={
-                                    isEditing
-                                      ? () => toggleEquipment(equipment)
-                                      : undefined
-                                  }
-                                >
-                                  {equipment}
-                                </Badge>
-                              ))}
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+            {/* App Settings */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
+              <Card className="border-0 shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Settings className="h-5 w-5 text-spark-600" />
+                    App Settings
+                  </CardTitle>
+                  <CardDescription>
+                    Customize your FitSpark experience
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium">Dark Mode</p>
+                      <p className="text-sm text-muted-foreground">
+                        Switch between light and dark themes
+                      </p>
+                    </div>
+                    <Switch
+                      checked={settings.darkMode}
+                      onCheckedChange={(checked) =>
+                        setSettings({ ...settings, darkMode: checked })
+                      }
                     />
-                  </CardContent>
-                </Card>
-              </form>
-            </Form>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium">Daily Reminders</p>
+                      <p className="text-sm text-muted-foreground">
+                        Get daily workout reminders
+                      </p>
+                    </div>
+                    <Switch
+                      checked={settings.dailyReminders}
+                      onCheckedChange={(checked) =>
+                        setSettings({ ...settings, dailyReminders: checked })
+                      }
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium">Weekly Emails</p>
+                      <p className="text-sm text-muted-foreground">
+                        Receive weekly progress summaries
+                      </p>
+                    </div>
+                    <Switch
+                      checked={settings.weeklyEmails}
+                      onCheckedChange={(checked) =>
+                        setSettings({ ...settings, weeklyEmails: checked })
+                      }
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Account Management */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+            >
+              <Card className="border-0 shadow-lg border-red-200 bg-red-50">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-red-700">
+                    <AlertTriangle className="h-5 w-5" />
+                    Account Management
+                  </CardTitle>
+                  <CardDescription className="text-red-600">
+                    Critical account actions
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Button
+                    variant="outline"
+                    onClick={handleLogout}
+                    className="w-full justify-start"
+                    disabled={isLoading}
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Log Out
+                  </Button>
+
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start"
+                        disabled={isLoading}
+                      >
+                        <Lock className="h-4 w-4 mr-2" />
+                        Change Password
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Change Password</DialogTitle>
+                        <DialogDescription>
+                          Enter your current password and new password to update
+                          your account.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div>
+                          <Label htmlFor="currentPassword">
+                            Current Password
+                          </Label>
+                          <Input
+                            id="currentPassword"
+                            type="password"
+                            placeholder="Enter current password"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="newPassword">New Password</Label>
+                          <Input
+                            id="newPassword"
+                            type="password"
+                            placeholder="Enter new password"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="confirmPassword">
+                            Confirm New Password
+                          </Label>
+                          <Input
+                            id="confirmPassword"
+                            type="password"
+                            placeholder="Confirm new password"
+                          />
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <Button variant="outline">Cancel</Button>
+                        <Button>Update Password</Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+
+                  <AlertDialog
+                    open={showDeleteDialog}
+                    onOpenChange={setShowDeleteDialog}
+                  >
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="destructive"
+                        className="w-full justify-start"
+                        disabled={isLoading}
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete Account
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Account</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. This will permanently
+                          delete your account and remove all your data from our
+                          servers.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <div className="space-y-4">
+                        <div>
+                          <Label htmlFor="deleteConfirmation">
+                            Type "DELETE" to confirm
+                          </Label>
+                          <Input
+                            id="deleteConfirmation"
+                            value={deleteConfirmation}
+                            onChange={(e) =>
+                              setDeleteConfirmation(e.target.value)
+                            }
+                            placeholder="DELETE"
+                          />
+                        </div>
+                      </div>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={handleDeleteAccount}
+                          disabled={
+                            deleteConfirmation !== "DELETE" || isLoading
+                          }
+                          className="bg-red-600 hover:bg-red-700"
+                        >
+                          {isLoading ? "Deleting..." : "Delete Account"}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </CardContent>
+              </Card>
+            </motion.div>
           </div>
         </div>
       </div>

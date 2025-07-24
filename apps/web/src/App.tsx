@@ -12,12 +12,11 @@ import Footer from "@/components/layout/Footer";
 import LandingPage from "@/pages/LandingPage";
 import LoginPage from "@/pages/LoginPage";
 import SignupPage from "@/pages/SignupPage";
-import OnboardingPage from "@/pages/OnboardingPage";
 import DashboardPage from "@/pages/DashboardPage";
-import ProfilePage from "@/pages/ProfilePage";
 import { DataVerificationPage } from "@/pages/DataVerificationPage";
 import PlanSelectionPage from "@/pages/PlanSelectionPage";
 import ViewPlanPage from "@/pages/ViewPlanPage";
+import ProfilePage from "@/pages/ProfilePage";
 
 function App() {
   return (
@@ -52,16 +51,6 @@ function App() {
                   </div>
                   <Footer variant="landing" />
                 </div>
-              }
-            />
-
-            {/* Onboarding Route - Protected but with special layout */}
-            <Route
-              path="/onboarding"
-              element={
-                <ProtectedRoute>
-                  <OnboardingPage />
-                </ProtectedRoute>
               }
             />
 
