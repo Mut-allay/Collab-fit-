@@ -48,9 +48,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [userProfile, setUserProfile] = useState<FitSparkUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [sessionExpiry, setSessionExpiry] = useState<Date | null>(null);
+  const [lastRefreshTime, setLastRefreshTime] = useState<number>(0);
 
   // Session timeout duration (24 hours)
   const SESSION_TIMEOUT_HOURS = 24;
+  // Minimum time between refreshes (5 minutes)
+  const MIN_REFRESH_INTERVAL = 5 * 60 * 1000;
 
   async function signup(email: string, password: string, displayName?: string) {
     const { user } = await createUserWithEmailAndPassword(
@@ -149,16 +152,38 @@ export function AuthProvider({ children }: AuthProviderProps) {
   async function refreshSession() {
     if (!currentUser) return;
 
-    // Force token refresh
-    await currentUser.getIdToken(true);
+    // Check if enough time has passed since last refresh
+    const now = Date.now();
+    if (now - lastRefreshTime < MIN_REFRESH_INTERVAL) {
+      console.log("Skipping refresh - too soon since last refresh");
+      return;
+    }
 
-    // Update session expiry
-    const newExpiry = new Date();
-    newExpiry.setHours(newExpiry.getHours() + SESSION_TIMEOUT_HOURS);
-    setSessionExpiry(newExpiry);
+    try {
+      // Force token refresh
+      await currentUser.getIdToken(true);
 
-    // Store in localStorage
-    localStorage.setItem("sessionExpiry", newExpiry.toISOString());
+      // Update session expiry
+      const newExpiry = new Date();
+      newExpiry.setHours(newExpiry.getHours() + SESSION_TIMEOUT_HOURS);
+      setSessionExpiry(newExpiry);
+      setLastRefreshTime(now);
+
+      // Store in localStorage
+      localStorage.setItem("sessionExpiry", newExpiry.toISOString());
+      localStorage.setItem("lastRefreshTime", now.toString());
+    } catch (error: any) {
+      console.warn("Failed to refresh session:", error.message);
+
+      // If quota exceeded, don't retry immediately
+      if (error.code === "auth/quota-exceeded") {
+        console.warn("Auth quota exceeded, skipping refresh");
+        return;
+      }
+
+      // For other errors, try to continue
+      console.error("Session refresh error:", error);
+    }
   }
 
   function checkSessionExpiry() {
@@ -185,10 +210,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
         expiry.setHours(expiry.getHours() + SESSION_TIMEOUT_HOURS);
         setSessionExpiry(expiry);
         localStorage.setItem("sessionExpiry", expiry.toISOString());
+
+        // Restore last refresh time
+        const storedRefreshTime = localStorage.getItem("lastRefreshTime");
+        if (storedRefreshTime) {
+          setLastRefreshTime(parseInt(storedRefreshTime));
+        }
       } else {
         setUserProfile(null);
         setSessionExpiry(null);
+        setLastRefreshTime(0);
         localStorage.removeItem("sessionExpiry");
+        localStorage.removeItem("lastRefreshTime");
       }
 
       setLoading(false);
@@ -206,27 +239,30 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return () => clearInterval(interval);
   }, [sessionExpiry]);
 
-  // Refresh session on user activity
+  // Refresh session on user activity (debounced)
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+
     const handleUserActivity = () => {
       if (currentUser && sessionExpiry) {
-        refreshSession();
+        // Clear existing timeout
+        clearTimeout(timeoutId);
+
+        // Set new timeout for debounced refresh
+        timeoutId = setTimeout(() => {
+          refreshSession();
+        }, 30000); // Wait 30 seconds after last activity
       }
     };
 
-    // Listen for user activity
-    const events = [
-      "mousedown",
-      "mousemove",
-      "keypress",
-      "scroll",
-      "touchstart",
-    ];
+    // Listen for user activity (reduced frequency)
+    const events = ["mousedown", "keypress", "scroll", "touchstart"]; // Removed mousemove to reduce frequency
     events.forEach((event) => {
       document.addEventListener(event, handleUserActivity, true);
     });
 
     return () => {
+      clearTimeout(timeoutId);
       events.forEach((event) => {
         document.removeEventListener(event, handleUserActivity, true);
       });

@@ -148,8 +148,15 @@ export default function DashboardPage() {
       });
 
       setWeeklyProgress(progress);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching weekly progress:", error);
+
+      // If it's an index error, show a helpful message
+      if (error.message?.includes("requires an index")) {
+        console.warn("Firestore index not ready yet, using placeholder data");
+        // Set placeholder data while indexes are building
+        setWeeklyProgress([]);
+      }
     }
   };
 
