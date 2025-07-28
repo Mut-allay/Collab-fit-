@@ -49,11 +49,10 @@ Establish the complete development environment, CI/CD pipeline, and project stru
 - Clean up console logs and establish logging best practices.
 - ⚠️ Configure Vitest for unit/component testing and Storybook for visual development. _(Deferred to future milestone)_
 
-### 🚧 **Milestone 2: Core User & Auth Flow (MVP Part 1)**
+## ✅ Milestone 2: Core User & Auth Flow (MVP Part 1) - COMPLETED
 
-🚀 Milestone 2: Core User & Auth Flow (MVP Part 1) - IN PROGRESS
-Goal: Implement the complete user registration, login, and profile management using Firebase client SDK. This allows users to get into the system, which is the first critical step of the user journey.
-Estimated Completion: August 22, 2025 (4 Weeks)
+**Goal:** Implement user registration, login, and profile management.
+**Completed:** August 2025
 
 Week 1 (July 21 - July 27): Foundational UI & Auth Logic
 
@@ -95,36 +94,12 @@ Week 4 (Aug 11 - Aug 17): Testing & Refinement
 
 [ ] Polish all UI, add missing loading states, and handle edge cases.
 
-### 🧠 **Milestone 3: Pre-defined Plan Selection (MVP Part 2)**
+## ✅ Milestone 3: Pre-defined Plan Selection (MVP Part 2) - PARTIALLY COMPLETED
 
-**Goal:** Implement fitness plan selection and workout execution based on user stories.  
-**ETA:** September 5, 2025 (3 Weeks)
+**Goal:** Fitness plan selection and dashboard integration.
+**Completed Tasks:** Firestore setup, PlanSelectionPage, ViewPlanPage, Dashboard updates.
 
-#### Epic 2: Fitness Plan Management
-
-**Week 1 (Aug 4 - Aug 10): Firestore Setup & Data Seeding**
-
-- [ ] Enable Firestore database in Firebase Console
-- [ ] Install seeding package dependencies
-- [ ] Run seed scripts to populate exercises and workout plans
-- [ ] Verify data in Firestore Console
-
-**Week 2 (Aug 11 - Aug 17): Plan Selection UI**
-
-- [ ] Create PlanSelectionPage.tsx with plan cards
-- [ ] Build ViewPlanPage.tsx to show workout details
-- [ ] Update user profile to store selectedPlanId
-- [ ] Add plan selection to onboarding flow
-
-**Week 3 (Aug 18 - Aug 24): Dashboard Integration**
-
-- [ ] Update Dashboard to show "Today's Workout" from selected plan
-- [ ] Add "Start Workout" CTA button
-- [ ] Implement plan switching functionality
-
----
-
-### 🏋️‍♂️ **Milestone 4: Workout Execution & Logging (MVP Part 3)**
+## 🔄 Milestone 4: Workout Execution & Logging (MVP Part 3) - IN PROGRESS
 
 **Goal:** Interactive workout sessions with real-time logging. Core engagement loop.  
 **ETA:** September 26, 2025 (3 Weeks)
@@ -212,3 +187,13 @@ Week 4 (Aug 11 - Aug 17): Testing & Refinement
 - [ ] Prepare marketing assets + App Store/social pages
 - [ ] Final Go/No-Go
 - [ ] **LAUNCH FITSPARK MVP!** 🚀
+
+## 🆕 Milestone 7: Testing & Code Quality Improvements
+
+**Goal:** Achieve 70%+ test coverage, remove unused code, add comments for readability.
+**ETA:** Current
+**Tasks:**
+
+- Add tests for dashboard, hooks, pages.
+- Scan and remove unused dependencies/files.
+- Add code comments to key files.

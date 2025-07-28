@@ -1,9 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { doc, getDoc, addDoc, collection } from "firebase/firestore";
 import { motion, AnimatePresence } from "framer-motion";
-import { db } from "../lib/firebase";
-import { useAuth } from "../contexts/AuthContext";
 import {
   Card,
   CardContent,
@@ -15,334 +10,68 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Play, Pause, SkipForward, Check, ArrowLeft } from "lucide-react";
-
-interface Exercise {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-  muscleGroups: string[];
-  equipment: string[];
-  instructions: string[];
-  sets: number;
-  reps: number;
-  restSeconds: number;
-}
-
-interface WorkoutExercise {
-  exerciseId: string;
-  sets: number;
-  reps: number;
-  weight?: number;
-  restTime: number;
-  duration?: number;
-}
-
-interface WorkoutPhase {
-  id: string;
-  name: string;
-  description: string;
-  exercises: WorkoutExercise[];
-  estimatedDuration: number;
-}
-
-interface WorkoutPlan {
-  id: string;
-  title: string;
-  phases: WorkoutPhase[];
-}
-
-interface SetLog {
-  exerciseId: string;
-  exerciseName: string;
-  setNumber: number;
-  weight: number;
-  reps: number;
-  completed: boolean;
-}
-
-interface WorkoutSession {
-  workoutPlanId: string;
-  phaseId: string;
-  phaseName: string;
-  startTime: Date;
-  endTime?: Date;
-  sets: SetLog[];
-  totalVolume: number;
-  duration: number;
-}
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
+  Play,
+  Pause,
+  SkipForward,
+  Check,
+  ArrowLeft,
+  Zap,
+} from "lucide-react";
+import { useWorkoutSession } from "@/hooks/useWorkoutSession";
+import { useState } from "react";
 
 export default function WorkoutSessionPage() {
-  const { planId, phaseId } = useParams();
-  const navigate = useNavigate();
-  const { currentUser } = useAuth();
+  const [showExitDialog, setShowExitDialog] = useState(false);
 
-  // State management
-  const [currentPhase, setCurrentPhase] = useState<WorkoutPhase | null>(null);
-  const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
-  const [currentSetIndex, setCurrentSetIndex] = useState(0);
-  const [session, setSession] = useState<WorkoutSession | null>(null);
-  const [isResting, setIsResting] = useState(false);
-  const [restTimeLeft, setRestTimeLeft] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [exerciseDetails, setExerciseDetails] = useState<Map<string, Exercise>>(
-    new Map()
-  );
+  const {
+    // State
+    currentPhase,
+    currentExerciseIndex,
+    currentSetIndex,
+    session,
+    isResting,
+    restTimeLeft,
+    isPaused,
+    loading,
+    currentWeight,
+    currentReps,
+    setLogs,
 
-  // Timer state
-  const [workoutStartTime, setWorkoutStartTime] = useState<Date | null>(null);
-  const [currentWorkoutTime, setCurrentWorkoutTime] = useState(0);
-  const [laps, setLaps] = useState<{ exercise: string; time: number }[]>([]);
-  const [lastLapTime, setLastLapTime] = useState<Date | null>(null);
+    // Computed
+    currentExercise,
+    totalSets,
+    totalExercises,
 
-  // Set logging state
-  const [currentWeight, setCurrentWeight] = useState("");
-  const [currentReps, setCurrentReps] = useState("");
-  const [setLogs, setSetLogs] = useState<SetLog[]>([]);
+    // Actions
+    setCurrentWeight,
+    setCurrentReps,
 
-  // Get current exercise and set info
-  const currentWorkoutExercise = currentPhase?.exercises[currentExerciseIndex];
-  const currentExercise = currentWorkoutExercise
-    ? exerciseDetails.get(currentWorkoutExercise.exerciseId)
-    : null;
-  const totalSets = currentWorkoutExercise?.sets || 0;
-  const totalExercises = currentPhase?.exercises.length || 0;
-  const isLastSet = currentSetIndex >= totalSets - 1;
-  const isLastExercise = currentExerciseIndex >= totalExercises - 1;
-
-  // Load workout data
-  useEffect(() => {
-    if (planId) {
-      loadWorkoutPlan();
-    }
-  }, [planId]);
-
-  const loadWorkoutPlan = async () => {
-    try {
-      const planRef = doc(db, "workoutPrograms", planId!);
-      const planSnap = await getDoc(planRef);
-
-      if (planSnap.exists()) {
-        const planData = { id: planSnap.id, ...planSnap.data() } as WorkoutPlan;
-
-        // Find the specific phase or use the first one
-        const targetPhase = phaseId
-          ? planData.phases.find((p) => p.id === phaseId)
-          : planData.phases[0];
-
-        if (targetPhase) {
-          setCurrentPhase(targetPhase);
-          initializeSession(planData, targetPhase);
-
-          // Fetch exercise details for all exercises in this phase
-          await loadExerciseDetails(targetPhase.exercises);
-        }
-      }
-    } catch (error) {
-      console.error("Error loading workout plan:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadExerciseDetails = async (workoutExercises: WorkoutExercise[]) => {
-    try {
-      const exerciseIds = workoutExercises.map((ex) => ex.exerciseId);
-      const detailsMap = new Map<string, Exercise>();
-
-      // Fetch each exercise detail
-      for (const exerciseId of exerciseIds) {
-        const exerciseRef = doc(db, "exercises", exerciseId);
-        const exerciseSnap = await getDoc(exerciseRef);
-
-        if (exerciseSnap.exists()) {
-          const exerciseData = {
-            id: exerciseSnap.id,
-            ...exerciseSnap.data(),
-          } as Exercise;
-          detailsMap.set(exerciseId, exerciseData);
-        }
-      }
-
-      setExerciseDetails(detailsMap);
-    } catch (error) {
-      console.error("Error loading exercise details:", error);
-    }
-  };
-
-  const initializeSession = (plan: WorkoutPlan, phase: WorkoutPhase) => {
-    const startTime = new Date();
-    const newSession: WorkoutSession = {
-      workoutPlanId: plan.id,
-      phaseId: phase.id,
-      phaseName: phase.name,
-      startTime,
-      sets: [],
-      totalVolume: 0,
-      duration: 0,
-    };
-    setSession(newSession);
-    setWorkoutStartTime(startTime);
-    setLastLapTime(startTime);
-  };
-
-  // Workout timer functionality
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-
-    if (workoutStartTime && !isPaused) {
-      interval = setInterval(() => {
-        setCurrentWorkoutTime((prev) => prev + 1);
-      }, 1000);
-    }
-
-    return () => clearInterval(interval);
-  }, [workoutStartTime, isPaused]);
-
-  // Rest timer functionality
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-
-    if (isResting && restTimeLeft > 0 && !isPaused) {
-      interval = setInterval(() => {
-        setRestTimeLeft((prev) => {
-          if (prev <= 1) {
-            setIsResting(false);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-
-    return () => clearInterval(interval);
-  }, [isResting, restTimeLeft, isPaused]);
-
-  const startRestTimer = useCallback((seconds: number) => {
-    setRestTimeLeft(seconds);
-    setIsResting(true);
-  }, []);
-
-  const pauseRestTimer = () => {
-    setIsPaused(!isPaused);
-  };
-
-  const skipRest = () => {
-    setIsResting(false);
-    setRestTimeLeft(0);
-    setIsPaused(false);
-  };
-
-  // Set logging functionality
-  const logSet = () => {
-    if (!currentExercise || !currentWeight || !currentReps) return;
-
-    const weight = parseFloat(currentWeight);
-    const reps = parseInt(currentReps);
-
-    // Input validation
-    if (isNaN(weight) || isNaN(reps)) return;
-    if (weight < 0 || reps < 0) return;
-    if (weight > 2000 || reps > 1000) return; // Reasonable limits
-
-    const newSetLog: SetLog = {
-      exerciseId: currentExercise.id,
-      exerciseName: currentExercise.name,
-      setNumber: currentSetIndex + 1,
-      weight,
-      reps,
-      completed: true,
-    };
-
-    setSetLogs((prev) => [...prev, newSetLog]);
-
-    // Clear current inputs
-    setCurrentWeight("");
-    setCurrentReps("");
-
-    // Move to next set or exercise
-    if (isLastSet) {
-      // Record lap time when completing an exercise
-      if (lastLapTime && currentExercise) {
-        const lapTime = Math.floor(
-          (new Date().getTime() - lastLapTime.getTime()) / 1000
-        );
-        setLaps((prev) => [
-          ...prev,
-          { exercise: currentExercise.name, time: lapTime },
-        ]);
-        setLastLapTime(new Date());
-      }
-
-      if (isLastExercise) {
-        // Workout complete
-        completeWorkout();
-      } else {
-        // Move to next exercise
-        setCurrentExerciseIndex((prev) => prev + 1);
-        setCurrentSetIndex(0);
-        startRestTimer(currentWorkoutExercise?.restTime || 60);
-      }
-    } else {
-      // Move to next set
-      setCurrentSetIndex((prev) => prev + 1);
-      startRestTimer(currentWorkoutExercise?.restTime || 60);
-    }
-  };
-
-  const completeWorkout = async () => {
-    if (!session || !currentUser) return;
-
-    const endTime = new Date();
-    const duration = Math.floor(
-      (endTime.getTime() - session.startTime.getTime()) / 1000 / 60
-    ); // minutes
-    const totalVolume = setLogs.reduce(
-      (sum, set) => sum + set.weight * set.reps,
-      0
-    );
-
-    const completedSession: WorkoutSession = {
-      ...session,
-      endTime,
-      sets: setLogs,
-      totalVolume,
-      duration,
-    };
-
-    try {
-      // Save to Firestore
-      await addDoc(collection(db, "workoutLogs"), {
-        userId: currentUser.uid,
-        ...completedSession,
-        createdAt: new Date(),
-      });
-
-      // Navigate to summary
-      navigate(
-        `/workout-summary/${completedSession.workoutPlanId}/${completedSession.phaseId}`,
-        {
-          state: { session: completedSession },
-        }
-      );
-    } catch (error) {
-      console.error("Error saving workout:", error);
-    }
-  };
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
-  };
+    // Handlers
+    pauseRestTimer,
+    skipRest,
+    logSet,
+    formatTime,
+  } = useWorkoutSession();
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="text-4xl mb-4">🏋️</div>
+          <div className="text-4xl mb-4">
+            <Zap className="h-12 w-12 mx-auto text-spark-600 animate-pulse" />
+          </div>
           <p className="text-muted-foreground">Loading your workout...</p>
         </div>
       </div>
@@ -353,11 +82,12 @@ export default function WorkoutSessionPage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="text-4xl mb-4">❌</div>
-          <p className="text-muted-foreground">Workout not found</p>
-          <Button onClick={() => navigate("/dashboard")} className="mt-4">
-            Back to Dashboard
-          </Button>
+          <div className="text-6xl mb-4">🤔</div>
+          <h2 className="text-2xl font-semibold mb-2">Workout not found</h2>
+          <p className="text-muted-foreground mb-4">
+            The workout you're looking for doesn't exist.
+          </p>
+          <Button onClick={() => window.history.back()}>Go Back</Button>
         </div>
       </div>
     );
@@ -369,320 +99,290 @@ export default function WorkoutSessionPage() {
       <div className="bg-white border-b sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate("/dashboard")}
-              >
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-              <div>
-                <h1 className="text-lg font-semibold">{currentPhase.name}</h1>
-                <p className="text-sm text-muted-foreground">
-                  Exercise {currentExerciseIndex + 1} of {totalExercises}
-                </p>
-              </div>
+            <AlertDialog open={showExitDialog} onOpenChange={setShowExitDialog}>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-1" />
+                  Back
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Exit Workout?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to exit this workout? Your progress will be lost and you'll need to start over.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Continue Workout</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => window.history.back()}>
+                    Exit Workout
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
+            <div className="text-center">
+              <h1 className="text-lg font-semibold">{currentPhase.name}</h1>
+              <p className="text-sm text-muted-foreground">
+                Exercise {currentExerciseIndex + 1} of {totalExercises}
+              </p>
             </div>
 
-            <div className="flex items-center gap-2">
-              {/* Timer Display */}
-              <div className="text-center">
-                <div className="text-sm font-mono text-spark-600">
-                  {formatTime(currentWorkoutTime)}
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  Workout Time
-                </div>
+            <div className="text-right">
+              <div className="text-sm font-mono">
+                {formatTime(0)} {/* or use session?.duration || 0 */}
               </div>
-
-              <Badge variant="outline">
-                Set {currentSetIndex + 1} of {totalSets}
-              </Badge>
-
-              {isPaused && <Badge variant="secondary">PAUSED</Badge>}
-
-              {/* Exit Workout Button */}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  if (
-                    confirm(
-                      "Are you sure you want to exit this workout? Your progress will be lost."
-                    )
-                  ) {
-                    navigate("/dashboard");
-                  }
-                }}
-                className="text-red-600 border-red-200 hover:bg-red-50"
-              >
-                Exit
-              </Button>
+              <div className="text-xs text-muted-foreground">Workout Time</div>
             </div>
           </div>
         </div>
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-6">
-        <AnimatePresence mode="wait">
-          {isResting ? (
-            // Rest Timer View
-            <motion.div
-              key="rest"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="text-center"
-            >
-              <Card className="max-w-md mx-auto">
-                <CardHeader className="text-center">
-                  <div className="text-6xl mb-4">⏰</div>
-                  <CardTitle className="text-2xl">Rest Time</CardTitle>
+        {/* Current Exercise */}
+        <motion.div
+          key={currentExerciseIndex}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -20 }}
+          className="mb-6"
+        >
+          <Card className="border-0 shadow-lg">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-2xl">
+                    {currentExercise.name}
+                  </CardTitle>
                   <CardDescription>
-                    Take a breather and prepare for your next set
+                    Set {currentSetIndex + 1} of {totalSets}
                   </CardDescription>
-                </CardHeader>
-                <CardContent className="text-center">
-                  <div className="text-6xl font-bold text-spark-600 mb-6">
-                    {formatTime(restTimeLeft)}
-                  </div>
+                </div>
+                <Badge variant="secondary">
+                  {currentExercise.category}
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground mb-4">
+                {currentExercise.description}
+              </p>
 
-                  <div className="flex justify-center gap-3">
+              {/* Set Input */}
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <div>
+                  <Label htmlFor="weight">Weight (kg)</Label>
+                  <Input
+                    id="weight"
+                    type="number"
+                    min="0.5"
+                    max="1000"
+                    step="0.5"
+                    value={currentWeight}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      const numValue = parseFloat(value);
+                      if (value === "" || (numValue >= 0.5 && numValue <= 1000)) {
+                        setCurrentWeight(value);
+                      }
+                    }}
+                    placeholder="0"
+                    className="text-center text-lg"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="reps">Reps</Label>
+                  <Input
+                    id="reps"
+                    type="number"
+                    min="1"
+                    max="200"
+                    step="1"
+                    value={currentReps}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      const numValue = parseInt(value);
+                      if (value === "" || (numValue >= 1 && numValue <= 200)) {
+                        setCurrentReps(value);
+                      }
+                    }}
+                    placeholder="0"
+                    className="text-center text-lg"
+                  />
+                </div>
+              </div>
+
+              <Button
+                onClick={logSet}
+                disabled={!currentWeight || !currentReps}
+                className="w-full bg-spark-600 hover:bg-spark-700"
+                size="lg"
+              >
+                <Check className="h-5 w-5 mr-2" />
+                Log Set
+              </Button>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Rest Timer */}
+        <AnimatePresence>
+          {isResting && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="mb-6"
+            >
+              <Card className="border-0 shadow-lg bg-spark-50">
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <span>Rest Time</span>
+                    <div className="text-3xl font-mono text-spark-600">
+                      {formatTime(restTimeLeft)}
+                    </div>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex gap-2">
                     <Button
-                      variant="outline"
                       onClick={pauseRestTimer}
+                      variant="outline"
                       className="flex-1"
                     >
                       {isPaused ? (
-                        <Play className="h-4 w-4" />
+                        <>
+                          <Play className="h-4 w-4 mr-2" />
+                          Resume
+                        </>
                       ) : (
-                        <Pause className="h-4 w-4" />
+                        <>
+                          <Pause className="h-4 w-4 mr-2" />
+                          Pause
+                        </>
                       )}
-                      {isPaused ? "Resume" : "Pause"}
                     </Button>
                     <Button
-                      variant="outline"
                       onClick={skipRest}
+                      variant="outline"
                       className="flex-1"
                     >
-                      <SkipForward className="h-4 w-4" />
+                      <SkipForward className="h-4 w-4 mr-2" />
                       Skip
                     </Button>
                   </div>
                 </CardContent>
               </Card>
             </motion.div>
-          ) : (
-            // Exercise View
-            <motion.div
-              key="exercise"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="space-y-6"
-            >
-              {/* Current Exercise */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-2xl flex items-center gap-3">
-                    <span className="text-4xl">💪</span>
-                    {currentExercise.name}
-                  </CardTitle>
-                  <CardDescription className="text-base">
-                    {currentExercise.description}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {/* Exercise Instructions */}
-                  <div>
-                    <h3 className="font-semibold mb-3">Instructions:</h3>
-                    <ol className="list-decimal list-inside space-y-2 text-sm">
-                      {currentExercise.instructions?.map(
-                        (instruction, index) => (
-                          <li key={index} className="text-muted-foreground">
-                            {instruction}
-                          </li>
-                        )
-                      ) || (
-                        <li className="text-muted-foreground">
-                          No specific instructions available for this exercise.
-                        </li>
-                      )}
-                    </ol>
-                  </div>
-
-                  {/* Set Logging Form */}
-                  <div className="bg-gray-50 p-6 rounded-lg">
-                    <h3 className="font-semibold mb-4">
-                      Log Set {currentSetIndex + 1} of {totalSets}
-                    </h3>
-
-                    <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div>
-                        <Label htmlFor="weight">Weight (lbs)</Label>
-                        <Input
-                          id="weight"
-                          type="number"
-                          min="0"
-                          max="2000"
-                          step="0.5"
-                          value={currentWeight}
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            const numValue = parseFloat(value);
-                            if (
-                              value === "" ||
-                              (numValue >= 0 && numValue <= 2000)
-                            ) {
-                              setCurrentWeight(value);
-                            }
-                          }}
-                          placeholder="0"
-                          className="mt-1"
-                        />
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Max: 2000 lbs
-                        </p>
-                      </div>
-                      <div>
-                        <Label htmlFor="reps">Reps</Label>
-                        <Input
-                          id="reps"
-                          type="number"
-                          min="0"
-                          max="1000"
-                          step="1"
-                          value={currentReps}
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            const numValue = parseInt(value);
-                            if (
-                              value === "" ||
-                              (numValue >= 0 && numValue <= 1000)
-                            ) {
-                              setCurrentReps(value);
-                            }
-                          }}
-                          placeholder="0"
-                          className="mt-1"
-                        />
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Max: 1000 reps
-                        </p>
-                      </div>
-                    </div>
-
-                    <Button
-                      onClick={logSet}
-                      disabled={!currentWeight || !currentReps}
-                      className="w-full"
-                      size="lg"
-                    >
-                      <Check className="h-4 w-4 mr-2" />
-                      Complete Set
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Progress Summary */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Today's Progress</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {/* Overall Stats */}
-                    <div className="grid grid-cols-3 gap-4 text-center">
-                      <div>
-                        <div className="text-2xl font-bold text-spark-600">
-                          {setLogs.length}
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          Sets Completed
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-2xl font-bold text-spark-600">
-                          {formatTime(currentWorkoutTime)}
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          Workout Time
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-2xl font-bold text-spark-600">
-                          {laps.length}
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          Exercises Done
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Exercise Breakdown */}
-                    {currentExercise && (
-                      <div className="border-t pt-4">
-                        <h4 className="font-semibold mb-3 text-center">
-                          Current Exercise: {currentExercise.name}
-                        </h4>
-                        <div className="grid grid-cols-2 gap-4 text-center">
-                          <div>
-                            <div className="text-lg font-bold text-spark-600">
-                              {
-                                setLogs.filter(
-                                  (set) => set.exerciseId === currentExercise.id
-                                ).length
-                              }
-                            </div>
-                            <div className="text-sm text-muted-foreground">
-                              Sets Done
-                            </div>
-                          </div>
-                          <div>
-                            <div className="text-lg font-bold text-spark-600">
-                              {setLogs
-                                .filter(
-                                  (set) => set.exerciseId === currentExercise.id
-                                )
-                                .reduce((sum, set) => sum + set.reps, 0)}
-                            </div>
-                            <div className="text-sm text-muted-foreground">
-                              Total Reps
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Lap Times */}
-                    {laps.length > 0 && (
-                      <div className="border-t pt-4">
-                        <h4 className="font-semibold mb-3">Exercise Times</h4>
-                        <div className="space-y-2">
-                          {laps.map((lap, index) => (
-                            <div
-                              key={index}
-                              className="flex justify-between items-center text-sm"
-                            >
-                              <span className="text-muted-foreground">
-                                {lap.exercise}
-                              </span>
-                              <span className="font-mono text-spark-600">
-                                {formatTime(lap.time)}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Progress */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Set Logs */}
+          <Card className="border-0 shadow-lg">
+            <CardHeader>
+              <CardTitle>Today's Sets</CardTitle>
+              <CardDescription>
+                {setLogs.length} sets completed
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {setLogs.map((set, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-2 bg-gray-50 rounded"
+                  >
+                    <div>
+                      <div className="font-medium">{set.exerciseName}</div>
+                      <div className="text-sm text-muted-foreground">
+                        Set {set.setNumber}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-medium">
+                        {set.weight}kg × {set.reps}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        {set.weight * set.reps}kg total
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {setLogs.length === 0 && (
+                  <div className="text-center text-muted-foreground py-4">
+                    No sets logged yet
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Session Stats */}
+          <Card className="border-0 shadow-lg">
+            <CardHeader>
+              <CardTitle>Session Stats</CardTitle>
+              <CardDescription>Your workout progress</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex justify-between">
+                  <span>Total Volume:</span>
+                  <span className="font-medium">
+                    {session?.totalVolume || 0}kg
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Sets Completed:</span>
+                  <span className="font-medium">{setLogs.length}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Workout Time:</span>
+                  <span className="font-medium">
+                    {formatTime(0)} {/* or use session?.duration || 0 */}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Exercises Left:</span>
+                  <span className="font-medium">
+                    {totalExercises - currentExerciseIndex - 1}
+                  </span>
+                </div>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="mt-4">
+                <div className="flex justify-between text-sm mb-1">
+                  <span>Progress</span>
+                  <span>
+                    {Math.round(
+                      ((currentExerciseIndex * totalSets + currentSetIndex) /
+                        (totalExercises * totalSets)) *
+                      100
+                    )}
+                    %
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-spark-600 h-2 rounded-full transition-all duration-300"
+                    style={{
+                      width: `${((currentExerciseIndex * totalSets + currentSetIndex) /
+                        (totalExercises * totalSets)) *
+                        100
+                        }%`,
+                    }}
+                  ></div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

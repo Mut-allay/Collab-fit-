@@ -1,8 +1,4 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { useAuth } from "../contexts/AuthContext";
-import { useToast } from "../hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -55,285 +51,42 @@ import {
   Save,
   Edit,
 } from "lucide-react";
-import { doc, updateDoc, deleteDoc, getDoc, setDoc } from "firebase/firestore";
-import { db } from "../lib/firebase";
-import { UserSchema } from "@fitspark/shared";
-
-// Form validation schema
-const ProfileFormSchema = UserSchema.pick({
-  displayName: true,
-  age: true,
-  gender: true,
-  height: true,
-  weight: true,
-  goal: true,
-  fitnessExperience: true,
-});
-
-type ProfileFormData = {
-  displayName: string;
-  age: number | undefined;
-  gender: "male" | "female" | "other" | "prefer_not_to_say" | undefined;
-  height: number | undefined;
-  weight: number | undefined;
-  goal:
-    | "weight_loss"
-    | "muscle_gain"
-    | "strength"
-    | "endurance"
-    | "general_fitness"
-    | undefined;
-  fitnessExperience: "beginner" | "intermediate" | "advanced" | undefined;
-};
-
-const GOAL_OPTIONS = [
-  { value: "weight_loss", label: "Lose Weight" },
-  { value: "muscle_gain", label: "Gain Muscle" },
-  { value: "strength", label: "Build Strength" },
-  { value: "endurance", label: "Improve Endurance" },
-  { value: "general_fitness", label: "General Fitness" },
-];
-
-const EXPERIENCE_OPTIONS = [
-  { value: "beginner", label: "Beginner" },
-  { value: "intermediate", label: "Intermediate" },
-  { value: "advanced", label: "Advanced" },
-];
-
-const GENDER_OPTIONS = [
-  { value: "male", label: "Male" },
-  { value: "female", label: "Female" },
-  { value: "prefer_not_to_say", label: "Prefer not to say" },
-];
+import { useProfileForm } from "@/hooks/useProfileForm";
+import { GOAL_OPTIONS, EXPERIENCE_OPTIONS, GENDER_OPTIONS } from "@/types/profile";
 
 export default function ProfilePage() {
-  const { currentUser, userProfile, logout } = useAuth();
-  const { toast } = useToast();
-  const navigate = useNavigate();
-  const [isEditing, setIsEditing] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState<ProfileFormData>({
-    displayName: "",
-    age: undefined,
-    gender: undefined,
-    height: undefined,
-    weight: undefined,
-    goal: undefined,
-    fitnessExperience: undefined,
-  });
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [deleteConfirmation, setDeleteConfirmation] = useState("");
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const {
+    // State
+    isEditing,
+    isLoading,
+    formData,
+    errors,
+    deleteConfirmation,
+    showDeleteDialog,
+    settings,
+    motivationalStats,
 
-  // App settings state
-  const [settings, setSettings] = useState({
-    darkMode: false,
-    dailyReminders: true,
-    weeklyEmails: true,
-  });
+    // Actions
+    setIsEditing,
+    setFormData,
+    setDeleteConfirmation,
+    setShowDeleteDialog,
+    setSettings,
 
-  // Mock motivational stats (replace with real data from Firestore)
-  const [motivationalStats] = useState({
-    currentStreak: 3,
-    totalWorkouts: 24,
-    timeSpentWorkingOut: 720, // in minutes
-  });
+    // Computed
+    calculateBMI,
 
-  useEffect(() => {
-    if (userProfile) {
-      setFormData({
-        displayName: userProfile.displayName || "",
-        age: userProfile.age,
-        gender: userProfile.gender,
-        height: userProfile.height,
-        weight: userProfile.weight,
-        goal: userProfile.goal,
-        fitnessExperience: userProfile.fitnessExperience,
-      });
-    }
-  }, [userProfile]);
-
-  const calculateBMI = () => {
-    if (!formData.height || !formData.weight) return null;
-
-    const heightInMeters = formData.height / 100;
-    const bmi = formData.weight / (heightInMeters * heightInMeters);
-
-    let category = "";
-    if (bmi < 18.5) category = "Underweight";
-    else if (bmi < 25) category = "Healthy Weight";
-    else if (bmi < 30) category = "Overweight";
-    else category = "Obese";
-
-    return { value: bmi.toFixed(1), category };
-  };
-
-  const validateForm = () => {
-    try {
-      ProfileFormSchema.parse(formData);
-      setErrors({});
-      return true;
-    } catch (error: any) {
-      const newErrors: Record<string, string> = {};
-      error.errors?.forEach((err: any) => {
-        newErrors[err.path[0]] = err.message;
-      });
-      setErrors(newErrors);
-      return false;
-    }
-  };
-
-  const handleSave = async () => {
-    console.log("🔍 Save attempt - Current user:", currentUser?.uid);
-    console.log("🔍 Save attempt - Form data:", formData);
-
-    if (!validateForm()) {
-      console.log("❌ Form validation failed");
-      return;
-    }
-
-    if (!currentUser) {
-      console.log("❌ No current user");
-      toast({
-        title: "Error",
-        description: "You must be logged in to save your profile.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      console.log("🔍 Attempting to update user document...");
-      const userRef = doc(db, "users", currentUser.uid);
-      console.log("🔍 User document reference:", userRef.path);
-
-      // Check if user document exists
-      const userDoc = await getDoc(userRef);
-      console.log("🔍 User document exists:", userDoc.exists());
-
-      const updateData = {
-        ...formData,
-        updatedAt: new Date(),
-      };
-      console.log("🔍 Update data:", updateData);
-
-      if (userDoc.exists()) {
-        // Document exists, update it
-        await updateDoc(userRef, updateData);
-        console.log("✅ Profile updated successfully");
-      } else {
-        // Document doesn't exist, create it
-        console.log("🔍 Creating new user document...");
-        await setDoc(userRef, {
-          ...updateData,
-          uid: currentUser.uid,
-          email: currentUser.email,
-          createdAt: new Date(),
-        });
-        console.log("✅ Profile created successfully");
-      }
-
-      toast({
-        title: "Profile Updated",
-        description: "Your profile has been successfully updated.",
-      });
-      setIsEditing(false);
-    } catch (error) {
-      console.error("❌ Error updating profile:", error);
-      console.error("❌ Error details:", {
-        code: (error as any)?.code,
-        message: (error as any)?.message,
-        stack: (error as any)?.stack,
-      });
-      toast({
-        title: "Error",
-        description: `Failed to update profile: ${(error as any)?.message || "Unknown error"}`,
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate("/");
-      toast({
-        title: "Logged Out",
-        description: "You have been successfully logged out.",
-      });
-    } catch (error) {
-      console.error("Error logging out:", error);
-      toast({
-        title: "Error",
-        description: "Failed to log out. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleDeleteAccount = async () => {
-    if (deleteConfirmation !== "DELETE") return;
-
-    setIsLoading(true);
-    try {
-      // Delete user data from Firestore
-      const userRef = doc(db, "users", currentUser!.uid);
-      await deleteDoc(userRef);
-
-      // Delete Firebase Auth user
-      await currentUser!.delete();
-
-      toast({
-        title: "Account Deleted",
-        description: "Your account has been permanently deleted.",
-      });
-      navigate("/");
-    } catch (error) {
-      console.error("Error deleting account:", error);
-      toast({
-        title: "Error",
-        description: "Failed to delete account. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-      setShowDeleteDialog(false);
-      setDeleteConfirmation("");
-    }
-  };
+    // Handlers
+    handleSave,
+    handleLogout,
+    handleDeleteAccount,
+  } = useProfileForm();
 
   const bmi = calculateBMI();
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mb-8"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Profile</h1>
-              <p className="text-muted-foreground mt-1">
-                Manage your data, track progress, and control your experience
-              </p>
-            </div>
-            <Button
-              variant="outline"
-              onClick={() => navigate("/dashboard")}
-              className="hidden sm:flex"
-            >
-              Back to Dashboard
-            </Button>
-          </div>
-        </motion.div>
-
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
@@ -344,13 +97,13 @@ export default function ProfilePage() {
               transition={{ duration: 0.5, delay: 0.1 }}
             >
               <Card className="border-0 shadow-lg">
-                <CardHeader className="flex flex-row items-center justify-between">
+                <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div>
-                    <CardTitle className="flex items-center gap-2">
+                    <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
                       <User className="h-5 w-5 text-spark-600" />
                       Profile Information
                     </CardTitle>
-                    <CardDescription>
+                    <CardDescription className="text-sm">
                       Update your personal information and fitness goals
                     </CardDescription>
                   </div>
@@ -359,6 +112,7 @@ export default function ProfilePage() {
                     size="sm"
                     onClick={() => setIsEditing(!isEditing)}
                     disabled={isLoading}
+                    className="w-full sm:w-auto"
                   >
                     {isEditing ? (
                       <>
@@ -428,7 +182,7 @@ export default function ProfilePage() {
                       <div>
                         <Label htmlFor="gender">Gender</Label>
                         <Select
-                          value={formData.gender}
+                          value={formData.gender || ""}
                           onValueChange={(value: any) =>
                             setFormData({ ...formData, gender: value })
                           }
@@ -524,7 +278,7 @@ export default function ProfilePage() {
                       <div>
                         <Label htmlFor="goal">Primary Goal</Label>
                         <Select
-                          value={formData.goal}
+                          value={formData.goal || ""}
                           onValueChange={(value: any) =>
                             setFormData({ ...formData, goal: value })
                           }
@@ -556,7 +310,7 @@ export default function ProfilePage() {
                       <div>
                         <Label htmlFor="experience">Experience Level</Label>
                         <Select
-                          value={formData.fitnessExperience}
+                          value={formData.fitnessExperience || ""}
                           onValueChange={(value: any) =>
                             setFormData({
                               ...formData,

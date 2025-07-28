@@ -9,9 +9,9 @@ if (!admin.apps.length) {
 
 const db = admin.firestore();
 
-// Import seeding data
-const { exercises } = require("./seed-exercises");
-const { workoutPlans } = require("./seed-plans");
+// Import production seeding data
+const { exercises } = require("./seed-exercises-production");
+const { workoutPlans } = require("./seed-plans-production");
 
 async function seedExercises() {
   console.log("🏋️ Seeding exercises to Firestore (Production)...");

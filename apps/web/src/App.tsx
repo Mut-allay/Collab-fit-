@@ -1,14 +1,16 @@
 import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
+  createBrowserRouter,
+  RouterProvider,
   Navigate,
 } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { Toaster } from "@/components/ui/toaster";
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
+
+// Layouts
+import AppLayout from "@/components/layout/AppLayout";
+import PublicLayout from "@/components/layout/PublicLayout";
+
+// Pages
 import LandingPage from "@/pages/LandingPage";
 import LoginPage from "@/pages/LoginPage";
 import SignupPage from "@/pages/SignupPage";
@@ -22,161 +24,79 @@ import WorkoutSummaryPage from "@/pages/WorkoutSummaryPage";
 import WorkoutHistoryPage from "@/pages/WorkoutHistoryPage";
 import ProgressPage from "@/pages/ProgressPage";
 
+// Main App component with routing setup
+// Uses AuthProvider for global auth state
+// Defines public, protected, and special routes
 function App() {
+  const router = createBrowserRouter([
+    {
+      path: "/",
+      element: <LandingPage />,
+    },
+    {
+      element: <PublicLayout />,
+      children: [
+        {
+          path: "/login",
+          element: <LoginPage />,
+        },
+        {
+          path: "/signup",
+          element: <SignupPage />,
+        },
+        {
+          path: "/verify",
+          element: <DataVerificationPage />,
+        },
+      ],
+    },
+    {
+      element: <AppLayout />,
+      children: [
+        {
+          path: "/dashboard",
+          element: <DashboardPage />,
+        },
+        {
+          path: "/profile",
+          element: <ProfilePage />,
+        },
+        {
+          path: "/plans",
+          element: <PlanSelectionPage />,
+        },
+        {
+          path: "/plans/:planId",
+          element: <ViewPlanPage />,
+        },
+        {
+          path: "/workout-history",
+          element: <WorkoutHistoryPage />,
+        },
+        {
+          path: "/progress",
+          element: <ProgressPage />,
+        },
+      ],
+    },
+    {
+      path: "/workout/:planId/:phaseId",
+      element: <WorkoutSessionPage />,
+    },
+    {
+      path: "/workout-summary/:planId/:phaseId",
+      element: <WorkoutSummaryPage />,
+    },
+    {
+      path: "*",
+      element: <Navigate to="/" replace />,
+    },
+  ]);
+
   return (
     <AuthProvider>
-      <Router>
-        <div className="min-h-screen flex flex-col">
-          <Routes>
-            {/* Landing Page Route */}
-            <Route path="/" element={<LandingPage />} />
-
-            {/* Public Auth Routes with minimal layout */}
-            <Route
-              path="/login"
-              element={
-                <div className="min-h-screen flex flex-col">
-                  <Navbar variant="landing" />
-                  <div className="flex-1">
-                    <LoginPage />
-                  </div>
-                  <Footer variant="landing" />
-                </div>
-              }
-            />
-
-            <Route
-              path="/signup"
-              element={
-                <div className="min-h-screen flex flex-col">
-                  <Navbar variant="landing" />
-                  <div className="flex-1">
-                    <SignupPage />
-                  </div>
-                  <Footer variant="landing" />
-                </div>
-              }
-            />
-
-            {/* Public verification route */}
-            <Route
-              path="/verify"
-              element={
-                <div className="min-h-screen flex flex-col">
-                  <Navbar variant="landing" />
-                  <div className="flex-1">
-                    <DataVerificationPage />
-                  </div>
-                  <Footer variant="landing" />
-                </div>
-              }
-            />
-
-            {/* Protected App Routes with app layout */}
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <div className="min-h-screen flex flex-col">
-                    <Navbar variant="app" />
-                    <div className="flex-1">
-                      <DashboardPage />
-                    </div>
-                    <Footer variant="app" />
-                  </div>
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/profile"
-              element={
-                <ProtectedRoute>
-                  <div className="min-h-screen flex flex-col">
-                    <Navbar variant="app" />
-                    <div className="flex-1">
-                      <ProfilePage />
-                    </div>
-                    <Footer variant="app" />
-                  </div>
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/plans"
-              element={
-                <ProtectedRoute>
-                  <div className="min-h-screen flex flex-col">
-                    <Navbar variant="app" />
-                    <div className="flex-1">
-                      <PlanSelectionPage />
-                    </div>
-                    <Footer variant="app" />
-                  </div>
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/plans/:planId"
-              element={
-                <ProtectedRoute>
-                  <div className="min-h-screen flex flex-col">
-                    <Navbar variant="app" />
-                    <div className="flex-1">
-                      <ViewPlanPage />
-                    </div>
-                    <Footer variant="app" />
-                  </div>
-                </ProtectedRoute>
-              }
-            />
-
-            {/* Workout Session Route */}
-            <Route
-              path="/workout/:planId/:phaseId"
-              element={
-                <ProtectedRoute>
-                  <WorkoutSessionPage />
-                </ProtectedRoute>
-              }
-            />
-
-            {/* Workout Summary Route */}
-            <Route
-              path="/workout-summary/:planId/:phaseId"
-              element={
-                <ProtectedRoute>
-                  <WorkoutSummaryPage />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/workout-history"
-              element={
-                <ProtectedRoute>
-                  <WorkoutHistoryPage />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/progress"
-              element={
-                <ProtectedRoute>
-                  <ProgressPage />
-                </ProtectedRoute>
-              }
-            />
-
-            {/* Catch all route - redirect to landing */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-          <Toaster />
-        </div>
-      </Router>
+      <RouterProvider router={router} />
+      <Toaster />
     </AuthProvider>
   );
 }

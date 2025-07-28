@@ -1,8 +1,4 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -20,65 +16,10 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/contexts/AuthContext";
-
-const signupSchema = z
-  .object({
-    firstName: z.string().min(2, "First name must be at least 2 characters"),
-    lastName: z.string().min(2, "Last name must be at least 2 characters"),
-    email: z.string().email("Please enter a valid email address"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"],
-  });
-
-type SignupFormValues = z.infer<typeof signupSchema>;
+import { useSignupForm } from "@/hooks/useSignupForm";
 
 export default function SignupPage() {
-  const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
-  const { signup } = useAuth();
-  const { toast } = useToast();
-
-  const form = useForm<SignupFormValues>({
-    resolver: zodResolver(signupSchema),
-    defaultValues: {
-      firstName: "",
-      lastName: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-    },
-  });
-
-  const onSubmit = async (data: SignupFormValues) => {
-    setIsLoading(true);
-    try {
-      const fullName = `${data.firstName} ${data.lastName}`.trim();
-      await signup(data.email, data.password, fullName);
-      toast({
-        title: "Welcome to FitSpark!",
-        description:
-          "Your account has been created successfully. Let's set up your profile.",
-      });
-      navigate("/onboarding");
-    } catch (error) {
-      toast({
-        title: "Signup Failed",
-        description:
-          error instanceof Error
-            ? error.message
-            : "An error occurred during signup.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const { form, isLoading, onSubmit } = useSignupForm();
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">

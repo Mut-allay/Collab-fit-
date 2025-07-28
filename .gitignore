@@ -64,6 +64,7 @@ node_modules/
 
 # dotenv environment variables file
 .env
+.env.*
 
 # dataconnect generated files
 .dataconnect
@@ -71,3 +72,14 @@ node_modules/
 # Assessment and sensitive files
 docs/Rubric - Hytel AI Coding Bootcamp.docx
 **/Rubric*.docx
+
+# Environment files
+dist/
+.tmp/
+
+# Node modules
+node_modules/
+
+# Docs - exclude binary/sensitive files
+docs/*.docx
+docs/private-notes.md

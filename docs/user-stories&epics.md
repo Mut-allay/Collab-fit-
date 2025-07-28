@@ -192,3 +192,75 @@ Enable users to track their physical progress and see their workout history to s
     ]
   }
   ```
+
+FitSpark: Profile Page Feature Specification
+This document outlines the components, features, and functionality for the user's ProfilePage.tsx. The goal is to create a central hub for users to manage their data, control their experience, and view their accomplishments.
+
+1. Profile Information Form
+   This is the core of the page, allowing users to view and update the data captured during onboarding. The form should be pre-filled with the user's current data and allow them to save changes.
+
+Form Fields:
+
+Personal Information:
+
+Display Name (Text Input)
+
+Age (Number Input)
+
+Gender (Select: Male, Female, Prefer not to say)
+
+Physical Metrics:
+
+Height (Number Input, with units cm/in)
+
+Weight (Number Input, with units kg/lbs)
+
+Fitness Goals:
+
+Primary Goal (Select: Lose Weight, Gain Muscle, Improve Fitness)
+
+Experience Level (Select: Beginner, Intermediate, Advanced)
+
+Validation:
+
+All fields should be validated using our shared Zod schema.
+
+The form should display clear error messages for invalid input (e.g., "Age must be a positive number").
+
+2. Calculated Stats (Read-Only)
+   To add value and show the app is using the user's data intelligently, we can display calculated metrics. These should update automatically when the user changes their height or weight.
+
+Body Mass Index (BMI):
+
+Calculation: weight (kg) / (height (m))^2
+
+Display: Show the calculated BMI value and the corresponding category (e.g., "22.5 - Healthy Weight").
+
+3. At-a-Glance Motivational Stats
+   This section provides a quick, rewarding overview of the user's lifetime achievements to encourage engagement.
+
+Current Streak: A count of consecutive weeks with at least one workout logged.
+
+Total Workouts: A simple count of all activityLogs for the user.
+
+Time Spent Working Out: The sum of durations from all logged workouts.
+
+4. App Settings & Preferences
+   This gives users control over their in-app experience.
+
+Theme Toggle: A simple switch to toggle between Light Mode and Dark Mode.
+
+Notification Preferences:
+
+Toggle for "Daily workout reminders."
+
+Toggle for "Weekly progress summary emails."
+
+5. Account Management (Danger Zone)
+   This section contains critical, and potentially destructive, account actions. It should be visually separated, perhaps in its own card with a red border or header.
+
+Log Out: A primary button to securely log the user out of the application.
+
+Change Password: A button that opens a modal/dialog to allow users who signed up with email to change their password.
+
+Delete Account: A button that opens a confirmation modal, requiring the user to type "DELETE" to confirm the permanent deletion of their account and all associated data.

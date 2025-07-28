@@ -1,13 +1,4 @@
-import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-  orderBy,
-  limit,
-} from "firebase/firestore";
 import { motion } from "framer-motion";
 import {
   LineChart,
@@ -21,8 +12,6 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import { db } from "../lib/firebase";
-import { useAuth } from "../contexts/AuthContext";
 import {
   Card,
   CardContent,
@@ -32,174 +21,46 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Calendar, TrendingUp, Dumbbell } from "lucide-react";
-
-interface WorkoutLog {
-  id: string;
-  userId: string;
-  workoutPlanId: string;
-  phaseId: string;
-  phaseName: string;
-  startTime: Date;
-  endTime?: Date;
-  sets: SetLog[];
-  totalVolume: number;
-  duration: number;
-}
-
-interface SetLog {
-  exerciseId: string;
-  exerciseName: string;
-  setNumber: number;
-  weight: number;
-  reps: number;
-  completed: boolean;
-}
-
-interface ExerciseStats {
-  name: string;
-  totalSets: number;
-  totalReps: number;
-  totalVolume: number;
-  maxWeight: number;
-  avgWeight: number;
-  workoutCount: number;
-}
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Calendar, TrendingUp, Dumbbell, BarChart3 } from "lucide-react";
+// import Navbar from "@/components/layout/navbar/Navbar";
+import { useWorkoutHistory } from "@/hooks/useWorkoutHistory";
 
 export default function WorkoutHistoryPage() {
-  const { currentUser } = useAuth();
   const navigate = useNavigate();
-  const [workoutLogs, setWorkoutLogs] = useState<WorkoutLog[]>([]);
-  const [exerciseStats, setExerciseStats] = useState<ExerciseStats[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [timeFilter, setTimeFilter] = useState<"week" | "month" | "year">(
-    "month"
-  );
-  const [selectedWorkout, setSelectedWorkout] = useState<WorkoutLog | null>(
-    null
-  );
+  const {
+    // State
+    workoutLogs,
+    exerciseStats,
+    loading,
+    timeRange,
+    selectedWeek,
+    selectedMonth,
+    selectedWorkout,
 
-  useEffect(() => {
-    if (currentUser) {
-      fetchWorkoutHistory();
-    }
-  }, [currentUser, timeFilter]);
+    // Actions
+    setTimeRange,
+    setSelectedWeek,
+    setSelectedMonth,
+    setSelectedWorkout,
 
-  const fetchWorkoutHistory = async () => {
-    if (!currentUser) return;
+    // Computed
+    formatDate,
+    formatDuration,
+    getVolumeChartData,
+    getExerciseChartData,
+    getWeekOptions,
+    getMonthOptions,
+    getCurrentTimeRangeLabel,
+  } = useWorkoutHistory();
 
-    try {
-      const startDate = new Date();
-      switch (timeFilter) {
-        case "week":
-          startDate.setDate(startDate.getDate() - 7);
-          break;
-        case "month":
-          startDate.setMonth(startDate.getMonth() - 1);
-          break;
-        case "year":
-          startDate.setFullYear(startDate.getFullYear() - 1);
-          break;
-      }
 
-      const workoutLogsRef = collection(db, "workoutLogs");
-      const q = query(
-        workoutLogsRef,
-        where("userId", "==", currentUser.uid),
-        where("startTime", ">=", startDate),
-        orderBy("startTime", "desc"),
-        limit(50)
-      );
-
-      const snapshot = await getDocs(q);
-      const logs = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-        startTime: doc.data().startTime?.toDate(),
-        endTime: doc.data().endTime?.toDate(),
-      })) as WorkoutLog[];
-
-      setWorkoutLogs(logs);
-      calculateExerciseStats(logs);
-    } catch (error) {
-      console.error("Error fetching workout history:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const calculateExerciseStats = (logs: WorkoutLog[]) => {
-    const exerciseMap = new Map<string, ExerciseStats>();
-
-    logs.forEach((log) => {
-      log.sets.forEach((set) => {
-        if (!exerciseMap.has(set.exerciseId)) {
-          exerciseMap.set(set.exerciseId, {
-            name: set.exerciseName,
-            totalSets: 0,
-            totalReps: 0,
-            totalVolume: 0,
-            maxWeight: 0,
-            avgWeight: 0,
-            workoutCount: 0,
-          });
-        }
-
-        const stats = exerciseMap.get(set.exerciseId)!;
-        stats.totalSets += 1;
-        stats.totalReps += set.reps;
-        stats.totalVolume += set.weight * set.reps;
-        stats.maxWeight = Math.max(stats.maxWeight, set.weight);
-      });
-    });
-
-    // Calculate averages and workout counts
-    exerciseMap.forEach((stats) => {
-      stats.avgWeight = Math.round(stats.totalVolume / stats.totalReps);
-      stats.workoutCount = logs.filter((log) =>
-        log.sets.some((set) => set.exerciseId === stats.name)
-      ).length;
-    });
-
-    setExerciseStats(Array.from(exerciseMap.values()));
-  };
-
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
-  const formatDuration = (minutes: number) => {
-    const hrs = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    if (hrs > 0) {
-      return `${hrs}h ${mins}m`;
-    }
-    return `${mins}m`;
-  };
-
-  const getVolumeChartData = () => {
-    return workoutLogs
-      .slice(0, 10)
-      .reverse()
-      .map((log) => ({
-        date: formatDate(log.startTime),
-        volume: log.totalVolume,
-        duration: log.duration,
-      }));
-  };
-
-  const getExerciseChartData = () => {
-    return exerciseStats.slice(0, 5).map((stat) => ({
-      name: stat.name,
-      volume: stat.totalVolume,
-      sets: stat.totalSets,
-    }));
-  };
 
   const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 
@@ -207,7 +68,9 @@ export default function WorkoutHistoryPage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="text-4xl mb-4">📊</div>
+          <div className="text-4xl mb-4">
+            <BarChart3 className="h-12 w-12 mx-auto text-spark-600" />
+          </div>
           <p className="text-muted-foreground">
             Loading your workout history...
           </p>
@@ -219,91 +82,155 @@ export default function WorkoutHistoryPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white border-b sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate("/dashboard")}
-              >
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
+      <div className="bg-white border-b sticky top-0 z-10"></div>
+
+      <div className="max-w-6xl mx-auto px-4 py-6">
+        {/* Header and Time Filter */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-6 mb-8"
+        >
+          <div className="flex-1 min-w-0">
+            <h1 className="text-xl sm:text-2xl font-bold truncate">
+              Workout History
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Review your completed workouts, track performance trends, and
+              analyze your fitness progress over time
+            </p>
+          </div>
+
+          {/* Time Period Selection */}
+          <div className="bg-white rounded-lg border p-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <h1 className="text-2xl font-bold">Workout History</h1>
                 <p className="text-sm text-muted-foreground">
-                  Track your fitness journey
+                  Choose the time period you want to review. You can view your
+                  workout history for the past week, month, or year to analyze
+                  your fitness patterns and progress.
                 </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-3">
+                {/* Time Range Type */}
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-medium">Period Type</label>
+                  <Select
+                    value={timeRange}
+                    onValueChange={(value) => {
+                      setTimeRange(value as any);
+                      setSelectedWeek("default");
+                      setSelectedMonth("default");
+                    }}
+                  >
+                    <SelectTrigger className="w-32">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="week">Week</SelectItem>
+                      <SelectItem value="month">Month</SelectItem>
+                      <SelectItem value="quarter">Quarter</SelectItem>
+                      <SelectItem value="year">Year</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Specific Week Selection */}
+                {timeRange === "week" && (
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium">Select Week</label>
+                    <Select
+                      value={selectedWeek}
+                      onValueChange={setSelectedWeek}
+                    >
+                      <SelectTrigger className="w-48">
+                        <SelectValue placeholder="Choose a week" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="default">Last 7 days</SelectItem>
+                        {getWeekOptions().map((week) => (
+                          <SelectItem key={week.value} value={week.value || ""}>
+                            {week.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
+                {/* Specific Month Selection */}
+                {timeRange === "month" && (
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium">Select Month</label>
+                    <Select
+                      value={selectedMonth}
+                      onValueChange={setSelectedMonth}
+                    >
+                      <SelectTrigger className="w-48">
+                        <SelectValue placeholder="Choose a month" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="default">Last 30 days</SelectItem>
+                        {getMonthOptions().map((month) => (
+                          <SelectItem
+                            key={month.value}
+                            value={month.value || ""}
+                          >
+                            {month.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setTimeFilter("week")}
-                className={
-                  timeFilter === "week" ? "bg-spark-50 border-spark-200" : ""
-                }
-              >
-                Week
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setTimeFilter("month")}
-                className={
-                  timeFilter === "month" ? "bg-spark-50 border-spark-200" : ""
-                }
-              >
-                Month
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setTimeFilter("year")}
-                className={
-                  timeFilter === "year" ? "bg-spark-50 border-spark-200" : ""
-                }
-              >
-                Year
-              </Button>
+            {/* Current Selection Display */}
+            <div className="mt-4 p-3 bg-gray-50 rounded-md">
+              <p className="text-sm font-medium text-gray-700">
+                Currently viewing:{" "}
+                <span className="text-spark-600">
+                  {getCurrentTimeRangeLabel()}
+                </span>
+              </p>
             </div>
           </div>
-        </div>
-      </div>
+        </motion.div>
 
-      <div className="max-w-6xl mx-auto px-4 py-6">
+        {/* Summary Stats Overview */}
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
+            <BarChart3 className="h-5 w-5" />
+            Workout Summary
+          </h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            Key metrics showing your overall workout activity for the selected
+            time period. These numbers help you understand your training volume
+            and consistency.
+          </p>
+        </div>
+
         {/* Summary Stats */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8"
+          className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8"
         >
-          <Card>
+          <Card className="hover:shadow-md transition-shadow">
             <CardContent className="pt-6 text-center">
               <div className="text-2xl font-bold text-spark-600">
                 {workoutLogs.length}
               </div>
               <p className="text-sm text-muted-foreground">Total Workouts</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6 text-center">
-              <div className="text-2xl font-bold text-spark-600">
-                {workoutLogs
-                  .reduce((sum, log) => sum + log.totalVolume, 0)
-                  .toLocaleString()}
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Total Volume (lbs)
+              <p className="text-xs text-muted-foreground mt-1">
+                Completed sessions
               </p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="hover:shadow-md transition-shadow">
             <CardContent className="pt-6 text-center">
               <div className="text-2xl font-bold text-spark-600">
                 {formatDuration(
@@ -311,10 +238,13 @@ export default function WorkoutHistoryPage() {
                 )}
               </div>
               <p className="text-sm text-muted-foreground">Total Time</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Time spent training
+              </p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="hover:shadow-md transition-shadow">
             <CardContent className="pt-6 text-center">
               <div className="text-2xl font-bold text-spark-600">
                 {exerciseStats.length}
@@ -322,32 +252,67 @@ export default function WorkoutHistoryPage() {
               <p className="text-sm text-muted-foreground">
                 Exercises Performed
               </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Different exercises
+              </p>
             </CardContent>
           </Card>
         </motion.div>
 
+        {/* Charts Overview */}
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
+            <TrendingUp className="h-5 w-5" />
+            Performance Analytics
+          </h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            Visual insights into your workout patterns and exercise
+            distribution. These charts help you understand your training focus
+            and volume trends over time.
+          </p>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Volume Trend Chart */}
-          <Card>
+          <Card className="hover:shadow-md transition-shadow">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <TrendingUp className="h-5 w-5" />
                 Volume Trend
               </CardTitle>
-              <CardDescription>Your workout volume over time</CardDescription>
+              <CardDescription>
+                Shows your total weight lifted per workout session. Higher
+                points indicate more intense workouts with greater total volume.
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={getVolumeChartData()}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" fontSize={12} />
-                    <YAxis fontSize={12} />
+                    <XAxis
+                      dataKey="date"
+                      fontSize={12}
+                      label={{
+                        value: "Workout Date",
+                        position: "insideBottom",
+                        offset: -5,
+                      }}
+                    />
+                    <YAxis
+                      fontSize={12}
+                      label={{
+                        value: "Volume (kg)",
+                        angle: -90,
+                        position: "insideLeft",
+                      }}
+                    />
                     <Tooltip
                       formatter={(value: any) => [
-                        `${value.toLocaleString()} lbs`,
-                        "Volume",
+                        `${value.toLocaleString()} kg`,
+                        "Total Volume",
                       ]}
+                      labelFormatter={(label) => `Date: ${label}`}
                     />
                     <Line
                       type="monotone"
@@ -355,6 +320,7 @@ export default function WorkoutHistoryPage() {
                       stroke="#f97316"
                       strokeWidth={2}
                       dot={{ fill: "#f97316", strokeWidth: 2, r: 4 }}
+                      name="Workout Volume"
                     />
                   </LineChart>
                 </ResponsiveContainer>
@@ -363,13 +329,16 @@ export default function WorkoutHistoryPage() {
           </Card>
 
           {/* Exercise Distribution */}
-          <Card>
+          <Card className="hover:shadow-md transition-shadow">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Dumbbell className="h-5 w-5" />
                 Exercise Distribution
               </CardTitle>
-              <CardDescription>Volume by exercise type</CardDescription>
+              <CardDescription>
+                Breakdown of your total volume by exercise type. Larger slices
+                represent exercises you've focused on more during this period.
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="h-64">
@@ -386,6 +355,7 @@ export default function WorkoutHistoryPage() {
                       outerRadius={80}
                       fill="#8884d8"
                       dataKey="volume"
+                      nameKey="name"
                     >
                       {getExerciseChartData().map((_, index) => (
                         <Cell
@@ -396,9 +366,10 @@ export default function WorkoutHistoryPage() {
                     </Pie>
                     <Tooltip
                       formatter={(value: any) => [
-                        `${value.toLocaleString()} lbs`,
+                        `${value.toLocaleString()} kg`,
                         "Volume",
                       ]}
+                      labelFormatter={(label) => `Exercise: ${label}`}
                     />
                   </PieChart>
                 </ResponsiveContainer>
@@ -407,25 +378,42 @@ export default function WorkoutHistoryPage() {
           </Card>
         </div>
 
+        {/* Recent Workouts Overview */}
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
+            <Calendar className="h-5 w-5" />
+            Recent Workouts
+          </h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            Detailed list of your completed workout sessions. Click on any
+            workout to view detailed exercise breakdown and performance metrics.
+          </p>
+        </div>
+
         {/* Recent Workouts */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <Card>
+          <Card className="hover:shadow-md transition-shadow">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Calendar className="h-5 w-5" />
-                Recent Workouts
+                Workout Sessions
               </CardTitle>
-              <CardDescription>Your latest workout sessions</CardDescription>
+              <CardDescription>
+                Your completed workout sessions with volume, duration, and set
+                counts
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {workoutLogs.length === 0 ? (
                   <div className="text-center py-8">
-                    <div className="text-4xl mb-4">🏋️</div>
+                    <div className="text-4xl mb-4">
+                      <Dumbbell className="h-12 w-12 mx-auto text-spark-600" />
+                    </div>
                     <p className="text-muted-foreground">
                       No workouts found for this period
                     </p>
@@ -458,7 +446,7 @@ export default function WorkoutHistoryPage() {
                             <div className="font-semibold text-spark-600">
                               {workout.totalVolume.toLocaleString()}
                             </div>
-                            <div className="text-muted-foreground">lbs</div>
+                            <div className="text-muted-foreground">kg</div>
                           </div>
 
                           <div className="text-center">
@@ -487,55 +475,58 @@ export default function WorkoutHistoryPage() {
 
       {/* Workout Detail Modal */}
       {selectedWorkout && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 z-50">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            className="bg-white rounded-lg w-full max-w-md mx-2 max-h-[90vh] overflow-y-auto"
           >
-            <div className="p-6">
+            <div className="p-4">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold">
+                <h2 className="text-lg font-bold">
                   {selectedWorkout.phaseName}
                 </h2>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setSelectedWorkout(null)}
+                  className="h-8 w-8 p-0"
                 >
                   ✕
                 </Button>
               </div>
 
               <div className="space-y-4">
-                <div className="grid grid-cols-3 gap-4 text-center">
+                <div className="grid grid-cols-3 gap-3 text-center">
                   <div>
-                    <div className="text-2xl font-bold text-spark-600">
+                    <div className="text-xl font-bold text-spark-600">
                       {selectedWorkout.totalVolume.toLocaleString()}
                     </div>
-                    <div className="text-sm text-muted-foreground">
+                    <div className="text-xs text-muted-foreground">
                       Total Volume
                     </div>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-spark-600">
+                    <div className="text-xl font-bold text-spark-600">
                       {formatDuration(selectedWorkout.duration)}
                     </div>
-                    <div className="text-sm text-muted-foreground">
+                    <div className="text-xs text-muted-foreground">
                       Duration
                     </div>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-spark-600">
+                    <div className="text-xl font-bold text-spark-600">
                       {selectedWorkout.sets.length}
                     </div>
-                    <div className="text-sm text-muted-foreground">Sets</div>
+                    <div className="text-xs text-muted-foreground">Sets</div>
                   </div>
                 </div>
 
                 <div>
-                  <h3 className="font-semibold mb-2">Exercise Details</h3>
-                  <div className="space-y-2">
+                  <h3 className="font-semibold mb-3 text-base">
+                    Exercise Details
+                  </h3>
+                  <div className="space-y-3">
                     {Array.from(
                       new Set(selectedWorkout.sets.map((s) => s.exerciseName))
                     ).map((exerciseName) => {
@@ -551,16 +542,34 @@ export default function WorkoutHistoryPage() {
                       );
 
                       return (
-                        <div key={exerciseName} className="border rounded p-3">
-                          <div className="flex justify-between items-center">
-                            <span className="font-medium">{exerciseName}</span>
-                            <Badge variant="outline">
+                        <div
+                          key={exerciseName}
+                          className="border rounded-lg p-3"
+                        >
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="font-medium text-sm">
+                              {exerciseName}
+                            </span>
+                            <Badge variant="outline" className="text-xs">
                               {exerciseSets.length} sets
                             </Badge>
                           </div>
-                          <div className="text-sm text-muted-foreground mt-1">
-                            {totalVolume.toLocaleString()} lbs • Max:{" "}
-                            {maxWeight} lbs
+                          <div className="text-xs text-muted-foreground mb-2">
+                            {totalVolume.toLocaleString()} kg • Max: {maxWeight}{" "}
+                            kg
+                          </div>
+                          <div className="space-y-1">
+                            {exerciseSets.map((set, index) => (
+                              <div
+                                key={index}
+                                className="flex justify-between items-center text-xs bg-gray-50 px-2 py-1 rounded"
+                              >
+                                <span>Set {set.setNumber}</span>
+                                <span className="font-medium">
+                                  {set.weight} kg × {set.reps} reps
+                                </span>
+                              </div>
+                            ))}
                           </div>
                         </div>
                       );

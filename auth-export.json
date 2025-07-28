@@ -1,2 +1,34 @@
 {"users": [
-]}
+{
+  "localId": "EjkAx9SXzThv8J82pw3ygkgJ2Yu2",
+  "email": "willsonmulenga7@gmail.com",
+  "emailVerified": false,
+  "passwordHash": "wrDQW7x6zALUHPqhH3S/9vAU6jFLxZjcWDqDnTr0wPc6iuj+HTJO1EjqvZnasbKz7vQSIyK3iE+CBrcSkuW9hA==",
+  "salt": "J32ntVhN4o0sxw==",
+  "displayName": "Sichilima  Mulenga",
+  "lastSignedInAt": "1753430588003",
+  "createdAt": "1753351728217",
+  "providerUserInfo": []
+},
+{
+  "localId": "k2YziOk3yGOlvHQyJ6TA2wcn9UD3",
+  "email": "sichimulenga1@outlook.com",
+  "emailVerified": false,
+  "passwordHash": "zLuVNlNjO/8YmuyshIDQxkYnwp96V4ZOhjKGiBOqPP5ZtpqQgH8nbEofdApR9YU4eJb+WrkuXskXujyR9twSiQ==",
+  "salt": "lmfOJgt5IvK2AQ==",
+  "displayName": "Jack Jones",
+  "lastSignedInAt": "1753435903195",
+  "createdAt": "1753262103219",
+  "providerUserInfo": []
+},
+{
+  "localId": "rT1PU45UBaTd46IWW2ThJUJMdxl2",
+  "email": "zainabp269@gmail.com",
+  "emailVerified": false,
+  "passwordHash": "/ePf8KKxQPWroWQ8ilqTBbWxXVcl/pRMLqFMc8pVU5RqDLfsqqRySc//RAC6v9q4qgReHsHID1Oqwk9o6hk93Q==",
+  "salt": "gZ3I3kqiesioBQ==",
+  "displayName": "Zainab Patel",
+  "lastSignedInAt": "1753445337654",
+  "createdAt": "1753445337654",
+  "providerUserInfo": []
+}]}

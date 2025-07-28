@@ -1,5 +1,3 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   BarChart,
@@ -18,138 +16,42 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Dumbbell,
   ArrowLeft,
   Share2,
   TrendingUp,
   Calendar,
-  RotateCcw,
+  Trophy,
+  Target,
 } from "lucide-react";
-
-interface SetLog {
-  exerciseId: string;
-  exerciseName: string;
-  setNumber: number;
-  weight: number;
-  reps: number;
-  completed: boolean;
-}
-
-interface WorkoutSession {
-  workoutPlanId: string;
-  phaseId: string;
-  phaseName: string;
-  startTime: Date;
-  endTime?: Date;
-  sets: SetLog[];
-  totalVolume: number;
-  duration: number;
-}
+import { useWorkoutSummary } from "@/hooks/useWorkoutSummary";
 
 export default function WorkoutSummaryPage() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { planId, phaseId } = useParams();
+  const {
+    // State
+    session,
+    exerciseStats,
+    loading,
 
-  const [session, setSession] = useState<WorkoutSession | null>(null);
-  const [exerciseStats, setExerciseStats] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+    // Computed
+    formatDuration,
+    formatTime,
+    getPerformanceMessage,
+    getVolumeData,
 
-  useEffect(() => {
-    // Get session data from navigation state or params
-    if (location.state?.session) {
-      setSession(location.state.session);
-      processSessionData(location.state.session);
-    } else {
-      // Fallback: try to load from localStorage or redirect
-      navigate("/dashboard");
-    }
-    setLoading(false);
-  }, [location.state, navigate]);
-
-  const processSessionData = (sessionData: WorkoutSession) => {
-    // Group sets by exercise and calculate stats
-    const exerciseMap = new Map();
-
-    sessionData.sets.forEach((set) => {
-      if (!exerciseMap.has(set.exerciseId)) {
-        exerciseMap.set(set.exerciseId, {
-          name: set.exerciseName,
-          sets: 0,
-          totalReps: 0,
-          totalVolume: 0,
-          maxWeight: 0,
-          avgWeight: 0,
-        });
-      }
-
-      const exercise = exerciseMap.get(set.exerciseId);
-      exercise.sets += 1;
-      exercise.totalReps += set.reps;
-      exercise.totalVolume += set.weight * set.reps;
-      exercise.maxWeight = Math.max(exercise.maxWeight, set.weight);
-    });
-
-    // Calculate averages
-    exerciseMap.forEach((exercise) => {
-      exercise.avgWeight = Math.round(
-        exercise.totalVolume / exercise.totalReps
-      );
-    });
-
-    setExerciseStats(Array.from(exerciseMap.values()));
-  };
-
-  const formatDuration = (minutes: number) => {
-    const hrs = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    if (hrs > 0) {
-      return `${hrs}h ${mins}m`;
-    }
-    return `${mins}m`;
-  };
-
-  const formatTime = (date: Date) => {
-    return new Date(date).toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
-  const getPerformanceMessage = (volume: number, duration: number) => {
-    const volumePerMinute = volume / duration;
-
-    if (volumePerMinute > 50) return "🔥 Exceptional performance!";
-    if (volumePerMinute > 30) return "💪 Great work today!";
-    if (volumePerMinute > 15) return "👍 Solid effort!";
-    return "💪 Keep pushing forward!";
-  };
-
-  const shareWorkout = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: "FitSpark Workout Complete!",
-        text: `Just completed ${session?.phaseName} - ${session?.totalVolume} lbs total volume in ${formatDuration(session?.duration || 0)}! 💪`,
-        url: window.location.href,
-      });
-    } else {
-      // Fallback: copy to clipboard
-      navigator.clipboard.writeText(
-        `Just completed ${session?.phaseName} - ${session?.totalVolume} lbs total volume in ${formatDuration(session?.duration || 0)}! 💪`
-      );
-    }
-  };
+    // Actions
+    shareWorkout,
+  } = useWorkoutSummary();
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="text-4xl mb-4">🏋️</div>
-          <p className="text-muted-foreground">
-            Loading your workout summary...
-          </p>
+          <div className="text-4xl mb-4">
+            <Trophy className="h-12 w-12 mx-auto text-spark-600 animate-pulse" />
+          </div>
+          <p className="text-muted-foreground">Loading your workout summary...</p>
         </div>
       </div>
     );
@@ -159,238 +61,243 @@ export default function WorkoutSummaryPage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="text-4xl mb-4">❌</div>
-          <p className="text-muted-foreground">Workout summary not found</p>
-          <Button onClick={() => navigate("/dashboard")} className="mt-4">
-            Back to Dashboard
-          </Button>
+          <div className="text-6xl mb-4">🤔</div>
+          <h2 className="text-2xl font-semibold mb-2">No workout data</h2>
+          <p className="text-muted-foreground mb-4">
+            No workout session data found.
+          </p>
+          <Button onClick={() => window.history.back()}>Go Back</Button>
         </div>
       </div>
     );
   }
 
+  const volumeData = getVolumeData();
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-gradient-to-r from-spark-500 to-fitness-500 text-white">
-        <div className="max-w-4xl mx-auto px-4 py-8">
-          <div className="flex items-center justify-between mb-6">
+      <div className="bg-white border-b sticky top-0 z-10">
+        <div className="max-w-4xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate("/dashboard")}
-              className="text-white hover:bg-white/20"
+              onClick={() => window.history.back()}
             >
-              <ArrowLeft className="h-4 w-4" />
+              <ArrowLeft className="h-4 w-4 mr-1" />
+              Back
             </Button>
+
+            <div className="text-center">
+              <h1 className="text-lg font-semibold">Workout Complete! 🎉</h1>
+              <p className="text-sm text-muted-foreground">
+                {session.phaseName}
+              </p>
+            </div>
+
             <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
               onClick={shareWorkout}
-              className="text-white hover:bg-white/20"
             >
-              <Share2 className="h-4 w-4" />
+              <Share2 className="h-4 w-4 mr-1" />
+              Share
             </Button>
           </div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center"
-          >
-            <div className="text-6xl mb-4">🏆</div>
-            <h1 className="text-3xl font-bold mb-2">Workout Complete!</h1>
-            <p className="text-xl opacity-90">{session.phaseName}</p>
-            <p className="text-lg opacity-80 mt-2">
-              {getPerformanceMessage(session.totalVolume, session.duration)}
-            </p>
-          </motion.div>
         </div>
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-6">
-        {/* Key Stats */}
+        {/* Summary Stats */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8"
+          className="mb-6"
         >
-          <Card className="text-center">
-            <CardContent className="pt-6">
-              <div className="text-3xl mb-2">💪</div>
-              <div className="text-2xl font-bold text-spark-600">
-                {session.totalVolume.toLocaleString()}
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Total Volume (lbs)
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="text-center">
-            <CardContent className="pt-6">
-              <div className="text-3xl mb-2">⏰</div>
-              <div className="text-2xl font-bold text-spark-600">
-                {formatDuration(session.duration)}
-              </div>
-              <p className="text-sm text-muted-foreground">Duration</p>
-            </CardContent>
-          </Card>
-
-          <Card className="text-center">
-            <CardContent className="pt-6">
-              <div className="text-3xl mb-2">🎯</div>
-              <div className="text-2xl font-bold text-spark-600">
-                {session.sets.length}
-              </div>
-              <p className="text-sm text-muted-foreground">Sets Completed</p>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Workout Details */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8"
-        >
-          {/* Exercise Performance Chart */}
-          <Card>
+          <Card className="border-0 shadow-lg bg-gradient-to-r from-spark-50 to-spark-100">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
-                Exercise Performance
+                <Trophy className="h-6 w-6 text-spark-600" />
+                Workout Summary
               </CardTitle>
-              <CardDescription>Volume lifted per exercise</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={exerciseStats}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis
-                      dataKey="name"
-                      angle={-45}
-                      textAnchor="end"
-                      height={80}
-                      fontSize={12}
-                    />
-                    <YAxis fontSize={12} />
-                    <Tooltip
-                      formatter={(value: any) => [`${value} lbs`, "Volume"]}
-                      labelFormatter={(label) => `Exercise: ${label}`}
-                    />
-                    <Bar dataKey="totalVolume" fill="#f97316" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Session Details */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                Session Details
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Start Time</p>
-                  <p className="font-semibold">
-                    {formatTime(session.startTime)}
-                  </p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-spark-600">
+                    {formatDuration(session.duration)}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Duration</div>
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">End Time</p>
-                  <p className="font-semibold">
-                    {session.endTime ? formatTime(session.endTime) : "N/A"}
-                  </p>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-spark-600">
+                    {session.totalVolume}kg
+                  </div>
+                  <div className="text-sm text-muted-foreground">Total Volume</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-spark-600">
+                    {session.sets.length}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Sets</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-spark-600">
+                    {exerciseStats.length}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Exercises</div>
                 </div>
               </div>
 
-              <div>
-                <p className="text-sm text-muted-foreground">Workout Plan</p>
-                <p className="font-semibold">{session.phaseName}</p>
-              </div>
-
-              <div>
-                <p className="text-sm text-muted-foreground">Total Reps</p>
-                <p className="font-semibold">
-                  {session.sets.reduce((sum, set) => sum + set.reps, 0)}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-sm text-muted-foreground">Average Weight</p>
-                <p className="font-semibold">
-                  {Math.round(
-                    session.totalVolume /
-                      session.sets.reduce((sum, set) => sum + set.reps, 0)
-                  )}{" "}
-                  lbs
+              <div className="mt-4 p-4 bg-white rounded-lg">
+                <p className="text-center text-lg font-medium">
+                  {getPerformanceMessage(session.totalVolume, session.duration)}
                 </p>
               </div>
             </CardContent>
           </Card>
         </motion.div>
 
-        {/* Exercise Breakdown */}
+        {/* Charts */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          {/* Volume by Exercise */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+          >
+            <Card className="border-0 shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5 text-spark-600" />
+                  Volume by Exercise
+                </CardTitle>
+                <CardDescription>
+                  Total weight lifted per exercise
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={volumeData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="volume" fill="#0891b2" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Exercise Breakdown */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <Card className="border-0 shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Dumbbell className="h-5 w-5 text-spark-600" />
+                  Exercise Breakdown
+                </CardTitle>
+                <CardDescription>
+                  Sets and reps per exercise
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3 max-h-64 overflow-y-auto">
+                  {exerciseStats.map((exercise, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                    >
+                      <div className="flex-1">
+                        <div className="font-medium">{exercise.name}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {exercise.sets} sets • {exercise.totalReps} reps
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-medium text-spark-600">
+                          {exercise.totalVolume}kg
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          Max: {exercise.maxWeight}kg
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+
+        {/* Session Details */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="mb-8"
         >
-          <Card>
+          <Card className="border-0 shadow-lg">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Dumbbell className="h-5 w-5" />
-                Exercise Breakdown
+                <Calendar className="h-5 w-5 text-spark-600" />
+                Session Details
               </CardTitle>
-              <CardDescription>
-                Detailed performance for each exercise
-              </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {exerciseStats.map((exercise, index) => (
-                  <div key={index} className="border rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="font-semibold">{exercise.name}</h3>
-                      <Badge variant="outline">{exercise.sets} sets</Badge>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <h4 className="font-medium mb-2">Workout Information</h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Plan:</span>
+                      <span>{session.workoutPlanId}</span>
                     </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Phase:</span>
+                      <span>{session.phaseName}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Started:</span>
+                      <span>{formatTime(session.startTime)}</span>
+                    </div>
+                    {session.endTime && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Ended:</span>
+                        <span>{formatTime(session.endTime)}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                      <div>
-                        <p className="text-muted-foreground">Total Volume</p>
-                        <p className="font-semibold">
-                          {exercise.totalVolume} lbs
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Total Reps</p>
-                        <p className="font-semibold">{exercise.totalReps}</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Max Weight</p>
-                        <p className="font-semibold">
-                          {exercise.maxWeight} lbs
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Avg Weight</p>
-                        <p className="font-semibold">
-                          {exercise.avgWeight} lbs
-                        </p>
-                      </div>
+                <div>
+                  <h4 className="font-medium mb-2">Performance Metrics</h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Volume per minute:</span>
+                      <span>
+                        {Math.round(session.totalVolume / session.duration)}kg/min
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Sets per minute:</span>
+                      <span>
+                        {(session.sets.length / session.duration).toFixed(1)}/min
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Avg set volume:</span>
+                      <span>
+                        {Math.round(session.totalVolume / session.sets.length)}kg
+                      </span>
                     </div>
                   </div>
-                ))}
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -401,25 +308,31 @@ export default function WorkoutSummaryPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="flex flex-col sm:flex-row gap-4"
+          className="flex flex-col sm:flex-row gap-3 justify-center mt-8"
         >
           <Button
-            onClick={() => navigate("/dashboard")}
-            className="flex-1"
+            onClick={() => window.history.back()}
+            variant="outline"
             size="lg"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Dashboard
+            Back to Workout
           </Button>
-
           <Button
-            onClick={() => navigate(`/workout/${planId}/${phaseId}`)}
-            variant="outline"
-            className="flex-1"
+            onClick={() => window.location.href = "/dashboard"}
+            className="bg-spark-600 hover:bg-spark-700"
             size="lg"
           >
-            <RotateCcw className="h-4 w-4 mr-2" />
-            Repeat Workout
+            <Target className="h-4 w-4 mr-2" />
+            Go to Dashboard
+          </Button>
+          <Button
+            onClick={shareWorkout}
+            variant="outline"
+            size="lg"
+          >
+            <Share2 className="h-4 w-4 mr-2" />
+            Share Achievement
           </Button>
         </motion.div>
       </div>

@@ -1,9 +1,6 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { doc, getDoc } from "firebase/firestore";
+import React from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { db } from "../lib/firebase";
-import { useAuth } from "../contexts/AuthContext";
 import {
   Card,
   CardContent,
@@ -24,187 +21,29 @@ import {
   BarChart3,
   Dumbbell,
   Timer,
+  Zap,
 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-
-interface Exercise {
-  exerciseId: string;
-  sets: number;
-  reps?: number;
-  duration?: number;
-  weight?: number;
-  restTime: number;
-}
-
-interface WorkoutPhase {
-  id: string;
-  name: string;
-  description: string;
-  exercises: Exercise[];
-  estimatedDuration: number;
-}
-
-interface WorkoutPlan {
-  id: string;
-  title: string;
-  description: string;
-  difficulty: "beginner" | "intermediate" | "advanced";
-  goal: string;
-  durationWeeks: number;
-  sessionsPerWeek: number;
-  visibility: "public" | "private";
-  tags: string[];
-  phases: WorkoutPhase[];
-  trainerId: string;
-  createdAt: any;
-  updatedAt: any;
-}
-
-interface ExerciseDetails {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-  muscleGroups: string[];
-  equipment: string[];
-  instructions?: string[];
-}
-
-const DIFFICULTY_COLORS = {
-  beginner: "bg-green-100 text-green-800 border-green-200",
-  intermediate: "bg-yellow-100 text-yellow-800 border-yellow-200",
-  advanced: "bg-red-100 text-red-800 border-red-200",
-};
-
-const GOAL_ICONS = {
-  general_fitness: "💪",
-  strength: "🏋️",
-  weight_loss: "🔥",
-  muscle_gain: "💪",
-  endurance: "🏃",
-};
+import { usePlanView } from "@/hooks/usePlanView";
+import { DIFFICULTY_COLORS, GOAL_ICONS } from "@/types/workout";
 
 export default function ViewPlanPage() {
-  const { planId } = useParams<{ planId: string }>();
-  const [plan, setPlan] = useState<WorkoutPlan | null>(null);
-  const [exerciseDetails, setExerciseDetails] = useState<
-    Record<string, ExerciseDetails>
-  >({});
-  const [loading, setLoading] = useState(true);
-  const [selectedPhase, setSelectedPhase] = useState<number>(0);
-  const [selectingPlan, setSelectingPlan] = useState(false);
-  const { currentUser, userProfile, updateUserProfile } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const {
+    // State
+    plan,
+    exerciseDetails,
+    loading,
+    selectedPhase,
+    selectingPlan,
+    userProfile,
 
-  useEffect(() => {
-    if (planId) {
-      fetchPlanDetails(planId);
-    }
-  }, [planId]);
+    // Actions
+    setSelectedPhase,
 
-  const fetchPlanDetails = async (id: string) => {
-    try {
-      // Fetch plan details
-      const planRef = doc(db, "workoutPrograms", id);
-      const planSnap = await getDoc(planRef);
-
-      if (!planSnap.exists()) {
-        toast({
-          title: "Plan not found",
-          description: "The requested workout plan could not be found.",
-          variant: "destructive",
-        });
-        navigate("/plans");
-        return;
-      }
-
-      const planData = { id: planSnap.id, ...planSnap.data() } as WorkoutPlan;
-      setPlan(planData);
-
-      // Fetch exercise details for all exercises in the plan
-      const exerciseIds = new Set<string>();
-      planData.phases.forEach((phase) => {
-        phase.exercises.forEach((exercise) => {
-          exerciseIds.add(exercise.exerciseId);
-        });
-      });
-
-      const exerciseDetailsMap: Record<string, ExerciseDetails> = {};
-
-      // Fetch each exercise
-      for (const exerciseId of exerciseIds) {
-        const exerciseRef = doc(db, "exercises", exerciseId);
-        const exerciseSnap = await getDoc(exerciseRef);
-        if (exerciseSnap.exists()) {
-          exerciseDetailsMap[exerciseId] = {
-            id: exerciseSnap.id,
-            ...exerciseSnap.data(),
-          } as ExerciseDetails;
-        }
-      }
-
-      setExerciseDetails(exerciseDetailsMap);
-    } catch (error) {
-      console.error("Error fetching plan details:", error);
-      toast({
-        title: "Error loading plan",
-        description: "Failed to load plan details. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSelectPlan = async () => {
-    if (!currentUser || !plan) {
-      navigate("/login");
-      return;
-    }
-
-    setSelectingPlan(true);
-
-    try {
-      await updateUserProfile({
-        selectedPlanId: plan.id,
-        planSelectedAt: new Date(),
-      });
-
-      toast({
-        title: "Plan selected! 🎉",
-        description: `${plan.title} is now your active workout plan.`,
-      });
-
-      // Navigate to dashboard after selection
-      setTimeout(() => {
-        navigate("/dashboard");
-      }, 1500);
-    } catch (error) {
-      console.error("Error selecting plan:", error);
-      toast({
-        title: "Error selecting plan",
-        description: "Failed to save your plan selection. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setSelectingPlan(false);
-    }
-  };
-
-  const formatExerciseDisplay = (
-    exercise: Exercise,
-    details: ExerciseDetails | undefined
-  ) => {
-    if (!details) return `${exercise.sets} sets`;
-
-    let display = `${exercise.sets} sets`;
-    if (exercise.reps) display += ` × ${exercise.reps} reps`;
-    if (exercise.duration) display += ` × ${exercise.duration}s`;
-    if (exercise.weight) display += ` @ ${exercise.weight}lbs`;
-
-    return display;
-  };
+    // Handlers
+    handleSelectPlan,
+    formatExerciseDisplay,
+  } = usePlanView();
 
   if (loading) {
     return (
@@ -255,7 +94,9 @@ export default function ViewPlanPage() {
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
                 <h1 className="text-3xl font-bold">
-                  {GOAL_ICONS[plan.goal as keyof typeof GOAL_ICONS] || "💪"}{" "}
+                  {React.createElement(
+                    GOAL_ICONS[plan.goal as keyof typeof GOAL_ICONS] || Zap
+                  )}{" "}
                   {plan.title}
                 </h1>
                 <Badge
@@ -406,9 +247,9 @@ export default function ViewPlanPage() {
         </Card>
       </motion.div>
 
-      {/* Action Buttons */}
+      {/* Action Buttons - Mobile Responsive */}
       <motion.div
-        className="flex gap-4"
+        className="flex flex-col sm:flex-row gap-4"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.3 }}
@@ -418,7 +259,7 @@ export default function ViewPlanPage() {
           size="lg"
           onClick={handleSelectPlan}
           disabled={selectingPlan}
-          className="flex-1"
+          className="flex-1 w-full sm:w-auto"
         >
           {selectingPlan ? (
             <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -432,7 +273,12 @@ export default function ViewPlanPage() {
             : "Select This Plan"}
         </Button>
 
-        <Button variant="outline" size="lg" onClick={() => navigate("/plans")}>
+        <Button
+          variant="outline"
+          size="lg"
+          onClick={() => navigate("/plans")}
+          className="w-full sm:w-auto"
+        >
           Browse Other Plans
         </Button>
       </motion.div>
