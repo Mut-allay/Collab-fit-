@@ -49,86 +49,115 @@ Establish the complete development environment, CI/CD pipeline, and project stru
 - Clean up console logs and establish logging best practices.
 - ⚠️ Configure Vitest for unit/component testing and Storybook for visual development. _(Deferred to future milestone)_
 
-### 🚧 **Milestone 2: Core User & Auth Flow (MVP Part 1)**
+## ✅ Milestone 2: Core User & Auth Flow (MVP Part 1) - COMPLETED
 
-**Goal:** Implement complete user onboarding, login, and profile management. Enables personalized experiences.  
-**ETA:** August 15, 2025 (4 Weeks)
+**Goal:** Implement user registration, login, and profile management.
+**Completed:** August 2025
 
-#### To-Do List
+Week 1 (July 21 - July 27): Foundational UI & Auth Logic
 
-**Authentication:**
+[ ] PRIORITY 1: Install all necessary shadcn/ui components (button, input, label, card, form, select, toast).
 
-- [ ] Build UI for Signup/Login pages
-- [ ] Implement Firebase Auth (email/password, Google, Apple)
-- [ ] Create protected routes for logged-in users
+[ ] PRIORITY 2: Build the LoginPage.tsx and SignupPage.tsx UI using shadcn/ui Form components.
 
-**Onboarding & Profile:**
+[ ] PRIORITY 3: Connect the UI to Firebase Auth SDK functions using our existing AuthContext.
 
-- [ ] Multi-step onboarding form using React Hook Form + Zod
-- [ ] tRPC endpoint to create user document in Firestore
-- [ ] "My Profile" page for goals, stats, and preferences
+[ ] PRIORITY 4: Enhance the AuthContext to manage loading states and display errors via toasts.
 
-**Security:**
+[ ] Set up React Router for navigation between auth pages.
 
-- [ ] Firestore rules: users can only access their own data
+Week 2 (July 28 - Aug 3): Onboarding Form & Firebase Integration
 
----
+[ ] HIGH RISK: Build the OnboardingPage.tsx with the multi-step questionnaire. Use React Hook Form for state management.
 
-### 🧠 **Milestone 3: Fitness Plan Generation (MVP Part 2)**
+[ ] ✅ Create the Zod schema in packages/shared to validate all onboarding data. (COMPLETED)
 
-**Goal:** AI-powered fitness plan generation — core value proposition.  
-**ETA:** September 5, 2025 (3 Weeks)
+[ ] Save onboarding data directly to Firestore using our Firebase hooks and AuthContext.
 
-#### To-Do List
+[ ] ✅ Implement strict Firestore security rules for the /users/{userId} path. (COMPLETED)
 
-**Backend (AI Logic):**
+Week 3 (Aug 4 - Aug 10): Profile Management
 
-- [ ] AI plan generation logic in tRPC procedure or Cloud Function
-- [ ] `plan.generate` endpoint that returns a `FitnessPlan`
-- [ ] Exercise library in Firestore + seeding script
+[ ] Build the ProfilePage.tsx for users to view their data.
 
-**Frontend (UI/UX):**
+[ ] Use our existing Firebase hooks to fetch and display user profile data.
 
-- [ ] UI to display weekly workout plan
-- [ ] Workout detail screen: exercises, sets, reps, rest
-- [ ] "Generate New Plan" feature
+[ ] Add functionality to the ProfilePage.tsx to allow users to update their information using Firestore hooks.
 
----
+Week 4 (Aug 11 - Aug 17): Testing & Refinement
 
-### 🏋️‍♂️ **Milestone 4: Workout Tracking & Logging (MVP Part 3)**
+[ ] Write Vitest/RTL tests for the LoginPage, SignupPage, and OnboardingPage components.
 
-**Goal:** Users can follow and log workouts. Core engagement loop.  
+[ ] Write integration tests for the full signup -> onboard -> view profile flow.
+
+[ ] Conduct a manual end-to-end test of the entire Milestone 2 feature set.
+
+[ ] Polish all UI, add missing loading states, and handle edge cases.
+
+## ✅ Milestone 3: Pre-defined Plan Selection (MVP Part 2) - PARTIALLY COMPLETED
+
+**Goal:** Fitness plan selection and dashboard integration.
+**Completed Tasks:** Firestore setup, PlanSelectionPage, ViewPlanPage, Dashboard updates.
+
+## 🔄 Milestone 4: Workout Execution & Logging (MVP Part 3) - IN PROGRESS
+
+**Goal:** Interactive workout sessions with real-time logging. Core engagement loop.  
 **ETA:** September 26, 2025 (3 Weeks)
 
-#### To-Do List
+#### Epic 3: Workout Execution & Logging
 
-**Workout Session UI:**
+**Week 1 (Aug 25 - Aug 31): Live Workout Interface**
 
-- [ ] Interactive "Live Workout" screen
-- [ ] Logging UI: weight + reps per set
-- [ ] Automatic rest timer
-- [ ] Skip or replace exercise
+- [ ] Create WorkoutPage.tsx for live workout sessions
+- [ ] Build ExerciseCard component with set logging
+- [ ] Implement automatic rest timer with countdown
+- [ ] Add skip/replace exercise functionality
+- [ ] Install Framer Motion for smooth transitions
 
-**Data & Logic:**
+**Week 2 (Sep 1 - Sep 7): Workout Logging & Data**
 
-- [ ] `activity.logWorkout` tRPC endpoint
-- [ ] Firestore `onSnapshot` to sync session state (stretch goal)
-- [ ] Post-session "Workout Summary" screen
+- [ ] Implement workout logging with Firestore hooks
+- [ ] Create WorkoutSummaryPage.tsx for post-session review
+- [ ] Add workout progress tracking (sets completed, total volume)
+- [ ] Save activity logs to Firestore activityLogs collection
+
+**Week 3 (Sep 8 - Sep 14): UX Polish & Animations**
+
+- [ ] Add Framer Motion animations for exercise transitions
+- [ ] Implement workout pause/resume functionality
+- [ ] Add workout completion celebrations
+- [ ] Polish loading states and error handling
 
 ---
 
 ### 📈 **Milestone 5: Progress Analytics & V1 Polish**
 
-**Goal:** Visual feedback + polish for internal alpha.  
+**Goal:** Visual progress tracking with charts and history. Internal alpha readiness.  
 **ETA:** October 17, 2025 (3 Weeks)
 
-#### To-Do List
+#### Epic 4: Progress Monitoring
 
-**Progress Tracking:**
+**Week 1 (Sep 15 - Sep 21): Progress Data & Charts**
 
-- [ ] "Progress" tab for weight/measurement logs
-- [ ] Charts (Recharts) to show trends
-- [ ] Workout history list view
+- [ ] Install Recharts for data visualization
+- [ ] Create ProgressPage.tsx with weight tracking
+- [ ] Build WeightChart component using Recharts LineChart
+- [ ] Implement weight logging functionality
+- [ ] Add measurement tracking (optional: chest, waist, arms)
+
+**Week 2 (Sep 22 - Sep 28): Workout Analytics**
+
+- [ ] Create WorkoutVolumeChart using Recharts BarChart
+- [ ] Build WorkoutHistoryList component
+- [ ] Add weekly consistency tracker visualization
+- [ ] Implement workout streak calculations
+
+**Week 3 (Sep 29 - Oct 5): Dashboard vs Progress Page**
+
+- [ ] Update Dashboard with action-oriented cards ("Today's Workout")
+- [ ] Enhance ProgressPage with analysis-oriented charts
+- [ ] Add weekly workout consistency tracker to Dashboard
+- [ ] Polish chart animations and responsive design
 
 **Admin & Polish:**
 
@@ -158,3 +187,13 @@ Establish the complete development environment, CI/CD pipeline, and project stru
 - [ ] Prepare marketing assets + App Store/social pages
 - [ ] Final Go/No-Go
 - [ ] **LAUNCH FITSPARK MVP!** 🚀
+
+## 🆕 Milestone 7: Testing & Code Quality Improvements
+
+**Goal:** Achieve 70%+ test coverage, remove unused code, add comments for readability.
+**ETA:** Current
+**Tasks:**
+
+- Add tests for dashboard, hooks, pages.
+- Scan and remove unused dependencies/files.
+- Add code comments to key files.

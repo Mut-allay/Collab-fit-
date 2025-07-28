@@ -6,7 +6,7 @@ yarn-debug.log*
 yarn-error.log*
 firebase-debug.log*
 firebase-debug.*.log*
-
+.turbo
 # Firebase cache
 .firebase/
 
@@ -64,6 +64,22 @@ node_modules/
 
 # dotenv environment variables file
 .env
+.env.*
 
 # dataconnect generated files
 .dataconnect
+
+# Assessment and sensitive files
+docs/Rubric - Hytel AI Coding Bootcamp.docx
+**/Rubric*.docx
+
+# Environment files
+dist/
+.tmp/
+
+# Node modules
+node_modules/
+
+# Docs - exclude binary/sensitive files
+docs/*.docx
+docs/private-notes.md

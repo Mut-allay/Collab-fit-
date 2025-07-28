@@ -1,0 +1,1749 @@
+{
+  "collection": "workoutLogs",
+  "documents": [
+    {
+      "id": "workout_1_2025-07-05",
+      "data": {
+        "userId": "REPLACE_WITH_ACTUAL_UID",
+        "workoutPlanId": "beginner-strength",
+        "phaseId": "day-1",
+        "phaseName": "Strength Training",
+        "startTime": "2025-07-05T09:51:28.405Z",
+        "endTime": "2025-07-05T10:42:28.405Z",
+        "sets": [
+          {
+            "exerciseId": "squat",
+            "exerciseName": "Squat",
+            "setNumber": 1,
+            "weight": 151,
+            "reps": 12,
+            "completed": true
+          },
+          {
+            "exerciseId": "squat",
+            "exerciseName": "Squat",
+            "setNumber": 2,
+            "weight": 147,
+            "reps": 12,
+            "completed": true
+          },
+          {
+            "exerciseId": "squat",
+            "exerciseName": "Squat",
+            "setNumber": 3,
+            "weight": 146,
+            "reps": 11,
+            "completed": true
+          },
+          {
+            "exerciseId": "dips",
+            "exerciseName": "Dips",
+            "setNumber": 1,
+            "weight": 136,
+            "reps": 10,
+            "completed": true
+          },
+          {
+            "exerciseId": "dips",
+            "exerciseName": "Dips",
+            "setNumber": 2,
+            "weight": 145,
+            "reps": 11,
+            "completed": true
+          },
+          {
+            "exerciseId": "dips",
+            "exerciseName": "Dips",
+            "setNumber": 3,
+            "weight": 138,
+            "reps": 10,
+            "completed": true
+          },
+          {
+            "exerciseId": "deadlift",
+            "exerciseName": "Deadlift",
+            "setNumber": 1,
+            "weight": 125,
+            "reps": 12,
+            "completed": true
+          },
+          {
+            "exerciseId": "deadlift",
+            "exerciseName": "Deadlift",
+            "setNumber": 2,
+            "weight": 124,
+            "reps": 10,
+            "completed": true
+          },
+          {
+            "exerciseId": "deadlift",
+            "exerciseName": "Deadlift",
+            "setNumber": 3,
+            "weight": 123,
+            "reps": 10,
+            "completed": true
+          },
+          {
+            "exerciseId": "deadlift",
+            "exerciseName": "Deadlift",
+            "setNumber": 4,
+            "weight": 122,
+            "reps": 10,
+            "completed": true
+          },
+          {
+            "exerciseId": "overhead-press",
+            "exerciseName": "Overhead Press",
+            "setNumber": 1,
+            "weight": 129,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "overhead-press",
+            "exerciseName": "Overhead Press",
+            "setNumber": 2,
+            "weight": 129,
+            "reps": 11,
+            "completed": true
+          },
+          {
+            "exerciseId": "overhead-press",
+            "exerciseName": "Overhead Press",
+            "setNumber": 3,
+            "weight": 123,
+            "reps": 11,
+            "completed": true
+          }
+        ],
+        "totalVolume": 18640,
+        "duration": 51,
+        "createdAt": "2025-07-24T23:29:28.426Z"
+      }
+    },
+    {
+      "id": "workout_2_2025-07-07",
+      "data": {
+        "userId": "REPLACE_WITH_ACTUAL_UID",
+        "workoutPlanId": "beginner-strength",
+        "phaseId": "day-1",
+        "phaseName": "Strength Training",
+        "startTime": "2025-07-07T09:29:28.405Z",
+        "endTime": "2025-07-07T10:18:28.405Z",
+        "sets": [
+          {
+            "exerciseId": "curls",
+            "exerciseName": "Bicep Curls",
+            "setNumber": 1,
+            "weight": 132,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "curls",
+            "exerciseName": "Bicep Curls",
+            "setNumber": 2,
+            "weight": 133,
+            "reps": 8,
+            "completed": true
+          },
+          {
+            "exerciseId": "curls",
+            "exerciseName": "Bicep Curls",
+            "setNumber": 3,
+            "weight": 137,
+            "reps": 10,
+            "completed": true
+          },
+          {
+            "exerciseId": "overhead-press",
+            "exerciseName": "Overhead Press",
+            "setNumber": 1,
+            "weight": 145,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "overhead-press",
+            "exerciseName": "Overhead Press",
+            "setNumber": 2,
+            "weight": 138,
+            "reps": 8,
+            "completed": true
+          },
+          {
+            "exerciseId": "overhead-press",
+            "exerciseName": "Overhead Press",
+            "setNumber": 3,
+            "weight": 138,
+            "reps": 8,
+            "completed": true
+          },
+          {
+            "exerciseId": "overhead-press",
+            "exerciseName": "Overhead Press",
+            "setNumber": 4,
+            "weight": 142,
+            "reps": 8,
+            "completed": true
+          },
+          {
+            "exerciseId": "tricep-extensions",
+            "exerciseName": "Tricep Extensions",
+            "setNumber": 1,
+            "weight": 126,
+            "reps": 8,
+            "completed": true
+          },
+          {
+            "exerciseId": "tricep-extensions",
+            "exerciseName": "Tricep Extensions",
+            "setNumber": 2,
+            "weight": 127,
+            "reps": 10,
+            "completed": true
+          },
+          {
+            "exerciseId": "tricep-extensions",
+            "exerciseName": "Tricep Extensions",
+            "setNumber": 3,
+            "weight": 133,
+            "reps": 8,
+            "completed": true
+          },
+          {
+            "exerciseId": "tricep-extensions",
+            "exerciseName": "Tricep Extensions",
+            "setNumber": 4,
+            "weight": 128,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "pull-ups",
+            "exerciseName": "Pull-ups",
+            "setNumber": 1,
+            "weight": 115,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "pull-ups",
+            "exerciseName": "Pull-ups",
+            "setNumber": 2,
+            "weight": 112,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "pull-ups",
+            "exerciseName": "Pull-ups",
+            "setNumber": 3,
+            "weight": 112,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "barbell-row",
+            "exerciseName": "Barbell Row",
+            "setNumber": 1,
+            "weight": 98,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "barbell-row",
+            "exerciseName": "Barbell Row",
+            "setNumber": 2,
+            "weight": 101,
+            "reps": 10,
+            "completed": true
+          },
+          {
+            "exerciseId": "barbell-row",
+            "exerciseName": "Barbell Row",
+            "setNumber": 3,
+            "weight": 104,
+            "reps": 9,
+            "completed": true
+          }
+        ],
+        "totalVolume": 18190,
+        "duration": 49,
+        "createdAt": "2025-07-24T23:29:28.426Z"
+      }
+    },
+    {
+      "id": "workout_3_2025-07-09",
+      "data": {
+        "userId": "REPLACE_WITH_ACTUAL_UID",
+        "workoutPlanId": "beginner-strength",
+        "phaseId": "day-1",
+        "phaseName": "Strength Training",
+        "startTime": "2025-07-09T08:49:28.405Z",
+        "endTime": "2025-07-09T09:57:28.405Z",
+        "sets": [
+          {
+            "exerciseId": "overhead-press",
+            "exerciseName": "Overhead Press",
+            "setNumber": 1,
+            "weight": 135,
+            "reps": 11,
+            "completed": true
+          },
+          {
+            "exerciseId": "overhead-press",
+            "exerciseName": "Overhead Press",
+            "setNumber": 2,
+            "weight": 144,
+            "reps": 10,
+            "completed": true
+          },
+          {
+            "exerciseId": "overhead-press",
+            "exerciseName": "Overhead Press",
+            "setNumber": 3,
+            "weight": 138,
+            "reps": 10,
+            "completed": true
+          },
+          {
+            "exerciseId": "deadlift",
+            "exerciseName": "Deadlift",
+            "setNumber": 1,
+            "weight": 126,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "deadlift",
+            "exerciseName": "Deadlift",
+            "setNumber": 2,
+            "weight": 131,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "deadlift",
+            "exerciseName": "Deadlift",
+            "setNumber": 3,
+            "weight": 133,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "deadlift",
+            "exerciseName": "Deadlift",
+            "setNumber": 4,
+            "weight": 127,
+            "reps": 6,
+            "completed": true
+          },
+          {
+            "exerciseId": "bench-press",
+            "exerciseName": "Bench Press",
+            "setNumber": 1,
+            "weight": 123,
+            "reps": 6,
+            "completed": true
+          },
+          {
+            "exerciseId": "bench-press",
+            "exerciseName": "Bench Press",
+            "setNumber": 2,
+            "weight": 124,
+            "reps": 8,
+            "completed": true
+          },
+          {
+            "exerciseId": "bench-press",
+            "exerciseName": "Bench Press",
+            "setNumber": 3,
+            "weight": 121,
+            "reps": 8,
+            "completed": true
+          },
+          {
+            "exerciseId": "bench-press",
+            "exerciseName": "Bench Press",
+            "setNumber": 4,
+            "weight": 124,
+            "reps": 8,
+            "completed": true
+          },
+          {
+            "exerciseId": "curls",
+            "exerciseName": "Bicep Curls",
+            "setNumber": 1,
+            "weight": 106,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "curls",
+            "exerciseName": "Bicep Curls",
+            "setNumber": 2,
+            "weight": 111,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "curls",
+            "exerciseName": "Bicep Curls",
+            "setNumber": 3,
+            "weight": 112,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "curls",
+            "exerciseName": "Bicep Curls",
+            "setNumber": 4,
+            "weight": 114,
+            "reps": 8,
+            "completed": true
+          },
+          {
+            "exerciseId": "pull-ups",
+            "exerciseName": "Pull-ups",
+            "setNumber": 1,
+            "weight": 102,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "pull-ups",
+            "exerciseName": "Pull-ups",
+            "setNumber": 2,
+            "weight": 98,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "pull-ups",
+            "exerciseName": "Pull-ups",
+            "setNumber": 3,
+            "weight": 99,
+            "reps": 8,
+            "completed": true
+          },
+          {
+            "exerciseId": "pull-ups",
+            "exerciseName": "Pull-ups",
+            "setNumber": 4,
+            "weight": 99,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "lunges",
+            "exerciseName": "Lunges",
+            "setNumber": 1,
+            "weight": 92,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "lunges",
+            "exerciseName": "Lunges",
+            "setNumber": 2,
+            "weight": 92,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "lunges",
+            "exerciseName": "Lunges",
+            "setNumber": 3,
+            "weight": 92,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "lunges",
+            "exerciseName": "Lunges",
+            "setNumber": 4,
+            "weight": 99,
+            "reps": 8,
+            "completed": true
+          }
+        ],
+        "totalVolume": 20897,
+        "duration": 68,
+        "createdAt": "2025-07-24T23:29:28.426Z"
+      }
+    },
+    {
+      "id": "workout_4_2025-07-11",
+      "data": {
+        "userId": "REPLACE_WITH_ACTUAL_UID",
+        "workoutPlanId": "beginner-strength",
+        "phaseId": "day-1",
+        "phaseName": "Strength Training",
+        "startTime": "2025-07-11T07:00:28.405Z",
+        "endTime": "2025-07-11T07:59:28.405Z",
+        "sets": [
+          {
+            "exerciseId": "dips",
+            "exerciseName": "Dips",
+            "setNumber": 1,
+            "weight": 140,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "dips",
+            "exerciseName": "Dips",
+            "setNumber": 2,
+            "weight": 137,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "dips",
+            "exerciseName": "Dips",
+            "setNumber": 3,
+            "weight": 141,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "dips",
+            "exerciseName": "Dips",
+            "setNumber": 4,
+            "weight": 136,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "curls",
+            "exerciseName": "Bicep Curls",
+            "setNumber": 1,
+            "weight": 123,
+            "reps": 5,
+            "completed": true
+          },
+          {
+            "exerciseId": "curls",
+            "exerciseName": "Bicep Curls",
+            "setNumber": 2,
+            "weight": 121,
+            "reps": 6,
+            "completed": true
+          },
+          {
+            "exerciseId": "curls",
+            "exerciseName": "Bicep Curls",
+            "setNumber": 3,
+            "weight": 123,
+            "reps": 6,
+            "completed": true
+          },
+          {
+            "exerciseId": "bench-press",
+            "exerciseName": "Bench Press",
+            "setNumber": 1,
+            "weight": 120,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "bench-press",
+            "exerciseName": "Bench Press",
+            "setNumber": 2,
+            "weight": 120,
+            "reps": 8,
+            "completed": true
+          },
+          {
+            "exerciseId": "bench-press",
+            "exerciseName": "Bench Press",
+            "setNumber": 3,
+            "weight": 119,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "barbell-row",
+            "exerciseName": "Barbell Row",
+            "setNumber": 1,
+            "weight": 99,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "barbell-row",
+            "exerciseName": "Barbell Row",
+            "setNumber": 2,
+            "weight": 98,
+            "reps": 5,
+            "completed": true
+          },
+          {
+            "exerciseId": "barbell-row",
+            "exerciseName": "Barbell Row",
+            "setNumber": 3,
+            "weight": 99,
+            "reps": 5,
+            "completed": true
+          }
+        ],
+        "totalVolume": 11292,
+        "duration": 59,
+        "createdAt": "2025-07-24T23:29:28.426Z"
+      }
+    },
+    {
+      "id": "workout_5_2025-07-14",
+      "data": {
+        "userId": "REPLACE_WITH_ACTUAL_UID",
+        "workoutPlanId": "beginner-strength",
+        "phaseId": "day-1",
+        "phaseName": "Strength Training",
+        "startTime": "2025-07-14T06:23:28.405Z",
+        "endTime": "2025-07-14T07:08:28.405Z",
+        "sets": [
+          {
+            "exerciseId": "barbell-row",
+            "exerciseName": "Barbell Row",
+            "setNumber": 1,
+            "weight": 138,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "barbell-row",
+            "exerciseName": "Barbell Row",
+            "setNumber": 2,
+            "weight": 132,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "barbell-row",
+            "exerciseName": "Barbell Row",
+            "setNumber": 3,
+            "weight": 136,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "barbell-row",
+            "exerciseName": "Barbell Row",
+            "setNumber": 4,
+            "weight": 136,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "squat",
+            "exerciseName": "Squat",
+            "setNumber": 1,
+            "weight": 118,
+            "reps": 10,
+            "completed": true
+          },
+          {
+            "exerciseId": "squat",
+            "exerciseName": "Squat",
+            "setNumber": 2,
+            "weight": 118,
+            "reps": 11,
+            "completed": true
+          },
+          {
+            "exerciseId": "squat",
+            "exerciseName": "Squat",
+            "setNumber": 3,
+            "weight": 119,
+            "reps": 10,
+            "completed": true
+          },
+          {
+            "exerciseId": "tricep-extensions",
+            "exerciseName": "Tricep Extensions",
+            "setNumber": 1,
+            "weight": 120,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "tricep-extensions",
+            "exerciseName": "Tricep Extensions",
+            "setNumber": 2,
+            "weight": 118,
+            "reps": 10,
+            "completed": true
+          },
+          {
+            "exerciseId": "tricep-extensions",
+            "exerciseName": "Tricep Extensions",
+            "setNumber": 3,
+            "weight": 123,
+            "reps": 11,
+            "completed": true
+          },
+          {
+            "exerciseId": "tricep-extensions",
+            "exerciseName": "Tricep Extensions",
+            "setNumber": 4,
+            "weight": 119,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "lunges",
+            "exerciseName": "Lunges",
+            "setNumber": 1,
+            "weight": 104,
+            "reps": 12,
+            "completed": true
+          },
+          {
+            "exerciseId": "lunges",
+            "exerciseName": "Lunges",
+            "setNumber": 2,
+            "weight": 103,
+            "reps": 10,
+            "completed": true
+          },
+          {
+            "exerciseId": "lunges",
+            "exerciseName": "Lunges",
+            "setNumber": 3,
+            "weight": 104,
+            "reps": 10,
+            "completed": true
+          },
+          {
+            "exerciseId": "lunges",
+            "exerciseName": "Lunges",
+            "setNumber": 4,
+            "weight": 102,
+            "reps": 12,
+            "completed": true
+          },
+          {
+            "exerciseId": "bench-press",
+            "exerciseName": "Bench Press",
+            "setNumber": 1,
+            "weight": 104,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "bench-press",
+            "exerciseName": "Bench Press",
+            "setNumber": 2,
+            "weight": 98,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "bench-press",
+            "exerciseName": "Bench Press",
+            "setNumber": 3,
+            "weight": 96,
+            "reps": 8,
+            "completed": true
+          },
+          {
+            "exerciseId": "overhead-press",
+            "exerciseName": "Overhead Press",
+            "setNumber": 1,
+            "weight": 85,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "overhead-press",
+            "exerciseName": "Overhead Press",
+            "setNumber": 2,
+            "weight": 85,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "overhead-press",
+            "exerciseName": "Overhead Press",
+            "setNumber": 3,
+            "weight": 89,
+            "reps": 7,
+            "completed": true
+          }
+        ],
+        "totalVolume": 21623,
+        "duration": 45,
+        "createdAt": "2025-07-24T23:29:28.426Z"
+      }
+    },
+    {
+      "id": "workout_6_2025-07-16",
+      "data": {
+        "userId": "REPLACE_WITH_ACTUAL_UID",
+        "workoutPlanId": "beginner-strength",
+        "phaseId": "day-1",
+        "phaseName": "Strength Training",
+        "startTime": "2025-07-16T06:53:28.405Z",
+        "endTime": "2025-07-16T08:05:28.405Z",
+        "sets": [
+          {
+            "exerciseId": "overhead-press",
+            "exerciseName": "Overhead Press",
+            "setNumber": 1,
+            "weight": 124,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "overhead-press",
+            "exerciseName": "Overhead Press",
+            "setNumber": 2,
+            "weight": 126,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "overhead-press",
+            "exerciseName": "Overhead Press",
+            "setNumber": 3,
+            "weight": 119,
+            "reps": 8,
+            "completed": true
+          },
+          {
+            "exerciseId": "barbell-row",
+            "exerciseName": "Barbell Row",
+            "setNumber": 1,
+            "weight": 122,
+            "reps": 5,
+            "completed": true
+          },
+          {
+            "exerciseId": "barbell-row",
+            "exerciseName": "Barbell Row",
+            "setNumber": 2,
+            "weight": 124,
+            "reps": 6,
+            "completed": true
+          },
+          {
+            "exerciseId": "barbell-row",
+            "exerciseName": "Barbell Row",
+            "setNumber": 3,
+            "weight": 122,
+            "reps": 6,
+            "completed": true
+          },
+          {
+            "exerciseId": "pull-ups",
+            "exerciseName": "Pull-ups",
+            "setNumber": 1,
+            "weight": 114,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "pull-ups",
+            "exerciseName": "Pull-ups",
+            "setNumber": 2,
+            "weight": 109,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "pull-ups",
+            "exerciseName": "Pull-ups",
+            "setNumber": 3,
+            "weight": 113,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "dips",
+            "exerciseName": "Dips",
+            "setNumber": 1,
+            "weight": 98,
+            "reps": 6,
+            "completed": true
+          },
+          {
+            "exerciseId": "dips",
+            "exerciseName": "Dips",
+            "setNumber": 2,
+            "weight": 95,
+            "reps": 8,
+            "completed": true
+          },
+          {
+            "exerciseId": "dips",
+            "exerciseName": "Dips",
+            "setNumber": 3,
+            "weight": 92,
+            "reps": 6,
+            "completed": true
+          },
+          {
+            "exerciseId": "lunges",
+            "exerciseName": "Lunges",
+            "setNumber": 1,
+            "weight": 97,
+            "reps": 6,
+            "completed": true
+          },
+          {
+            "exerciseId": "lunges",
+            "exerciseName": "Lunges",
+            "setNumber": 2,
+            "weight": 93,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "lunges",
+            "exerciseName": "Lunges",
+            "setNumber": 3,
+            "weight": 95,
+            "reps": 7,
+            "completed": true
+          }
+        ],
+        "totalVolume": 10938,
+        "duration": 72,
+        "createdAt": "2025-07-24T23:29:28.426Z"
+      }
+    },
+    {
+      "id": "workout_7_2025-07-18",
+      "data": {
+        "userId": "REPLACE_WITH_ACTUAL_UID",
+        "workoutPlanId": "beginner-strength",
+        "phaseId": "day-1",
+        "phaseName": "Strength Training",
+        "startTime": "2025-07-18T06:25:28.405Z",
+        "endTime": "2025-07-18T07:25:28.405Z",
+        "sets": [
+          {
+            "exerciseId": "deadlift",
+            "exerciseName": "Deadlift",
+            "setNumber": 1,
+            "weight": 118,
+            "reps": 6,
+            "completed": true
+          },
+          {
+            "exerciseId": "deadlift",
+            "exerciseName": "Deadlift",
+            "setNumber": 2,
+            "weight": 119,
+            "reps": 6,
+            "completed": true
+          },
+          {
+            "exerciseId": "deadlift",
+            "exerciseName": "Deadlift",
+            "setNumber": 3,
+            "weight": 121,
+            "reps": 6,
+            "completed": true
+          },
+          {
+            "exerciseId": "squat",
+            "exerciseName": "Squat",
+            "setNumber": 1,
+            "weight": 114,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "squat",
+            "exerciseName": "Squat",
+            "setNumber": 2,
+            "weight": 117,
+            "reps": 6,
+            "completed": true
+          },
+          {
+            "exerciseId": "squat",
+            "exerciseName": "Squat",
+            "setNumber": 3,
+            "weight": 122,
+            "reps": 8,
+            "completed": true
+          },
+          {
+            "exerciseId": "squat",
+            "exerciseName": "Squat",
+            "setNumber": 4,
+            "weight": 116,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "pull-ups",
+            "exerciseName": "Pull-ups",
+            "setNumber": 1,
+            "weight": 102,
+            "reps": 10,
+            "completed": true
+          },
+          {
+            "exerciseId": "pull-ups",
+            "exerciseName": "Pull-ups",
+            "setNumber": 2,
+            "weight": 100,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "pull-ups",
+            "exerciseName": "Pull-ups",
+            "setNumber": 3,
+            "weight": 97,
+            "reps": 10,
+            "completed": true
+          },
+          {
+            "exerciseId": "tricep-extensions",
+            "exerciseName": "Tricep Extensions",
+            "setNumber": 1,
+            "weight": 90,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "tricep-extensions",
+            "exerciseName": "Tricep Extensions",
+            "setNumber": 2,
+            "weight": 94,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "tricep-extensions",
+            "exerciseName": "Tricep Extensions",
+            "setNumber": 3,
+            "weight": 97,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "tricep-extensions",
+            "exerciseName": "Tricep Extensions",
+            "setNumber": 4,
+            "weight": 93,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "barbell-row",
+            "exerciseName": "Barbell Row",
+            "setNumber": 1,
+            "weight": 82,
+            "reps": 10,
+            "completed": true
+          },
+          {
+            "exerciseId": "barbell-row",
+            "exerciseName": "Barbell Row",
+            "setNumber": 2,
+            "weight": 87,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "barbell-row",
+            "exerciseName": "Barbell Row",
+            "setNumber": 3,
+            "weight": 84,
+            "reps": 11,
+            "completed": true
+          }
+        ],
+        "totalVolume": 13839,
+        "duration": 60,
+        "createdAt": "2025-07-24T23:29:28.426Z"
+      }
+    },
+    {
+      "id": "workout_8_2025-07-19",
+      "data": {
+        "userId": "REPLACE_WITH_ACTUAL_UID",
+        "workoutPlanId": "beginner-strength",
+        "phaseId": "day-1",
+        "phaseName": "Strength Training",
+        "startTime": "2025-07-19T08:09:28.405Z",
+        "endTime": "2025-07-19T09:16:28.405Z",
+        "sets": [
+          {
+            "exerciseId": "deadlift",
+            "exerciseName": "Deadlift",
+            "setNumber": 1,
+            "weight": 123,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "deadlift",
+            "exerciseName": "Deadlift",
+            "setNumber": 2,
+            "weight": 123,
+            "reps": 8,
+            "completed": true
+          },
+          {
+            "exerciseId": "deadlift",
+            "exerciseName": "Deadlift",
+            "setNumber": 3,
+            "weight": 122,
+            "reps": 10,
+            "completed": true
+          },
+          {
+            "exerciseId": "deadlift",
+            "exerciseName": "Deadlift",
+            "setNumber": 4,
+            "weight": 121,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "barbell-row",
+            "exerciseName": "Barbell Row",
+            "setNumber": 1,
+            "weight": 105,
+            "reps": 10,
+            "completed": true
+          },
+          {
+            "exerciseId": "barbell-row",
+            "exerciseName": "Barbell Row",
+            "setNumber": 2,
+            "weight": 107,
+            "reps": 8,
+            "completed": true
+          },
+          {
+            "exerciseId": "barbell-row",
+            "exerciseName": "Barbell Row",
+            "setNumber": 3,
+            "weight": 99,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "barbell-row",
+            "exerciseName": "Barbell Row",
+            "setNumber": 4,
+            "weight": 104,
+            "reps": 10,
+            "completed": true
+          },
+          {
+            "exerciseId": "dips",
+            "exerciseName": "Dips",
+            "setNumber": 1,
+            "weight": 111,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "dips",
+            "exerciseName": "Dips",
+            "setNumber": 2,
+            "weight": 112,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "dips",
+            "exerciseName": "Dips",
+            "setNumber": 3,
+            "weight": 113,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "dips",
+            "exerciseName": "Dips",
+            "setNumber": 4,
+            "weight": 106,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "curls",
+            "exerciseName": "Bicep Curls",
+            "setNumber": 1,
+            "weight": 104,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "curls",
+            "exerciseName": "Bicep Curls",
+            "setNumber": 2,
+            "weight": 96,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "curls",
+            "exerciseName": "Bicep Curls",
+            "setNumber": 3,
+            "weight": 104,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "curls",
+            "exerciseName": "Bicep Curls",
+            "setNumber": 4,
+            "weight": 98,
+            "reps": 8,
+            "completed": true
+          },
+          {
+            "exerciseId": "squat",
+            "exerciseName": "Squat",
+            "setNumber": 1,
+            "weight": 83,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "squat",
+            "exerciseName": "Squat",
+            "setNumber": 2,
+            "weight": 80,
+            "reps": 8,
+            "completed": true
+          },
+          {
+            "exerciseId": "squat",
+            "exerciseName": "Squat",
+            "setNumber": 3,
+            "weight": 81,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "tricep-extensions",
+            "exerciseName": "Tricep Extensions",
+            "setNumber": 1,
+            "weight": 61,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "tricep-extensions",
+            "exerciseName": "Tricep Extensions",
+            "setNumber": 2,
+            "weight": 66,
+            "reps": 8,
+            "completed": true
+          },
+          {
+            "exerciseId": "tricep-extensions",
+            "exerciseName": "Tricep Extensions",
+            "setNumber": 3,
+            "weight": 63,
+            "reps": 6,
+            "completed": true
+          },
+          {
+            "exerciseId": "tricep-extensions",
+            "exerciseName": "Tricep Extensions",
+            "setNumber": 4,
+            "weight": 64,
+            "reps": 6,
+            "completed": true
+          }
+        ],
+        "totalVolume": 18360,
+        "duration": 67,
+        "createdAt": "2025-07-24T23:29:28.426Z"
+      }
+    },
+    {
+      "id": "workout_9_2025-07-21",
+      "data": {
+        "userId": "REPLACE_WITH_ACTUAL_UID",
+        "workoutPlanId": "beginner-strength",
+        "phaseId": "day-1",
+        "phaseName": "Strength Training",
+        "startTime": "2025-07-21T09:52:28.405Z",
+        "endTime": "2025-07-21T10:56:28.405Z",
+        "sets": [
+          {
+            "exerciseId": "dips",
+            "exerciseName": "Dips",
+            "setNumber": 1,
+            "weight": 110,
+            "reps": 10,
+            "completed": true
+          },
+          {
+            "exerciseId": "dips",
+            "exerciseName": "Dips",
+            "setNumber": 2,
+            "weight": 107,
+            "reps": 10,
+            "completed": true
+          },
+          {
+            "exerciseId": "dips",
+            "exerciseName": "Dips",
+            "setNumber": 3,
+            "weight": 105,
+            "reps": 10,
+            "completed": true
+          },
+          {
+            "exerciseId": "curls",
+            "exerciseName": "Bicep Curls",
+            "setNumber": 1,
+            "weight": 115,
+            "reps": 10,
+            "completed": true
+          },
+          {
+            "exerciseId": "curls",
+            "exerciseName": "Bicep Curls",
+            "setNumber": 2,
+            "weight": 117,
+            "reps": 8,
+            "completed": true
+          },
+          {
+            "exerciseId": "curls",
+            "exerciseName": "Bicep Curls",
+            "setNumber": 3,
+            "weight": 112,
+            "reps": 8,
+            "completed": true
+          },
+          {
+            "exerciseId": "deadlift",
+            "exerciseName": "Deadlift",
+            "setNumber": 1,
+            "weight": 96,
+            "reps": 12,
+            "completed": true
+          },
+          {
+            "exerciseId": "deadlift",
+            "exerciseName": "Deadlift",
+            "setNumber": 2,
+            "weight": 89,
+            "reps": 12,
+            "completed": true
+          },
+          {
+            "exerciseId": "deadlift",
+            "exerciseName": "Deadlift",
+            "setNumber": 3,
+            "weight": 96,
+            "reps": 12,
+            "completed": true
+          },
+          {
+            "exerciseId": "bench-press",
+            "exerciseName": "Bench Press",
+            "setNumber": 1,
+            "weight": 99,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "bench-press",
+            "exerciseName": "Bench Press",
+            "setNumber": 2,
+            "weight": 95,
+            "reps": 8,
+            "completed": true
+          },
+          {
+            "exerciseId": "bench-press",
+            "exerciseName": "Bench Press",
+            "setNumber": 3,
+            "weight": 94,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "lunges",
+            "exerciseName": "Lunges",
+            "setNumber": 1,
+            "weight": 78,
+            "reps": 8,
+            "completed": true
+          },
+          {
+            "exerciseId": "lunges",
+            "exerciseName": "Lunges",
+            "setNumber": 2,
+            "weight": 78,
+            "reps": 8,
+            "completed": true
+          },
+          {
+            "exerciseId": "lunges",
+            "exerciseName": "Lunges",
+            "setNumber": 3,
+            "weight": 86,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "lunges",
+            "exerciseName": "Lunges",
+            "setNumber": 4,
+            "weight": 78,
+            "reps": 8,
+            "completed": true
+          }
+        ],
+        "totalVolume": 14717,
+        "duration": 64,
+        "createdAt": "2025-07-24T23:29:28.426Z"
+      }
+    },
+    {
+      "id": "workout_10_2025-07-23",
+      "data": {
+        "userId": "REPLACE_WITH_ACTUAL_UID",
+        "workoutPlanId": "beginner-strength",
+        "phaseId": "day-1",
+        "phaseName": "Strength Training",
+        "startTime": "2025-07-23T09:56:28.405Z",
+        "endTime": "2025-07-23T11:03:28.405Z",
+        "sets": [
+          {
+            "exerciseId": "pull-ups",
+            "exerciseName": "Pull-ups",
+            "setNumber": 1,
+            "weight": 121,
+            "reps": 10,
+            "completed": true
+          },
+          {
+            "exerciseId": "pull-ups",
+            "exerciseName": "Pull-ups",
+            "setNumber": 2,
+            "weight": 123,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "pull-ups",
+            "exerciseName": "Pull-ups",
+            "setNumber": 3,
+            "weight": 125,
+            "reps": 8,
+            "completed": true
+          },
+          {
+            "exerciseId": "tricep-extensions",
+            "exerciseName": "Tricep Extensions",
+            "setNumber": 1,
+            "weight": 109,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "tricep-extensions",
+            "exerciseName": "Tricep Extensions",
+            "setNumber": 2,
+            "weight": 114,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "tricep-extensions",
+            "exerciseName": "Tricep Extensions",
+            "setNumber": 3,
+            "weight": 107,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "tricep-extensions",
+            "exerciseName": "Tricep Extensions",
+            "setNumber": 4,
+            "weight": 107,
+            "reps": 8,
+            "completed": true
+          },
+          {
+            "exerciseId": "barbell-row",
+            "exerciseName": "Barbell Row",
+            "setNumber": 1,
+            "weight": 95,
+            "reps": 8,
+            "completed": true
+          },
+          {
+            "exerciseId": "barbell-row",
+            "exerciseName": "Barbell Row",
+            "setNumber": 2,
+            "weight": 100,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "barbell-row",
+            "exerciseName": "Barbell Row",
+            "setNumber": 3,
+            "weight": 92,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "barbell-row",
+            "exerciseName": "Barbell Row",
+            "setNumber": 4,
+            "weight": 98,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "bench-press",
+            "exerciseName": "Bench Press",
+            "setNumber": 1,
+            "weight": 74,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "bench-press",
+            "exerciseName": "Bench Press",
+            "setNumber": 2,
+            "weight": 80,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "bench-press",
+            "exerciseName": "Bench Press",
+            "setNumber": 3,
+            "weight": 75,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "bench-press",
+            "exerciseName": "Bench Press",
+            "setNumber": 4,
+            "weight": 75,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "overhead-press",
+            "exerciseName": "Overhead Press",
+            "setNumber": 1,
+            "weight": 83,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "overhead-press",
+            "exerciseName": "Overhead Press",
+            "setNumber": 2,
+            "weight": 78,
+            "reps": 8,
+            "completed": true
+          },
+          {
+            "exerciseId": "overhead-press",
+            "exerciseName": "Overhead Press",
+            "setNumber": 3,
+            "weight": 82,
+            "reps": 8,
+            "completed": true
+          },
+          {
+            "exerciseId": "overhead-press",
+            "exerciseName": "Overhead Press",
+            "setNumber": 4,
+            "weight": 76,
+            "reps": 8,
+            "completed": true
+          }
+        ],
+        "totalVolume": 15030,
+        "duration": 67,
+        "createdAt": "2025-07-24T23:29:28.427Z"
+      }
+    },
+    {
+      "id": "workout_11_2025-07-25",
+      "data": {
+        "userId": "REPLACE_WITH_ACTUAL_UID",
+        "workoutPlanId": "beginner-strength",
+        "phaseId": "day-1",
+        "phaseName": "Strength Training",
+        "startTime": "2025-07-25T09:36:28.405Z",
+        "endTime": "2025-07-25T10:40:28.405Z",
+        "sets": [
+          {
+            "exerciseId": "lunges",
+            "exerciseName": "Lunges",
+            "setNumber": 1,
+            "weight": 104,
+            "reps": 8,
+            "completed": true
+          },
+          {
+            "exerciseId": "lunges",
+            "exerciseName": "Lunges",
+            "setNumber": 2,
+            "weight": 109,
+            "reps": 7,
+            "completed": true
+          },
+          {
+            "exerciseId": "lunges",
+            "exerciseName": "Lunges",
+            "setNumber": 3,
+            "weight": 103,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "lunges",
+            "exerciseName": "Lunges",
+            "setNumber": 4,
+            "weight": 105,
+            "reps": 8,
+            "completed": true
+          },
+          {
+            "exerciseId": "overhead-press",
+            "exerciseName": "Overhead Press",
+            "setNumber": 1,
+            "weight": 95,
+            "reps": 12,
+            "completed": true
+          },
+          {
+            "exerciseId": "overhead-press",
+            "exerciseName": "Overhead Press",
+            "setNumber": 2,
+            "weight": 89,
+            "reps": 12,
+            "completed": true
+          },
+          {
+            "exerciseId": "overhead-press",
+            "exerciseName": "Overhead Press",
+            "setNumber": 3,
+            "weight": 93,
+            "reps": 10,
+            "completed": true
+          },
+          {
+            "exerciseId": "overhead-press",
+            "exerciseName": "Overhead Press",
+            "setNumber": 4,
+            "weight": 97,
+            "reps": 10,
+            "completed": true
+          },
+          {
+            "exerciseId": "barbell-row",
+            "exerciseName": "Barbell Row",
+            "setNumber": 1,
+            "weight": 100,
+            "reps": 10,
+            "completed": true
+          },
+          {
+            "exerciseId": "barbell-row",
+            "exerciseName": "Barbell Row",
+            "setNumber": 2,
+            "weight": 97,
+            "reps": 11,
+            "completed": true
+          },
+          {
+            "exerciseId": "barbell-row",
+            "exerciseName": "Barbell Row",
+            "setNumber": 3,
+            "weight": 95,
+            "reps": 10,
+            "completed": true
+          },
+          {
+            "exerciseId": "barbell-row",
+            "exerciseName": "Barbell Row",
+            "setNumber": 4,
+            "weight": 103,
+            "reps": 10,
+            "completed": true
+          },
+          {
+            "exerciseId": "tricep-extensions",
+            "exerciseName": "Tricep Extensions",
+            "setNumber": 1,
+            "weight": 83,
+            "reps": 10,
+            "completed": true
+          },
+          {
+            "exerciseId": "tricep-extensions",
+            "exerciseName": "Tricep Extensions",
+            "setNumber": 2,
+            "weight": 76,
+            "reps": 9,
+            "completed": true
+          },
+          {
+            "exerciseId": "tricep-extensions",
+            "exerciseName": "Tricep Extensions",
+            "setNumber": 3,
+            "weight": 81,
+            "reps": 10,
+            "completed": true
+          },
+          {
+            "exerciseId": "tricep-extensions",
+            "exerciseName": "Tricep Extensions",
+            "setNumber": 4,
+            "weight": 76,
+            "reps": 10,
+            "completed": true
+          },
+          {
+            "exerciseId": "curls",
+            "exerciseName": "Bicep Curls",
+            "setNumber": 1,
+            "weight": 62,
+            "reps": 11,
+            "completed": true
+          },
+          {
+            "exerciseId": "curls",
+            "exerciseName": "Bicep Curls",
+            "setNumber": 2,
+            "weight": 63,
+            "reps": 11,
+            "completed": true
+          },
+          {
+            "exerciseId": "curls",
+            "exerciseName": "Bicep Curls",
+            "setNumber": 3,
+            "weight": 64,
+            "reps": 10,
+            "completed": true
+          }
+        ],
+        "totalVolume": 16616,
+        "duration": 64,
+        "createdAt": "2025-07-24T23:29:28.427Z"
+      }
+    }
+  ]
+}

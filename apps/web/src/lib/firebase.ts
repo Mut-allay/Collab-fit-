@@ -14,6 +14,16 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
+// Debug: Log configuration in development/staging
+if (import.meta.env.MODE !== "production") {
+  console.log("🔥 Firebase Config Debug:", {
+    projectId: firebaseConfig.projectId,
+    authDomain: firebaseConfig.authDomain,
+    hasApiKey: !!firebaseConfig.apiKey,
+    hasAppId: !!firebaseConfig.appId,
+  });
+}
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 

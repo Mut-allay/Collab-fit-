@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "fitspark-staging"
+    "default": "fitspark-staging",
+    "production": "fitspark-production"
   }
 }
