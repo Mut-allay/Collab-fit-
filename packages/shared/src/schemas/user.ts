@@ -45,6 +45,11 @@ export const UserSchema = z.object({
   selectedPlanId: z.string().optional(),
   planSelectedAt: z.date().optional(),
 
+  // Team competition features
+  teamId: z.string().optional(),
+  googleFitConnected: z.boolean().default(false),
+  googleFitLastSync: z.date().optional(),
+
   // Metadata
   onboardingCompleted: z.boolean().default(false),
   createdAt: z.date(),

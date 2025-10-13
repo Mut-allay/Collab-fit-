@@ -1,0 +1,14 @@
+{
+  "name": "fitspark-api",
+  "version": "1.0.0",
+  "description": "Serverless API functions for FitSpark team competition",
+  "type": "module",
+  "dependencies": {
+    "firebase": "^10.7.1",
+    "googleapis": "^128.0.0",
+    "google-auth-library": "^9.4.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

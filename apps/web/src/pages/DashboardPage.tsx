@@ -7,6 +7,9 @@ import { NoPlanPrompt } from "@/components/dashboard/NoPlanPrompt";
 import { WeeklyProgress } from "@/components/dashboard/WeeklyProgress";
 import { QuickActions } from "@/components/dashboard/QuickActions";
 import { ComingSoon } from "@/components/dashboard/ComingSoon";
+import { DailyActivityWidget } from "@/components/dashboard/DailyActivityWidget";
+import { TeamQuickView } from "@/components/dashboard/TeamQuickView";
+import { LeaderboardPreview } from "@/components/dashboard/LeaderboardPreview";
 
 export default function DashboardPage() {
   const { selectedPlan, todaysWorkout, weeklyProgress, loading, error } = useDashboardData();
@@ -66,6 +69,30 @@ export default function DashboardPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.4 }}
+            >
+              <DailyActivityWidget />
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+            >
+              <TeamQuickView />
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
+            >
+              <LeaderboardPreview />
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.7 }}
             >
               <ComingSoon />
             </motion.div>

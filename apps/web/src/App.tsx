@@ -23,6 +23,10 @@ import WorkoutSessionPage from "@/pages/WorkoutSessionPage";
 import WorkoutSummaryPage from "@/pages/WorkoutSummaryPage";
 import WorkoutHistoryPage from "@/pages/WorkoutHistoryPage";
 import ProgressPage from "@/pages/ProgressPage";
+import TeamsPage from "@/pages/TeamsPage";
+import CreateTeamPage from "@/pages/CreateTeamPage";
+import LeaderboardPage from "@/pages/LeaderboardPage";
+import InvitationsPage from "@/pages/InvitationsPage";
 
 // Main App component with routing setup
 // Uses AuthProvider for global auth state
@@ -76,6 +80,22 @@ function App() {
         {
           path: "/progress",
           element: <ProgressPage />,
+        },
+        {
+          path: "/teams",
+          element: <TeamsPage />,
+        },
+        {
+          path: "/teams/create",
+          element: <CreateTeamPage />,
+        },
+        {
+          path: "/leaderboard",
+          element: <LeaderboardPage />,
+        },
+        {
+          path: "/invitations",
+          element: <InvitationsPage />,
         },
       ],
     },

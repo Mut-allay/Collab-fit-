@@ -9,6 +9,8 @@ import {
   Dumbbell,
   Flame,
   Activity,
+  Users,
+  Trophy,
   type LucideIcon,
 } from "lucide-react";
 
@@ -25,6 +27,8 @@ export const appNavItems: { path: string; label: string; icon: LucideIcon }[] =
     { path: "/plans", label: "Plans", icon: Target },
     { path: "/progress", label: "Progress", icon: TrendingUp },
     { path: "/workout-history", label: "History", icon: Calendar },
+    { path: "/teams", label: "Teams", icon: Users },
+    { path: "/leaderboard", label: "Leaderboard", icon: Trophy },
   ];
 
 export const userNavItems: { path: string; label: string; icon: LucideIcon }[] =

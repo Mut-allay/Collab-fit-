@@ -1,0 +1,20 @@
+{
+  "functions": {
+    "api/sync-google-fit.js": {
+      "maxDuration": 60
+    },
+    "api/update-leaderboards.js": {
+      "maxDuration": 60
+    }
+  },
+  "crons": [
+    {
+      "path": "/api/sync-google-fit",
+      "schedule": "0 */6 * * *"
+    },
+    {
+      "path": "/api/update-leaderboards",
+      "schedule": "0 0 * * *"
+    }
+  ]
+}

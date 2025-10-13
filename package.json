@@ -19,6 +19,11 @@
     "deploy:hosting": "pnpm run build:production --filter=@fitspark/web && firebase deploy --only hosting",
     "deploy:hosting:staging": "pnpm run build:staging --filter=@fitspark/web && firebase use fitspark-staging && firebase deploy --only hosting",
     "deploy:hosting:production": "pnpm run build:production --filter=@fitspark/web && firebase use fitspark-production && firebase deploy --only hosting",
+    "deploy:functions": "cd functions && npm run build && firebase deploy --only functions",
+    "deploy:functions:staging": "cd functions && npm run build && firebase use fitspark-staging && firebase deploy --only functions",
+    "deploy:functions:production": "cd functions && npm run build && firebase use fitspark-production && firebase deploy --only functions",
+    "functions:serve": "cd functions && npm run serve",
+    "functions:logs": "firebase functions:log",
     "seed": "cd packages/seeding && node scripts/seed-client.js"
   },
   "devDependencies": {
