@@ -32,7 +32,7 @@
     "prettier": "^3.3.3",
     "eslint": "^9.15.0"
   },
-  "packageManager": "pnpm@9.15.0",
+  "packageManager": "pnpm@9.15.9",
   "engines": {
     "node": ">=18",
     "pnpm": ">=8"
