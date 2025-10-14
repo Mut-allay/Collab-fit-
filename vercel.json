@@ -2,20 +2,8 @@
   "version": 2,
   "builds": [
     {
-      "src": "packages/shared/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist",
-        "installCommand": "pnpm install"
-      }
-    },
-    {
-      "src": "apps/web/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist",
-        "installCommand": "pnpm install"
-      }
+      "src": "apps/web/dist/**",
+      "use": "@vercel/static"
     },
     {
       "src": "api/sync-google-fit.js",
