@@ -1,10 +1,9 @@
 {
   "version": 2,
+  "buildCommand": "echo 'No build needed - using pre-built files'",
+  "outputDirectory": "apps/web/dist",
+  "installCommand": "echo 'No install needed - using pre-built files'",
   "builds": [
-    {
-      "src": "apps/web/dist/**",
-      "use": "@vercel/static"
-    },
     {
       "src": "api/sync-google-fit.js",
       "use": "@vercel/node",
