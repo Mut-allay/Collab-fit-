@@ -2,7 +2,7 @@
 // This replaces the need for Firebase Functions
 
 const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://your-app.vercel.app/api' 
+  ? 'https://fitspark-2.vercel.app/api' 
   : 'http://localhost:3000/api';
 
 const API_SECRET_KEY = process.env.VITE_API_SECRET_KEY;

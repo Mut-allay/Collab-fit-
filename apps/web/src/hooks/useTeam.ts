@@ -4,7 +4,6 @@ import {
   createTeam,
   getTeam,
   updateTeam,
-  addTeamMember,
   removeTeamMember,
   leaveTeam,
   sendTeamInvitation,
@@ -33,7 +32,7 @@ interface TeamActions {
 }
 
 export function useTeam(): TeamState & TeamActions {
-  const { user } = useAuth();
+  const { currentUser } = useAuth();
   const [state, setState] = useState<TeamState>({
     team: null,
     invitations: [],
@@ -43,7 +42,7 @@ export function useTeam(): TeamState & TeamActions {
 
   // Load user's team on mount
   useEffect(() => {
-    if (!user) {
+    if (!currentUser) {
       setState(prev => ({ ...prev, isLoading: false }));
       return;
     }
@@ -53,7 +52,7 @@ export function useTeam(): TeamState & TeamActions {
         setState(prev => ({ ...prev, isLoading: true, error: null }));
         
         // Get user's team ID from their profile
-        const userRef = doc(db, 'users', user.uid);
+        const userRef = doc(db, 'users', currentUser.uid);
         const unsubscribe = onSnapshot(userRef, async (doc) => {
           if (doc.exists()) {
             const userData = doc.data();
@@ -93,21 +92,21 @@ export function useTeam(): TeamState & TeamActions {
         unsubscribe.then(unsub => unsub && unsub());
       }
     };
-  }, [user]);
+  }, [currentUser]);
 
   // Load team invitations
   useEffect(() => {
-    if (!user) return;
+    if (!currentUser) return;
 
-    const unsubscribe = onTeamInvitationsUpdate(user.uid, (invitations) => {
+    const unsubscribe = onTeamInvitationsUpdate(currentUser.uid, (invitations) => {
       setState(prev => ({ ...prev, invitations }));
     });
 
     return unsubscribe;
-  }, [user]);
+  }, [currentUser]);
 
   const createNewTeam = useCallback(async (teamData: CreateTeam): Promise<string | null> => {
-    if (!user) {
+    if (!currentUser) {
       setState(prev => ({ ...prev, error: 'User not authenticated' }));
       return null;
     }
@@ -115,10 +114,10 @@ export function useTeam(): TeamState & TeamActions {
     try {
       setState(prev => ({ ...prev, isLoading: true, error: null }));
       
-      const teamId = await createTeam(user.uid, teamData);
+      const teamId = await createTeam(currentUser.uid, teamData);
       
       // Update user's team ID
-      const userRef = doc(db, 'users', user.uid);
+      const userRef = doc(db, 'users', currentUser.uid);
       await updateDoc(userRef, {
         teamId,
       });
@@ -134,7 +133,7 @@ export function useTeam(): TeamState & TeamActions {
       }));
       return null;
     }
-  }, [user]);
+  }, [currentUser]);
 
   const updateTeamInfo = useCallback(async (updates: Partial<Team>): Promise<void> => {
     if (!state.team) {
@@ -157,14 +156,14 @@ export function useTeam(): TeamState & TeamActions {
   }, [state.team]);
 
   const inviteUser = useCallback(async (userId: string): Promise<void> => {
-    if (!user || !state.team) {
+    if (!currentUser || !state.team) {
       setState(prev => ({ ...prev, error: 'No team selected' }));
       return;
     }
 
     try {
       setState(prev => ({ ...prev, isLoading: true, error: null }));
-      await sendTeamInvitation(state.team.id, userId, user.uid);
+      await sendTeamInvitation(state.team.id, userId, currentUser.uid);
       setState(prev => ({ ...prev, isLoading: false }));
     } catch (error) {
       console.error('Error inviting user:', error);
@@ -174,7 +173,7 @@ export function useTeam(): TeamState & TeamActions {
         error: error instanceof Error ? error.message : 'Failed to invite user',
       }));
     }
-  }, [user, state.team]);
+  }, [currentUser, state.team]);
 
   const removeMember = useCallback(async (userId: string): Promise<void> => {
     if (!state.team) {
@@ -204,17 +203,17 @@ export function useTeam(): TeamState & TeamActions {
   }, [state.team]);
 
   const leaveCurrentTeam = useCallback(async (): Promise<void> => {
-    if (!user || !state.team) {
+    if (!currentUser || !state.team) {
       setState(prev => ({ ...prev, error: 'No team selected' }));
       return;
     }
 
     try {
       setState(prev => ({ ...prev, isLoading: true, error: null }));
-      await leaveTeam(state.team.id, user.uid);
+      await leaveTeam(state.team.id, currentUser.uid);
       
       // Update user's team ID
-      const userRef = doc(db, 'users', user.uid);
+      const userRef = doc(db, 'users', currentUser.uid);
       await updateDoc(userRef, {
         teamId: null,
       });
@@ -228,13 +227,13 @@ export function useTeam(): TeamState & TeamActions {
         error: error instanceof Error ? error.message : 'Failed to leave team',
       }));
     }
-  }, [user, state.team]);
+  }, [currentUser, state.team]);
 
   const respondToInvite = useCallback(async (
     invitationId: string, 
     status: 'accepted' | 'rejected'
   ): Promise<void> => {
-    if (!user) {
+    if (!currentUser) {
       setState(prev => ({ ...prev, error: 'User not authenticated' }));
       return;
     }
@@ -257,7 +256,7 @@ export function useTeam(): TeamState & TeamActions {
         error: error instanceof Error ? error.message : 'Failed to respond to invitation',
       }));
     }
-  }, [user]);
+  }, [currentUser]);
 
   const clearError = useCallback(() => {
     setState(prev => ({ ...prev, error: null }));

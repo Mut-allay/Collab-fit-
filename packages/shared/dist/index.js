@@ -21,6 +21,8 @@ __exportStar(require("./schemas/user"), exports);
 __exportStar(require("./schemas/workout"), exports);
 // Export all metrics-related schemas and types
 __exportStar(require("./schemas/metrics"), exports);
+// Export all team-related schemas and types
+__exportStar(require("./schemas/team"), exports);
 // Common utility types and schemas
 var zod_1 = require("zod");
 Object.defineProperty(exports, "z", { enumerable: true, get: function () { return zod_1.z; } });

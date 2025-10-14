@@ -25,7 +25,6 @@ import type {
   DailyActivityLog,
   MonthlyLeaderboard,
   CreateTeam,
-  CreateTeamInvitation,
   UpdateDailyActivity,
 } from "@fitspark/shared";
 
@@ -394,8 +393,8 @@ export async function updateMonthlyLeaderboard(
   }).catch(async () => {
     // If document doesn't exist, create it
     await addDoc(collection(db, "monthlyLeaderboards"), {
-      id: leaderboardId,
       ...leaderboardData,
+      id: leaderboardId,
       lastUpdated: serverTimestamp(),
     });
   });

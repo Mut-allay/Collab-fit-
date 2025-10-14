@@ -19,7 +19,7 @@ interface TeamInviteModalProps {
   teamId: string;
 }
 
-export function TeamInviteModal({ isOpen, onClose, teamId }: TeamInviteModalProps) {
+export function TeamInviteModal({ isOpen, onClose }: TeamInviteModalProps) {
   const { inviteUser, isLoading } = useTeam();
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');

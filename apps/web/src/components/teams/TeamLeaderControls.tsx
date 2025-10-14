@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { useTeam } from '@/hooks/useTeam';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserPlus, Settings } from 'lucide-react';
 import { TeamInviteModal } from './TeamInviteModal';
@@ -11,10 +10,10 @@ interface TeamLeaderControlsProps {
 }
 
 export function TeamLeaderControls({ team }: TeamLeaderControlsProps) {
-  const { user } = useAuth();
+  const { currentUser } = useAuth();
   const [showInviteModal, setShowInviteModal] = useState(false);
 
-  const isLeader = user?.uid === team.leaderId;
+  const isLeader = currentUser?.uid === team.leaderId;
 
   if (!isLeader) {
     return null;

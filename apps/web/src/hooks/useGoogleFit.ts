@@ -27,7 +27,7 @@ interface GoogleFitActions {
 }
 
 export function useGoogleFit(): GoogleFitState & GoogleFitActions {
-  const { user } = useAuth();
+  const { currentUser } = useAuth();
   const [state, setState] = useState<GoogleFitState>({
     isConnected: false,
     isLoading: true,
@@ -61,15 +61,15 @@ export function useGoogleFit(): GoogleFitState & GoogleFitActions {
       }
     };
 
-    if (user) {
+    if (currentUser) {
       initialize();
     } else {
       setState(prev => ({ ...prev, isLoading: false }));
     }
-  }, [user]);
+  }, [currentUser]);
 
   const connect = useCallback(async (): Promise<boolean> => {
-    if (!user) {
+    if (!currentUser) {
       setState(prev => ({ ...prev, error: 'User not authenticated' }));
       return false;
     }
@@ -81,7 +81,7 @@ export function useGoogleFit(): GoogleFitState & GoogleFitActions {
       
       if (success) {
         // Update user's Google Fit connection status in Firestore
-        const userRef = doc(db, 'users', user.uid);
+        const userRef = doc(db, 'users', currentUser.uid);
         await updateDoc(userRef, {
           googleFitConnected: true,
           googleFitLastSync: new Date(),
@@ -111,10 +111,10 @@ export function useGoogleFit(): GoogleFitState & GoogleFitActions {
       }));
       return false;
     }
-  }, [user]);
+  }, [currentUser]);
 
   const disconnect = useCallback(async (): Promise<void> => {
-    if (!user) return;
+    if (!currentUser) return;
 
     try {
       setState(prev => ({ ...prev, isLoading: true, error: null }));
@@ -122,7 +122,7 @@ export function useGoogleFit(): GoogleFitState & GoogleFitActions {
       await disconnectGoogleFit();
       
       // Update user's Google Fit connection status in Firestore
-      const userRef = doc(db, 'users', user.uid);
+      const userRef = doc(db, 'users', currentUser.uid);
       await updateDoc(userRef, {
         googleFitConnected: false,
         googleFitLastSync: null,
@@ -142,10 +142,10 @@ export function useGoogleFit(): GoogleFitState & GoogleFitActions {
         error: error instanceof Error ? error.message : 'Failed to disconnect from Google Fit',
       }));
     }
-  }, [user]);
+  }, [currentUser]);
 
   const syncData = useCallback(async (): Promise<void> => {
-    if (!user || !state.isConnected) {
+    if (!currentUser || !state.isConnected) {
       setState(prev => ({ ...prev, error: 'Google Fit not connected' }));
       return;
     }
@@ -165,7 +165,7 @@ export function useGoogleFit(): GoogleFitState & GoogleFitActions {
       ]);
       
       // Update last sync time
-      const userRef = doc(db, 'users', user.uid);
+      const userRef = doc(db, 'users', currentUser.uid);
       await updateDoc(userRef, {
         googleFitLastSync: new Date(),
       });
@@ -183,7 +183,7 @@ export function useGoogleFit(): GoogleFitState & GoogleFitActions {
         error: error instanceof Error ? error.message : 'Failed to sync data',
       }));
     }
-  }, [user, state.isConnected]);
+  }, [currentUser, state.isConnected]);
 
   const clearError = useCallback(() => {
     setState(prev => ({ ...prev, error: null }));

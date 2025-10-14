@@ -1,5 +1,12 @@
 import { updateDailyActivity } from './firestoreService';
 
+// Extend Window interface to include gapi
+declare global {
+  interface Window {
+    gapi: any;
+  }
+}
+
 // Google Fit API configuration
 const GOOGLE_FIT_SCOPES = [
   'https://www.googleapis.com/auth/fitness.activity.read',
@@ -9,18 +16,18 @@ const GOOGLE_FIT_SCOPES = [
 const GOOGLE_FIT_DISCOVERY_DOC = 'https://fitness.googleapis.com/$discovery/rest?version=v1';
 
 // Types for Google Fit API responses
-interface GoogleFitDataSource {
-  dataType: {
-    name: string;
-    field: Array<{
-      name: string;
-      format: string;
-    }>;
-  };
-  dataStreamId: string;
-  dataStreamName: string;
-  type: string;
-}
+// interface GoogleFitDataSource {
+//   dataType: {
+//     name: string;
+//     field: Array<{
+//       name: string;
+//       format: string;
+//     }>;
+//   };
+//   dataStreamId: string;
+//   dataStreamName: string;
+//   type: string;
+// }
 
 interface GoogleFitDataPoint {
   startTimeNanos: string;
@@ -244,7 +251,7 @@ class GoogleFitService {
         }
       }
 
-      if (totalSteps > 0) {
+      if (totalSteps > 0 && dateString) {
         await updateDailyActivity(userId, {
           date: dateString,
           steps: totalSteps,
@@ -270,7 +277,7 @@ class GoogleFitService {
         }
       }
 
-      if (totalCalories > 0) {
+      if (totalCalories > 0 && dateString) {
         // Get existing activity log and update calories
         const existingLog = await this.getExistingActivityLog(userId, dateString);
         await updateDailyActivity(userId, {
@@ -290,7 +297,7 @@ class GoogleFitService {
     return user.getId();
   }
 
-  private async getExistingActivityLog(userId: string, date: string): Promise<any> {
+  private async getExistingActivityLog(_userId: string, _date: string): Promise<any> {
     // This would fetch existing activity log for the date
     // For now, return null - this should be implemented with actual Firestore query
     return null;

@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
 import { useTeam } from '@/hooks/useTeam';
-import { useAuth } from '@/contexts/AuthContext';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,7 +10,6 @@ import { Users, Plus, UserPlus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function TeamsPage() {
-  const { user } = useAuth();
   const { team, invitations, isLoading, error } = useTeam();
 
   if (isLoading) {

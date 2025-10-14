@@ -24,7 +24,10 @@ export function MonthSelector({ currentMonth, currentYear, onMonthChange }: Mont
       newYear -= 1;
     }
     
-    onMonthChange(MONTHS[newMonthIndex], newYear);
+    const monthName = MONTHS[newMonthIndex];
+    if (monthName) {
+      onMonthChange(monthName, newYear);
+    }
   };
   
   const goToNextMonth = () => {
@@ -36,12 +39,18 @@ export function MonthSelector({ currentMonth, currentYear, onMonthChange }: Mont
       newYear += 1;
     }
     
-    onMonthChange(MONTHS[newMonthIndex], newYear);
+    const monthName = MONTHS[newMonthIndex];
+    if (monthName) {
+      onMonthChange(monthName, newYear);
+    }
   };
   
   const goToCurrentMonth = () => {
     const now = new Date();
-    onMonthChange(MONTHS[now.getMonth()], now.getFullYear());
+    const currentMonthName = MONTHS[now.getMonth()];
+    if (currentMonthName) {
+      onMonthChange(currentMonthName, now.getFullYear());
+    }
   };
 
   return (

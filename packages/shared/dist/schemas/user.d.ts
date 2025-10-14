@@ -20,6 +20,9 @@ export declare const UserSchema: z.ZodObject<{
     injuries: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
     selectedPlanId: z.ZodOptional<z.ZodString>;
     planSelectedAt: z.ZodOptional<z.ZodDate>;
+    teamId: z.ZodOptional<z.ZodString>;
+    googleFitConnected: z.ZodDefault<z.ZodBoolean>;
+    googleFitLastSync: z.ZodOptional<z.ZodDate>;
     onboardingCompleted: z.ZodDefault<z.ZodBoolean>;
     createdAt: z.ZodDate;
     updatedAt: z.ZodDate;
@@ -27,6 +30,7 @@ export declare const UserSchema: z.ZodObject<{
     uid: string;
     email: string;
     role: "user" | "trainer" | "admin";
+    googleFitConnected: boolean;
     onboardingCompleted: boolean;
     createdAt: Date;
     updatedAt: Date;
@@ -46,6 +50,8 @@ export declare const UserSchema: z.ZodObject<{
     injuries?: string[] | undefined;
     selectedPlanId?: string | undefined;
     planSelectedAt?: Date | undefined;
+    teamId?: string | undefined;
+    googleFitLastSync?: Date | undefined;
 }, {
     uid: string;
     email: string;
@@ -68,6 +74,9 @@ export declare const UserSchema: z.ZodObject<{
     injuries?: string[] | undefined;
     selectedPlanId?: string | undefined;
     planSelectedAt?: Date | undefined;
+    teamId?: string | undefined;
+    googleFitConnected?: boolean | undefined;
+    googleFitLastSync?: Date | undefined;
     onboardingCompleted?: boolean | undefined;
 }>;
 export declare const TrainerProfileSchema: z.ZodObject<{

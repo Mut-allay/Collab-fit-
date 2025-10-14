@@ -4,18 +4,6 @@ import { google } from 'googleapis';
 
 const db = admin.firestore();
 
-interface GoogleFitDataSource {
-  dataType: {
-    name: string;
-    field: Array<{
-      name: string;
-      format: string;
-    }>;
-  };
-  dataStreamId: string;
-  dataStreamName: string;
-  type: string;
-}
 
 interface GoogleFitDataPoint {
   startTimeNanos: string;
@@ -136,7 +124,7 @@ async function syncUserGoogleFitData(user: User): Promise<void> {
     });
 
     console.log(`Successfully synced data for user: ${user.uid}`);
-  } catch (error) {
+  } catch (error: any) {
     console.error(`Error syncing data for user ${user.uid}:`, error);
     
     // If token is invalid, mark user as disconnected
@@ -246,7 +234,7 @@ async function processAndStoreStepsData(data: GoogleFitResponse, userId: string)
         userId,
         date: dateString,
         steps: totalSteps,
-        calories: existingData.calories || 0,
+        calories: existingData?.calories || 0,
         source: 'google_fit',
         syncedAt: admin.firestore.FieldValue.serverTimestamp(),
         lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
@@ -284,7 +272,7 @@ async function processAndStoreCaloriesData(data: GoogleFitResponse, userId: stri
         id: logId,
         userId,
         date: dateString,
-        steps: existingData.steps || 0,
+        steps: existingData?.steps || 0,
         calories: totalCalories,
         source: 'google_fit',
         syncedAt: admin.firestore.FieldValue.serverTimestamp(),

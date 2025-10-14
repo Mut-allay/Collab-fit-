@@ -7,7 +7,6 @@ import { TrendingUp, Footprints, Flame } from 'lucide-react';
 export function ActivitySummary() {
   const { isConnected } = useGoogleFit();
   const { 
-    activities, 
     isLoading, 
     getTodayActivity, 
     loadActivities 
@@ -16,7 +15,9 @@ export function ActivitySummary() {
   // Load today's activity on mount
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0];
-    loadActivities(today, today);
+    if (today) {
+      loadActivities(today, today);
+    }
   }, [loadActivities]);
 
   const todayActivity = getTodayActivity();

@@ -83,3 +83,4 @@ node_modules/
 # Docs - exclude binary/sensitive files
 docs/*.docx
 docs/private-notes.md
+.vercel

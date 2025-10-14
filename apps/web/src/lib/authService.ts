@@ -32,6 +32,7 @@ export async function signupUser(
     displayName: user.displayName || "",
     role: "user" as UserRole,
     onboardingCompleted: false,
+    googleFitConnected: false,
   };
 
   await setDoc(doc(db, "users", user.uid), {

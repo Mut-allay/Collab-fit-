@@ -43,6 +43,10 @@ exports.UserSchema = zod_1.z.object({
     // Plan selection - THESE ARE THE MISSING FIELDS
     selectedPlanId: zod_1.z.string().optional(),
     planSelectedAt: zod_1.z.date().optional(),
+    // Team competition features
+    teamId: zod_1.z.string().optional(),
+    googleFitConnected: zod_1.z.boolean().default(false),
+    googleFitLastSync: zod_1.z.date().optional(),
     // Metadata
     onboardingCompleted: zod_1.z.boolean().default(false),
     createdAt: zod_1.z.date(),

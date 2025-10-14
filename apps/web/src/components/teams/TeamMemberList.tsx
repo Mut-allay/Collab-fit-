@@ -21,11 +21,11 @@ interface MemberWithStats extends User {
 }
 
 export function TeamMemberList({ team, showActions = true }: TeamMemberListProps) {
-  const { user } = useAuth();
+  const { currentUser } = useAuth();
   const { removeMember, isLoading } = useTeam();
   const [members, setMembers] = useState<MemberWithStats[]>([]);
 
-  const isLeader = user?.uid === team.leaderId;
+  const isLeader = currentUser?.uid === team.leaderId;
 
   // Load member details
   useEffect(() => {
@@ -106,7 +106,7 @@ export function TeamMemberList({ team, showActions = true }: TeamMemberListProps
                     {member.uid === team.leaderId && (
                       <Crown className="h-4 w-4 text-yellow-500" />
                     )}
-                    {member.uid === user?.uid && (
+                    {member.uid === currentUser?.uid && (
                       <Badge variant="secondary" className="text-xs">
                         You
                       </Badge>

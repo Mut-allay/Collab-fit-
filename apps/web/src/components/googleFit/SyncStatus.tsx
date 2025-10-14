@@ -1,14 +1,14 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { useGoogleFit } from '@/hooks/useGoogleFit';
-import { Loader2, RefreshCw, Clock } from 'lucide-react';
+import { ManualSyncButton } from './ManualSyncButton';
+import { Clock } from 'lucide-react';
 
 interface SyncStatusProps {
   showSyncButton?: boolean;
 }
 
 export function SyncStatus({ showSyncButton = true }: SyncStatusProps) {
-  const { isConnected, lastSyncTime, isLoading, syncData } = useGoogleFit();
+  const { isConnected, lastSyncTime } = useGoogleFit();
 
   const formatLastSync = (date: Date | null) => {
     if (!date) return 'Never';
@@ -40,26 +40,18 @@ export function SyncStatus({ showSyncButton = true }: SyncStatusProps) {
           Last sync: {formatLastSync(lastSyncTime)}
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-3">
         {showSyncButton && (
-          <Button
-            variant="outline"
-            onClick={syncData}
-            disabled={isLoading}
-            className="w-full"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Syncing...
-              </>
-            ) : (
-              <>
-                <RefreshCw className="mr-2 h-4 w-4" />
-                Sync Now
-              </>
-            )}
-          </Button>
+          <>
+            <ManualSyncButton 
+              variant="outline" 
+              size="sm" 
+              showText={true}
+            />
+            <div className="text-xs text-muted-foreground text-center">
+              Automatic sync runs daily at noon UTC
+            </div>
+          </>
         )}
       </CardContent>
     </Card>

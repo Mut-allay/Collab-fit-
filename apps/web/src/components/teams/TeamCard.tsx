@@ -12,17 +12,12 @@ interface TeamCardProps {
 }
 
 export function TeamCard({ team, showActions = true }: TeamCardProps) {
-  const { user } = useAuth();
-  const { removeMember, leaveCurrentTeam, isLoading } = useTeam();
+  const { currentUser } = useAuth();
+  const { leaveCurrentTeam, isLoading } = useTeam();
   
-  const isLeader = user?.uid === team.leaderId;
-  const isMember = team.memberIds.includes(user?.uid || '');
+  const isLeader = currentUser?.uid === team.leaderId;
+  const isMember = team.memberIds.includes(currentUser?.uid || '');
 
-  const handleRemoveMember = async (memberId: string) => {
-    if (confirm('Are you sure you want to remove this member?')) {
-      await removeMember(memberId);
-    }
-  };
 
   const handleLeaveTeam = async () => {
     if (confirm('Are you sure you want to leave this team?')) {

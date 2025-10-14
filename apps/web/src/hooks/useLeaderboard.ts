@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { getMonthlyLeaderboard } from '@/lib/firestoreService';
 import type { MonthlyLeaderboard } from '@fitspark/shared';
 

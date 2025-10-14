@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { getUserDailyActivity } from '@/lib/firestoreService';
 import type { DailyActivityLog } from '@fitspark/shared';
@@ -18,7 +18,7 @@ interface DailyActivityActions {
 }
 
 export function useDailyActivity(): DailyActivityState & DailyActivityActions {
-  const { user } = useAuth();
+  const { currentUser } = useAuth();
   const [state, setState] = useState<DailyActivityState>({
     activities: [],
     isLoading: false,
@@ -26,7 +26,7 @@ export function useDailyActivity(): DailyActivityState & DailyActivityActions {
   });
 
   const loadActivities = useCallback(async (startDate: string, endDate: string): Promise<void> => {
-    if (!user) {
+    if (!currentUser) {
       setState(prev => ({ ...prev, error: 'User not authenticated' }));
       return;
     }
@@ -34,7 +34,7 @@ export function useDailyActivity(): DailyActivityState & DailyActivityActions {
     try {
       setState(prev => ({ ...prev, isLoading: true, error: null }));
       
-      const activities = await getUserDailyActivity(user.uid, startDate, endDate);
+      const activities = await getUserDailyActivity(currentUser.uid, startDate, endDate);
       
       setState(prev => ({
         ...prev,
@@ -49,7 +49,7 @@ export function useDailyActivity(): DailyActivityState & DailyActivityActions {
         error: error instanceof Error ? error.message : 'Failed to load activities',
       }));
     }
-  }, [user]);
+  }, [currentUser]);
 
   const getTodayActivity = useCallback((): DailyActivityLog | null => {
     const today = new Date().toISOString().split('T')[0];

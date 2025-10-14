@@ -6,10 +6,10 @@ import { Users, Plus, Trophy } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export function TeamQuickView() {
-  const { user } = useAuth();
+  const { currentUser } = useAuth();
   const { team, invitations } = useTeam();
 
-  if (!user) return null;
+  if (!currentUser) return null;
 
   if (!team) {
     return (
