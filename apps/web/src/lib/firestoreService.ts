@@ -225,7 +225,7 @@ export async function removeTeamMember(teamId: string, userId: string): Promise<
     throw new Error("Cannot remove team leader");
   }
   
-  const updatedMemberIds = team.memberIds.filter(id => id !== userId);
+  const updatedMemberIds = team.memberIds.filter((id: string) => id !== userId);
   
   return updateDoc(teamRef, {
     memberIds: updatedMemberIds,

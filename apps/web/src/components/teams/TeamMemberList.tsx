@@ -32,7 +32,7 @@ export function TeamMemberList({ team, showActions = true }: TeamMemberListProps
     const unsubscribes: (() => void)[] = [];
 
     const loadMembers = async () => {
-      const memberPromises = team.memberIds.map(async (memberId) => {
+      const memberPromises = team.memberIds.map(async (memberId: string) => {
         const userRef = doc(db, 'users', memberId);
         return new Promise<MemberWithStats>((resolve) => {
           const unsubscribe = onSnapshot(userRef, (doc) => {
