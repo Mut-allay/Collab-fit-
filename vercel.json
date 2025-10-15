@@ -3,14 +3,6 @@
   "buildCommand": "pnpm run build:production",
   "outputDirectory": "apps/web/dist",
   "installCommand": "pnpm install --frozen-lockfile",
-  "functions": {
-    "api/sync-google-fit.js": {
-      "maxDuration": 60
-    },
-    "api/update-leaderboards.js": {
-      "maxDuration": 60
-    }
-  },
   "routes": [
     {
       "src": "/api/(.*)",
