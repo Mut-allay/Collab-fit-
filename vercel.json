@@ -3,22 +3,14 @@
   "buildCommand": "pnpm run build:production",
   "outputDirectory": "apps/web/dist",
   "installCommand": "pnpm install --frozen-lockfile",
-  "builds": [
-    {
-      "src": "api/sync-google-fit.js",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 60
-      }
+  "functions": {
+    "api/sync-google-fit.js": {
+      "maxDuration": 60
     },
-    {
-      "src": "api/update-leaderboards.js",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 60
-      }
+    "api/update-leaderboards.js": {
+      "maxDuration": 60
     }
-  ],
+  },
   "routes": [
     {
       "src": "/api/(.*)",
