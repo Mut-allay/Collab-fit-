@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "pnpm run build:production --filter=@fitspark/web && cp -r apps/web/dist ./dist",
+  "buildCommand": "cd apps/web && pnpm run build:production && cp -r dist ../../dist",
   "outputDirectory": "dist",
   "installCommand": "pnpm install --frozen-lockfile",
   "routes": [
