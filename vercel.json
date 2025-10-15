@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "buildCommand": "echo 'No build needed - using pre-built files'",
+  "buildCommand": "pnpm run build:production",
   "outputDirectory": "apps/web/dist",
-  "installCommand": "echo 'No install needed - using pre-built files'",
+  "installCommand": "pnpm install --frozen-lockfile",
   "builds": [
     {
       "src": "api/sync-google-fit.js",
