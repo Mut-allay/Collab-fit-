@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "cd apps/web && pnpm run build:production && cp -r dist ../../dist",
+  "buildCommand": "pnpm --filter @fitspark/web run build:production && cp -r apps/web/dist dist",
   "outputDirectory": "dist",
   "installCommand": "pnpm install --frozen-lockfile",
   "routes": [
@@ -10,15 +10,15 @@
     },
     {
       "src": "/assets/(.*)",
-      "dest": "/apps/web/dist/assets/$1"
+      "dest": "/dist/assets/$1"
     },
     {
       "src": "/(.*\\.(js|css|ico|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot))",
-      "dest": "/apps/web/dist/$1"
+      "dest": "/dist/$1"
     },
     {
       "src": "/(.*)",
-      "dest": "/apps/web/dist/index.html"
+      "dest": "/dist/index.html"
     }
   ],
   "crons": [
