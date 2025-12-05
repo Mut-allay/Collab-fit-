@@ -94,9 +94,20 @@ export default function WorkoutSessionPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-black text-white relative">
+      {/* Background */}
+      <div className="fixed inset-0 z-0">
+        <img 
+          src="/hero-2.png"
+          alt="Fitness background"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/80 to-black/70" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(6,182,212,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(6,182,212,0.1)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,black,transparent)]" />
+      </div>
+
       {/* Header */}
-      <div className="bg-white border-b sticky top-0 z-10">
+      <div className="relative z-10 bg-black/40 backdrop-blur-sm border-b border-cyan-500/30 sticky top-0 z-20">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <AlertDialog open={showExitDialog} onOpenChange={setShowExitDialog}>
@@ -142,7 +153,7 @@ export default function WorkoutSessionPage() {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-6">
+      <div className="relative z-10 max-w-4xl mx-auto px-4 py-6">
         {/* Current Exercise */}
         <motion.div
           key={currentExerciseIndex}

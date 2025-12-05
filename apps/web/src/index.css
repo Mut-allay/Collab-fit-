@@ -1,3 +1,6 @@
+@import '@fontsource/pacifico';
+@import '@fontsource/manrope';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -65,6 +68,22 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  
+  /* Ensure fonts are loaded */
+  .font-pacifico {
+    font-family: 'Pacifico', cursive;
+    font-display: swap;
+  }
+  
+  .font-manrope {
+    font-family: 'Manrope', sans-serif;
+    font-display: swap;
+  }
+  
+  /* Set Manrope as default for body text */
+  body {
+    font-family: 'Manrope', sans-serif;
   }
 }
 

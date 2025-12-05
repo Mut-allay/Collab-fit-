@@ -4,7 +4,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "sonner";
 
 // Layouts
 import AppLayout from "@/components/layout/AppLayout";
@@ -116,7 +116,16 @@ function App() {
   return (
     <AuthProvider>
       <RouterProvider router={router} />
-      <Toaster />
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          style: {
+            background: '#1f2937',
+            color: '#fff',
+            border: '1px solid rgba(6, 182, 212, 0.3)',
+          },
+        }}
+      />
     </AuthProvider>
   );
 }

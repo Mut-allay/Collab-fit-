@@ -15,16 +15,16 @@ export function TeamQuickView() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Users className="h-5 w-5" />
+          <CardTitle className="flex items-center gap-2 font-manrope text-white">
+            <Users className="h-5 w-5 text-cyan-400" />
             My Team
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-gray-300 font-manrope">
             Join or create a team to compete
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-gray-300 font-manrope">
             You're not part of a team yet. Join the competition!
           </p>
           <div className="flex gap-2">
@@ -50,27 +50,27 @@ export function TeamQuickView() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Users className="h-5 w-5" />
+        <CardTitle className="flex items-center gap-2 font-manrope text-white">
+          <Users className="h-5 w-5 text-cyan-400" />
           My Team
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-gray-300 font-manrope">
           {team.name}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="grid grid-cols-2 gap-4 text-center">
           <div>
-            <div className="text-2xl font-bold text-blue-600">
+            <div className="text-2xl font-bold bg-gradient-to-r from-cyan-500 to-cyan-300 bg-clip-text text-transparent font-manrope">
               {team.currentMonthTotal.steps.toLocaleString()}
             </div>
-            <div className="text-xs text-muted-foreground">Steps</div>
+            <div className="text-xs text-gray-300 font-manrope">Steps</div>
           </div>
           <div>
-            <div className="text-2xl font-bold text-orange-600">
+            <div className="text-2xl font-bold bg-gradient-to-r from-orange-500 to-orange-300 bg-clip-text text-transparent font-manrope">
               {Math.round(team.currentMonthTotal.calories).toLocaleString()}
             </div>
-            <div className="text-xs text-muted-foreground">Calories</div>
+            <div className="text-xs text-gray-300 font-manrope">Calories</div>
           </div>
         </div>
         

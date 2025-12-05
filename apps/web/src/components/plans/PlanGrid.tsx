@@ -19,9 +19,9 @@ export function PlanGrid({ plans, currentPlanId, selectingPlanId, onSelectPlan }
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5 }}
             >
-                <Dumbbell className="h-16 w-16 mx-auto text-spark-600 mb-4" />
-                <h2 className="text-2xl font-semibold mb-2">No Matching Plans Found</h2>
-                <p className="text-muted-foreground">Try adjusting your filters to find the perfect workout plan.</p>
+                <Dumbbell className="h-16 w-16 mx-auto text-cyan-400 mb-4" />
+                <h2 className="text-2xl font-semibold mb-2 font-pacifico text-white">No Matching Plans Found</h2>
+                <p className="text-gray-300 font-manrope">Try adjusting your filters to find the perfect workout plan.</p>
             </motion.div>
         );
     }

@@ -50,11 +50,11 @@ export function LeaderboardPreview() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Trophy className="h-5 w-5" />
+        <CardTitle className="flex items-center gap-2 font-manrope text-white">
+          <Trophy className="h-5 w-5 text-yellow-400" />
           Top Teams
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-gray-300 font-manrope">
           This month's leaders
         </CardDescription>
       </CardHeader>
@@ -64,26 +64,26 @@ export function LeaderboardPreview() {
             {topTeams.map((team, index) => (
               <div
                 key={team.teamId}
-                className="flex items-center justify-between p-2 rounded-lg bg-gray-50"
+                className="flex items-center justify-between p-2 rounded-lg bg-black/40 backdrop-blur-sm border border-cyan-500/20"
               >
                 <div className="flex items-center gap-2">
                   {getRankIcon(index)}
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-medium text-sm">{team.teamName}</span>
+                      <span className="font-medium text-sm text-white font-manrope">{team.teamName}</span>
                       {getRankBadge(index)}
                     </div>
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-1 text-xs text-gray-300 font-manrope">
                       <Users className="h-3 w-3" />
                       {team.memberCount} members
                     </div>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="font-bold text-sm">
+                  <div className="font-bold text-sm text-cyan-300 font-manrope">
                     {team.totalSteps.toLocaleString()}
                   </div>
-                  <div className="text-xs text-muted-foreground">steps</div>
+                  <div className="text-xs text-gray-400 font-manrope">steps</div>
                 </div>
               </div>
             ))}
@@ -97,7 +97,7 @@ export function LeaderboardPreview() {
         ) : (
           <div className="text-center py-4">
             <Trophy className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-gray-300 font-manrope">
               No teams competing yet
             </p>
             <Link to="/teams">

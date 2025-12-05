@@ -18,26 +18,26 @@ export function PlanCard({ plan, isCurrentPlan, isSelecting, onSelectPlan }: Pla
     const GoalIcon = GOAL_ICONS[plan.goal] || Zap;
 
     return (
-        <Card className="h-full flex flex-col hover:shadow-lg transition-shadow duration-300">
+        <Card className="h-full flex flex-col hover:shadow-lg transition-shadow duration-300 bg-black/40 backdrop-blur-sm border-cyan-500/20">
             <CardHeader>
                 <div className="flex items-start justify-between">
                     <div className="flex-1 pr-4">
-                        <CardTitle className="text-xl mb-2 flex items-center gap-2">
-                            <GoalIcon className="h-5 w-5" /> {plan.title}
+                        <CardTitle className="text-xl mb-2 flex items-center gap-2 font-manrope text-white">
+                            <GoalIcon className="h-5 w-5 text-cyan-400" /> {plan.title}
                         </CardTitle>
-                        <CardDescription className="line-clamp-2">{plan.description}</CardDescription>
+                        <CardDescription className="line-clamp-2 text-gray-300 font-manrope">{plan.description}</CardDescription>
                     </div>
-                    <Badge variant="outline" className={DIFFICULTY_COLORS[plan.difficulty]}>
+                    <Badge variant="outline" className={`${DIFFICULTY_COLORS[plan.difficulty]} border-cyan-500/30 bg-black/40`}>
                         {plan.difficulty}
                     </Badge>
                 </div>
             </CardHeader>
             <CardContent className="flex-1 flex flex-col">
-                <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
-                    <div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-muted-foreground" /> <span>{plan.durationWeeks} weeks</span></div>
-                    <div className="flex items-center gap-2"><Clock className="h-4 w-4 text-muted-foreground" /> <span>{plan.sessionsPerWeek}x/week</span></div>
-                    <div className="flex items-center gap-2"><Target className="h-4 w-4 text-muted-foreground" /> <span>{plan.goal.replace(/_/g, " ")}</span></div>
-                    <div className="flex items-center gap-2"><Users className="h-4 w-4 text-muted-foreground" /> <span>{plan.phases?.length || 0} workouts</span></div>
+                <div className="grid grid-cols-2 gap-4 mb-4 text-sm font-manrope">
+                    <div className="flex items-center gap-2 text-gray-300"><Calendar className="h-4 w-4 text-cyan-400" /> <span>{plan.durationWeeks} weeks</span></div>
+                    <div className="flex items-center gap-2 text-gray-300"><Clock className="h-4 w-4 text-cyan-400" /> <span>{plan.sessionsPerWeek}x/week</span></div>
+                    <div className="flex items-center gap-2 text-gray-300"><Target className="h-4 w-4 text-cyan-400" /> <span>{plan.goal.replace(/_/g, " ")}</span></div>
+                    <div className="flex items-center gap-2 text-gray-300"><Users className="h-4 w-4 text-cyan-400" /> <span>{plan.phases?.length || 0} workouts</span></div>
                 </div>
                 <div className="mt-auto flex flex-col sm:flex-row gap-2">
                     <Button variant="outline" size="sm" onClick={() => navigate(`/plans/${plan.id}`)} className="flex-1">

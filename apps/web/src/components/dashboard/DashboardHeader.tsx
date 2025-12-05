@@ -17,10 +17,10 @@ export function DashboardHeader() {
 
     return (
         <div className="mb-8">
-            <h1 className="text-3xl font-bold leading-tight">
-                {getGreeting()}, <span className="text-spark-600">{firstName}</span>! 👋
+            <h1 className="text-3xl font-bold leading-tight font-pacifico text-white">
+                {getGreeting()}, <span className="bg-gradient-to-r from-cyan-500 to-cyan-300 bg-clip-text text-transparent">{firstName}</span>! 👋
             </h1>
-            <p className="text-lg text-muted-foreground">
+            <p className="text-lg text-gray-300 font-manrope">
                 Ready to crush your {getDayName()} workout?
             </p>
         </div>

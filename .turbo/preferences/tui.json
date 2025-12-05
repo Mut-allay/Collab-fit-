@@ -1,4 +1,4 @@
 {
-  "is_task_list_visible": true,
-  "active_task": "@fitspark/web#build"
+  "is_task_list_visible": false,
+  "active_task": "@fitspark/shared#build"
 }

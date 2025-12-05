@@ -9,7 +9,7 @@ export function LandingNavLinks() {
                 <a
                     key={item.href}
                     href={item.href}
-                    className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium"
+                    className="text-gray-300 hover:text-white transition-colors text-sm font-medium font-manrope"
                 >
                     {item.label}
                 </a>
@@ -31,7 +31,7 @@ export function AppNavLinks() {
                     variant={isActivePath(item.path) ? "default" : "ghost"}
                     size="sm"
                     onClick={() => navigate(item.path)}
-                    className="flex items-center gap-2 font-medium"
+                    className="flex items-center gap-2 font-medium font-manrope"
                 >
                     <item.icon className="h-4 w-4" />
                     {item.label}

@@ -1,13 +1,11 @@
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { AuthLayout } from "@/components/layout/AuthLayout";
+import { AuthHeader } from "@/components/auth/AuthHeader";
+import { AuthForm } from "@/components/auth/AuthForm";
+import { AuthFooter } from "@/components/auth/AuthFooter";
 import {
   Form,
   FormControl,
@@ -18,38 +16,94 @@ import {
 } from "@/components/ui/form";
 import { useSignupForm } from "@/hooks/useSignupForm";
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: {
+      duration: 0.6
+    }
+  }
+};
+
 export default function SignupPage() {
   const { form, isLoading, onSubmit } = useSignupForm();
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-spark-500">
-            Join FitSpark ⚡
-          </CardTitle>
-          <CardDescription>
-            Create your account and start your fitness transformation
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+    <AuthLayout>
+      <motion.div 
+        className="w-full max-w-md"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <AuthHeader 
+          title="Join the Movement"
+          subtitle="Start your transformation today"
+        />
+
+        <AuthForm
+          title="Create Your Account"
+          description="Build your legacy • Track your power"
+          footer={
+            <>
+              <p className="text-sm text-gray-400 font-medium font-manrope">
+                Already have an account?{' '}
+                <motion.span whileHover={{ scale: 1.05 }}>
+                  <Link 
+                    to="/login" 
+                    className="text-cyan-400 hover:text-cyan-300 font-bold underline"
+                  >
+                    Sign In
+                  </Link>
+                </motion.span>
+              </p>
+              <div className="mt-4 text-xs text-gray-500 text-center font-manrope">
+                By creating an account, you agree to our{" "}
+                <Link to="/terms" className="text-cyan-400 hover:text-cyan-300">
+                  Terms of Service
+                </Link>{" "}
+                and{" "}
+                <Link to="/privacy" className="text-cyan-400 hover:text-cyan-300">
+                  Privacy Policy
+                </Link>
+              </div>
+            </>
+          }
+        >
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <motion.div 
+                className="grid grid-cols-2 gap-3"
+                variants={itemVariants}
+              >
                 <FormField
                   control={form.control}
                   name="firstName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>First Name</FormLabel>
+                      <FormLabel className="text-gray-300 font-manrope">First Name</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="First name"
-                          {...field}
-                          disabled={isLoading}
-                        />
+                        <motion.div whileFocus={{ scale: 1.02 }}>
+                          <Input
+                            placeholder="First name"
+                            {...field}
+                            disabled={isLoading}
+                          />
+                        </motion.div>
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-red-400" />
                     </FormItem>
                   )}
                 />
@@ -59,112 +113,110 @@ export default function SignupPage() {
                   name="lastName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Last Name</FormLabel>
+                      <FormLabel className="text-gray-300 font-manrope">Last Name</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="Last name"
-                          {...field}
-                          disabled={isLoading}
-                        />
+                        <motion.div whileFocus={{ scale: 1.02 }}>
+                          <Input
+                            placeholder="Last name"
+                            {...field}
+                            disabled={isLoading}
+                          />
+                        </motion.div>
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-red-400" />
                     </FormItem>
                   )}
                 />
-              </div>
+              </motion.div>
 
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="email"
-                        placeholder="Enter your email"
-                        {...field}
-                        disabled={isLoading}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <motion.div variants={itemVariants}>
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-300 font-manrope">Email</FormLabel>
+                      <FormControl>
+                        <motion.div whileFocus={{ scale: 1.02 }}>
+                          <Input
+                            type="email"
+                            placeholder="Enter your email"
+                            {...field}
+                            disabled={isLoading}
+                          />
+                        </motion.div>
+                      </FormControl>
+                      <FormMessage className="text-red-400" />
+                    </FormItem>
+                  )}
+                />
+              </motion.div>
 
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="Create a password"
-                        {...field}
-                        disabled={isLoading}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <motion.div variants={itemVariants}>
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-300 font-manrope">Password</FormLabel>
+                      <FormControl>
+                        <motion.div whileFocus={{ scale: 1.02 }}>
+                          <Input
+                            type="password"
+                            placeholder="Create a password"
+                            {...field}
+                            disabled={isLoading}
+                          />
+                        </motion.div>
+                      </FormControl>
+                      <FormMessage className="text-red-400" />
+                    </FormItem>
+                  )}
+                />
+              </motion.div>
 
-              <FormField
-                control={form.control}
-                name="confirmPassword"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Confirm Password</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="Confirm your password"
-                        {...field}
-                        disabled={isLoading}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <motion.div variants={itemVariants}>
+                <FormField
+                  control={form.control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-300 font-manrope">Confirm Password</FormLabel>
+                      <FormControl>
+                        <motion.div whileFocus={{ scale: 1.02 }}>
+                          <Input
+                            type="password"
+                            placeholder="Confirm your password"
+                            {...field}
+                            disabled={isLoading}
+                          />
+                        </motion.div>
+                      </FormControl>
+                      <FormMessage className="text-red-400" />
+                    </FormItem>
+                  )}
+                />
+              </motion.div>
 
-              <Button
-                type="submit"
-                variant="spark"
-                className="w-full"
-                disabled={isLoading}
+              <motion.div
+                variants={itemVariants}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
-                {isLoading ? "Creating Account..." : "Create Account"}
-              </Button>
+                <Button
+                  type="submit"
+                  className="w-full py-3 text-lg font-bold font-manrope disabled:opacity-50"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Creating Account..." : "Start Training"}
+                </Button>
+              </motion.div>
             </form>
           </Form>
+        </AuthForm>
 
-          <div className="mt-6 text-center">
-            <p className="text-sm text-muted-foreground">
-              Already have an account?{" "}
-              <Link
-                to="/login"
-                className="text-spark-500 hover:text-spark-600 font-medium"
-              >
-                Sign in
-              </Link>
-            </p>
-          </div>
-
-          <div className="mt-4 text-xs text-muted-foreground text-center">
-            By creating an account, you agree to our{" "}
-            <Link to="/terms" className="text-spark-500 hover:text-spark-600">
-              Terms of Service
-            </Link>{" "}
-            and{" "}
-            <Link to="/privacy" className="text-spark-500 hover:text-spark-600">
-              Privacy Policy
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+        <AuthFooter />
+      </motion.div>
+    </AuthLayout>
   );
 }

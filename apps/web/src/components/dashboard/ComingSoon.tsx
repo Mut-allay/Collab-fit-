@@ -34,19 +34,19 @@ export function ComingSoon() {
     ];
 
     return (
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-gray-50 to-white">
+        <Card className="border-0 shadow-lg bg-gradient-to-br from-gray-900/90 to-gray-800/90">
             <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                        <Sparkles className="h-5 w-5 text-spark-600" />
+                    <CardTitle className="text-lg font-semibold flex items-center gap-2 font-manrope text-white">
+                        <Sparkles className="h-5 w-5 text-cyan-400" />
                         Coming Soon
                     </CardTitle>
-                    <Badge variant="outline" className="text-xs border-spark-200 text-spark-600">
+                    <Badge variant="outline" className="text-xs border-cyan-500/30 bg-black/40 text-cyan-300">
                         <Bell className="h-3 w-3 mr-1" />
                         Early Access
                     </Badge>
                 </div>
-                <CardDescription>
+                <CardDescription className="text-gray-300 font-manrope">
                     Complete your wellness journey with these exciting new features
                 </CardDescription>
             </CardHeader>
@@ -62,31 +62,31 @@ export function ComingSoon() {
                         <div className="absolute inset-0 bg-gradient-to-r opacity-5 rounded-lg"
                             style={{ background: `linear-gradient(to right, var(--${feature.gradient.split('-')[1]}-500), var(--${feature.gradient.split('-')[3]}-600))` }}>
                         </div>
-                        <div className="relative p-4 border border-gray-100 rounded-lg bg-white/50 backdrop-blur-sm">
+                        <div className="relative p-4 border border-cyan-500/20 rounded-lg bg-black/40 backdrop-blur-sm">
                             <div className="flex items-start justify-between mb-3">
                                 <div className="flex items-center gap-3">
                                     <div className={`p-2 rounded-lg bg-gradient-to-r ${feature.gradient} text-white`}>
                                         <feature.icon className="h-4 w-4" />
                                     </div>
                                     <div>
-                                        <h3 className="font-semibold text-sm">{feature.title}</h3>
-                                        <p className="text-xs text-muted-foreground">{feature.category}</p>
+                                        <h3 className="font-semibold text-sm text-white font-manrope">{feature.title}</h3>
+                                        <p className="text-xs text-gray-300 font-manrope">{feature.category}</p>
                                     </div>
                                 </div>
-                                <Badge variant="secondary" className="text-xs">
+                                <Badge variant="secondary" className="text-xs border-cyan-500/30 bg-black/40 text-cyan-300">
                                     {feature.badge}
                                 </Badge>
                             </div>
 
-                            <p className="text-xs text-muted-foreground mb-3">
+                            <p className="text-xs text-gray-300 mb-3 font-manrope">
                                 {feature.description}
                             </p>
 
                             <div className="space-y-1 mb-3">
                                 {feature.benefits.map((benefit, benefitIndex) => (
                                     <div key={benefitIndex} className="flex items-center gap-2 text-xs">
-                                        <Star className="h-3 w-3 text-spark-500" />
-                                        <span className="text-muted-foreground">{benefit}</span>
+                                        <Star className="h-3 w-3 text-cyan-400" />
+                                        <span className="text-gray-300 font-manrope">{benefit}</span>
                                     </div>
                                 ))}
                             </div>
@@ -94,7 +94,7 @@ export function ComingSoon() {
                             <Button
                                 variant="outline"
                                 size="sm"
-                                className="w-full text-xs h-8 border-spark-200 text-spark-600 hover:bg-spark-50"
+                                className="w-full text-xs h-8 border-cyan-500/30 text-cyan-300 hover:bg-cyan-900/20 font-manrope"
                             >
                                 <Zap className="h-3 w-3 mr-1" />
                                 Get Notified
@@ -109,7 +109,7 @@ export function ComingSoon() {
                     transition={{ duration: 0.4, delay: 0.6 }}
                     className="text-center pt-2"
                 >
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-gray-300 font-manrope">
                         Be the first to know when these features launch! 🚀
                     </p>
                 </motion.div>

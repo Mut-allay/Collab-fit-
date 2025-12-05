@@ -20,13 +20,13 @@ function StatsSection() {
   ];
 
   return (
-    <section className="py-16 bg-white border-y">
+    <section className="py-16 bg-black/40 backdrop-blur-sm border-y border-cyan-500/30">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
           {stats.map((stat, _) => (
             <div key={stat.label} className="text-center">
-              <div className="text-4xl font-bold text-spark-600 mb-2">{stat.number}</div>
-              <div className="text-muted-foreground font-medium">{stat.label}</div>
+              <div className="text-4xl font-bold bg-gradient-to-r from-cyan-500 to-cyan-300 bg-clip-text text-transparent mb-2 font-pacifico">{stat.number}</div>
+              <div className="text-gray-300 font-medium font-manrope">{stat.label}</div>
             </div>
           ))}
         </div>
@@ -50,17 +50,32 @@ export default function LandingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar variant="landing" />
-      <main>
-        <HeroSection />
-        <StatsSection />
-        <FeaturesSection />
-        <HowItWorksSection />
-        <TestimonialsSection />
-        <CtaSection />
-      </main>
-      <Footer variant="landing" />
+    <div className="min-h-screen relative">
+      {/* Background Image with Overlay */}
+      <div className="fixed inset-0 z-0">
+        <img 
+          src="/hero-3.jpg"
+          alt="Fitness background"
+          className="w-full h-full object-cover"
+        />
+        {/* Dark overlay for better contrast */}
+        <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/80 to-black/70" />
+        {/* Subtle grid pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(6,182,212,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(6,182,212,0.1)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,black,transparent)]" />
+      </div>
+
+      <div className="relative z-10">
+        <Navbar variant="landing" />
+        <main>
+          <HeroSection />
+          <StatsSection />
+          <FeaturesSection />
+          <HowItWorksSection />
+          <TestimonialsSection />
+          <CtaSection />
+        </main>
+        <Footer variant="landing" />
+      </div>
     </div>
   );
 }

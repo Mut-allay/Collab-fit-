@@ -58,16 +58,16 @@ export function QuickActions() {
         <Card className="border-0 shadow-lg">
             <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                        <Zap className="h-5 w-5 text-spark-600" />
+                    <CardTitle className="text-lg font-semibold flex items-center gap-2 font-manrope text-white">
+                        <Zap className="h-5 w-5 text-cyan-400" />
                         Quick Actions
                     </CardTitle>
-                    <Badge variant="secondary" className="text-xs">
+                    <Badge variant="secondary" className="text-xs border-cyan-500/30 bg-black/40 text-cyan-300">
                         <Sparkles className="h-3 w-3 mr-1" />
                         Smart
                     </Badge>
                 </div>
-                <CardDescription>
+                <CardDescription className="text-gray-300 font-manrope">
                     Jump into your fitness routine with one tap
                 </CardDescription>
             </CardHeader>

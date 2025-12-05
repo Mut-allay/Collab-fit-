@@ -11,11 +11,22 @@ export function DataVerificationPage() {
   const { result, loading, error, runVerification } = useDataVerification();
 
   return (
-    <div className="container mx-auto p-6 max-w-4xl">
+    <div className="min-h-screen bg-black text-white relative">
+      {/* Background */}
+      <div className="fixed inset-0 z-0">
+        <img 
+          src="/hero-2.png"
+          alt="Fitness background"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/80 to-black/70" />
+      </div>
+
+      <div className="relative z-10 container mx-auto p-6 max-w-4xl">
       <VerificationHeader />
 
       <div className="mb-6 text-center">
-        <Button onClick={runVerification} disabled={loading} size="lg">
+        <Button onClick={runVerification} disabled={loading} size="lg" className="font-manrope">
           {loading ? "Verifying..." : "Run Verification"}
         </Button>
       </div>
@@ -23,16 +34,16 @@ export function DataVerificationPage() {
       {loading && <LoadingSpinner message="Checking Firestore data..." />}
 
       {error && (
-        <Card className="mb-6 border-destructive">
+        <Card className="mb-6 border-red-500/30">
           <CardHeader>
-            <CardTitle className="text-destructive flex items-center gap-2">
+            <CardTitle className="text-red-400 flex items-center gap-2 font-manrope">
               <XCircle className="h-5 w-5" />
               Verification Error
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p>{error}</p>
-            <p className="text-sm text-muted-foreground mt-2">
+            <p className="text-gray-300 font-manrope">{error}</p>
+            <p className="text-sm text-gray-400 mt-2 font-manrope">
               This could be due to Firestore permissions. Ensure you are logged in and your security rules allow reads to these public collections.
             </p>
           </CardContent>
@@ -60,6 +71,7 @@ export function DataVerificationPage() {
           />
         </div>
       )}
+      </div>
     </div>
   );
 }

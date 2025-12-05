@@ -17,6 +17,10 @@ export default {
   		}
   	},
   	extend: {
+  		fontFamily: {
+  			pacifico: ['Pacifico', 'cursive'],
+  			manrope: ['Manrope', 'sans-serif'],
+  		},
   		colors: {
   			border: 'hsl(var(--border))',
   			input: 'hsl(var(--input))',

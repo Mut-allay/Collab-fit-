@@ -1,5 +1,17 @@
 import type * as React from "react";
-import type { ToastActionElement, ToastProps } from "@/components/ui/toast";
+
+/**
+ * Defines the shape of a toast action element.
+ */
+export type ToastActionElement = React.ReactElement;
+
+/**
+ * Defines the base props for a toast.
+ */
+export type ToastProps = {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+};
 
 /**
  * Defines the shape of a single toast object used within our toast system.
