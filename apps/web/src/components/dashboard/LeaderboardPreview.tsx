@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Trophy, Medal, Award, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLeaderboard } from '@/hooks/useLeaderboard';
+import { TeamLeaderboardEntry } from '@fitspark/shared';
 import { useEffect } from 'react';
 
 export function LeaderboardPreview() {
@@ -18,7 +19,7 @@ export function LeaderboardPreview() {
   }, [loadLeaderboard]);
 
   const topTeams = leaderboard?.teams
-    .sort((a, b) => b.totalSteps - a.totalSteps)
+    .sort((a: TeamLeaderboardEntry, b: TeamLeaderboardEntry) => b.totalSteps - a.totalSteps)
     .slice(0, 3) || [];
 
   const getRankIcon = (index: number) => {
@@ -61,7 +62,7 @@ export function LeaderboardPreview() {
       <CardContent className="space-y-3">
         {topTeams.length > 0 ? (
           <>
-            {topTeams.map((team, index) => (
+            {topTeams.map((team: TeamLeaderboardEntry, index: number) => (
               <div
                 key={team.teamId}
                 className="flex items-center justify-between p-2 rounded-lg bg-black/40 backdrop-blur-sm border border-cyan-500/20"
