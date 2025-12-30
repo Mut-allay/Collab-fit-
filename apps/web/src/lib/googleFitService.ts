@@ -3,6 +3,7 @@ import { updateDailyActivity } from './firestoreService';
 // Extend Window interface to include gapi
 declare global {
   interface Window {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     gapi: any;
   }
 }
@@ -56,6 +57,7 @@ interface GoogleFitResponse {
 }
 
 class GoogleFitService {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private gapi: any = null;
   private isInitialized = false;
 
@@ -82,7 +84,7 @@ class GoogleFitService {
     });
   }
 
-  private async initializeGapi(resolve: () => void, reject: (error: any) => void): Promise<void> {
+  private async initializeGapi(resolve: () => void, reject: (error: unknown) => void): Promise<void> {
     try {
       const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
       const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
@@ -279,7 +281,7 @@ class GoogleFitService {
 
       if (totalCalories > 0 && dateString) {
         // Get existing activity log and update calories
-        const existingLog = await this.getExistingActivityLog(userId, dateString);
+        const existingLog = await this.getExistingActivityLog();
         await updateDailyActivity(userId, {
           date: dateString,
           steps: existingLog?.steps || 0,
@@ -297,7 +299,7 @@ class GoogleFitService {
     return user.getId();
   }
 
-  private async getExistingActivityLog(_userId: string, _date: string): Promise<any> {
+  private async getExistingActivityLog(): Promise<{ steps: number } | null> {
     // This would fetch existing activity log for the date
     // For now, return null - this should be implemented with actual Firestore query
     return null;

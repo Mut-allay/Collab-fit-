@@ -9,6 +9,7 @@ import type { User as FitSparkUser } from "@fitspark/shared";
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Create the custom hook for easy consumption
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {

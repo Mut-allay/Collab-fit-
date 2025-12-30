@@ -194,8 +194,8 @@ export default function ProfilePage() {
                         <Label htmlFor="gender">Gender</Label>
                         <Select
                           value={formData.gender || ""}
-                          onValueChange={(value: any) =>
-                            setFormData({ ...formData, gender: value })
+                          onValueChange={(value: string) =>
+                            setFormData({ ...formData, gender: value as typeof formData.gender })
                           }
                           disabled={!isEditing}
                         >
@@ -290,8 +290,8 @@ export default function ProfilePage() {
                         <Label htmlFor="goal">Primary Goal</Label>
                         <Select
                           value={formData.goal || ""}
-                          onValueChange={(value: any) =>
-                            setFormData({ ...formData, goal: value })
+                          onValueChange={(value: string) =>
+                            setFormData({ ...formData, goal: value as typeof formData.goal })
                           }
                           disabled={!isEditing}
                         >
@@ -322,10 +322,10 @@ export default function ProfilePage() {
                         <Label htmlFor="experience">Experience Level</Label>
                         <Select
                           value={formData.fitnessExperience || ""}
-                          onValueChange={(value: any) =>
+                          onValueChange={(value: string) =>
                             setFormData({
                               ...formData,
-                              fitnessExperience: value,
+                              fitnessExperience: value as typeof formData.fitnessExperience,
                             })
                           }
                           disabled={!isEditing}

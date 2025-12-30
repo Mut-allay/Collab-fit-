@@ -1,4 +1,5 @@
 import { z } from "zod";
+import * as React from "react";
 
 export interface Exercise {
   id: string;
@@ -16,10 +17,11 @@ export interface Exercise {
 export interface WorkoutExercise {
   exerciseId: string;
   sets: number;
-  reps: number;
+  reps?: number;
   weight?: number;
-  restTime: number;
+  restTime?: number;
   duration?: number;
+  distance?: number;
 }
 
 export interface WorkoutPhase {
@@ -42,8 +44,8 @@ export interface WorkoutPlan {
   tags: string[];
   phases: WorkoutPhase[];
   trainerId: string;
-  createdAt: any;
-  updatedAt: any;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface SetLog {
@@ -103,7 +105,7 @@ export interface ProgressMetrics {
 export interface AchievementLevel {
   level: string;
   color: string;
-  icon: any;
+  icon: React.ElementType;
   iconName: string;
 }
 

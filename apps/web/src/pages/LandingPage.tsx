@@ -23,7 +23,7 @@ function StatsSection() {
     <section className="py-16 bg-black/40 backdrop-blur-sm border-y border-cyan-500/30">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-          {stats.map((stat, _) => (
+          {stats.map((stat) => (
             <div key={stat.label} className="text-center">
               <div className="text-4xl font-bold bg-gradient-to-r from-cyan-500 to-cyan-300 bg-clip-text text-transparent mb-2 font-pacifico">{stat.number}</div>
               <div className="text-gray-300 font-medium font-manrope">{stat.label}</div>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -8,6 +8,7 @@ import {
   WorkoutPlan,
   WorkoutPhase,
   WorkoutSession,
+  WorkoutExercise,
   SetLog,
   Exercise,
   workoutLoggingSchema,
@@ -54,13 +55,47 @@ export function useWorkoutSession() {
   const isLastExercise = currentExerciseIndex >= totalExercises - 1;
 
   // Load workout data
-  useEffect(() => {
-    if (planId) {
-      loadWorkoutPlan();
-    }
-  }, [planId]);
 
-  const loadWorkoutPlan = async () => {
+
+  const loadExerciseDetails = useCallback(async (workoutExercises: WorkoutExercise[]) => {
+    const exerciseDetailsMap = new Map<string, Exercise>();
+
+    for (const workoutExercise of workoutExercises) {
+      try {
+        const exerciseRef = doc(db, "exercises", workoutExercise.exerciseId);
+        const exerciseSnap = await getDoc(exerciseRef);
+        if (exerciseSnap.exists()) {
+          exerciseDetailsMap.set(workoutExercise.exerciseId, {
+            id: exerciseSnap.id,
+            ...exerciseSnap.data(),
+          } as Exercise);
+        }
+      } catch (error) {
+        console.error("Error loading exercise details:", error);
+      }
+    }
+
+    setExerciseDetails(exerciseDetailsMap);
+  }, []);
+
+  const initializeSession = useCallback((plan: WorkoutPlan, phase: WorkoutPhase) => {
+    const now = new Date();
+    const newSession: WorkoutSession = {
+      workoutPlanId: plan.id,
+      phaseId: phase.id,
+      phaseName: phase.name,
+      startTime: now,
+      sets: [],
+      totalVolume: 0,
+      duration: 0,
+    };
+
+    setSession(newSession);
+    setWorkoutStartTime(now);
+    setLastLapTime(now);
+  }, []);
+
+  const loadWorkoutPlan = useCallback(async () => {
     if (!planId || !phaseId) return;
 
     try {
@@ -104,45 +139,13 @@ export function useWorkoutSession() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [planId, phaseId, toast, navigate, loadExerciseDetails, initializeSession]);
 
-  const loadExerciseDetails = async (workoutExercises: any[]) => {
-    const exerciseDetailsMap = new Map<string, Exercise>();
-
-    for (const workoutExercise of workoutExercises) {
-      try {
-        const exerciseRef = doc(db, "exercises", workoutExercise.exerciseId);
-        const exerciseSnap = await getDoc(exerciseRef);
-        if (exerciseSnap.exists()) {
-          exerciseDetailsMap.set(workoutExercise.exerciseId, {
-            id: exerciseSnap.id,
-            ...exerciseSnap.data(),
-          } as Exercise);
-        }
-      } catch (error) {
-        console.error("Error loading exercise details:", error);
-      }
+  useEffect(() => {
+    if (planId) {
+      loadWorkoutPlan();
     }
-
-    setExerciseDetails(exerciseDetailsMap);
-  };
-
-  const initializeSession = (plan: WorkoutPlan, phase: WorkoutPhase) => {
-    const now = new Date();
-    const newSession: WorkoutSession = {
-      workoutPlanId: plan.id,
-      phaseId: phase.id,
-      phaseName: phase.name,
-      startTime: now,
-      sets: [],
-      totalVolume: 0,
-      duration: 0,
-    };
-
-    setSession(newSession);
-    setWorkoutStartTime(now);
-    setLastLapTime(now);
-  };
+  }, [planId, loadWorkoutPlan]);
 
   const pauseRestTimer = () => {
     setIsPaused(!isPaused);
@@ -226,7 +229,7 @@ export function useWorkoutSession() {
       setCurrentSetIndex((prev) => prev + 1);
 
       // Start rest timer
-      const restTime = currentWorkoutExercise.restTime;
+      const restTime = currentWorkoutExercise.restTime || 60;
       setIsResting(true);
       setRestTimeLeft(restTime);
       setIsPaused(false);

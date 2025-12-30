@@ -3,13 +3,24 @@ import { useAuth } from "@/contexts/AuthContext";
 import { getDocument } from "@/lib/firestoreService";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import type { WorkoutProgram, WorkoutLog } from "@fitspark/shared";
+import type {
+  WorkoutProgram,
+  WorkoutLog,
+  WorkoutPhase,
+} from "@fitspark/shared";
 
 // Define the shape of the data this hook will return
+export interface WeeklyProgress {
+  day: string;
+  date: Date;
+  completed: boolean;
+  workoutCount: number;
+}
+
 export interface DashboardData {
   selectedPlan: WorkoutProgram | null;
-  todaysWorkout: any; // Replace 'any' with a specific Phase type if available
-  weeklyProgress: any[]; // Replace 'any' with a specific ProgressDay type
+  todaysWorkout: WorkoutPhase | null;
+  weeklyProgress: WeeklyProgress[];
 }
 
 export function useDashboardData() {
@@ -41,11 +52,12 @@ export function useDashboardData() {
         }
 
         // Determine today's workout
-        const todaysWorkout = selectedPlan
-          ? selectedPlan.phases[
-              new Date().getDay() % selectedPlan.phases.length
-            ]
-          : null;
+        const todaysWorkout =
+          selectedPlan && selectedPlan.phases.length > 0
+            ? selectedPlan.phases[
+                new Date().getDay() % selectedPlan.phases.length
+              ] || null
+            : null;
 
         // Fetch weekly progress
         const startOfWeek = new Date();

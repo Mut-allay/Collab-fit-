@@ -41,7 +41,7 @@ export function ManualSyncButton({
         setLastSyncSuccess(true);
         toast({
           title: "Sync Successful",
-          description: `Synced data for ${result.data?.syncedUsers || 0} users.`,
+          description: `Synced data for ${(result.data as { syncedUsers?: number })?.syncedUsers || 0} users.`,
         });
         
         // Reset success state after 3 seconds
@@ -53,7 +53,8 @@ export function ManualSyncButton({
           variant: "destructive",
         });
       }
-    } catch (error) {
+    } catch (err) {
+      console.error("Error manually syncing:", err);
       toast({
         title: "Sync Error",
         description: "An unexpected error occurred during sync.",

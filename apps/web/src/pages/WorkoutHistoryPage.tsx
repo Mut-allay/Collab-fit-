@@ -127,7 +127,7 @@ export default function WorkoutHistoryPage() {
                   <Select
                     value={timeRange}
                     onValueChange={(value) => {
-                      setTimeRange(value as any);
+                      setTimeRange(value as "week" | "month" | "quarter" | "year");
                       setSelectedWeek("default");
                       setSelectedMonth("default");
                     }}
@@ -316,7 +316,7 @@ export default function WorkoutHistoryPage() {
                       }}
                     />
                     <Tooltip
-                      formatter={(value: any) => [
+                      formatter={(value: number) => [
                         `${value.toLocaleString()} kg`,
                         "Total Volume",
                       ]}
@@ -373,7 +373,7 @@ export default function WorkoutHistoryPage() {
                       ))}
                     </Pie>
                     <Tooltip
-                      formatter={(value: any) => [
+                      formatter={(value: number) => [
                         `${value.toLocaleString()} kg`,
                         "Volume",
                       ]}

@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { WorkoutExercise } from "@/types/workout";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -19,13 +20,9 @@ export function usePlanView() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (planId) {
-      fetchPlanDetails(planId);
-    }
-  }, [planId]);
 
-  const fetchPlanDetails = async (id: string) => {
+
+  const fetchPlanDetails = useCallback(async (id: string) => {
     try {
       // Fetch plan details
       const planRef = doc(db, "workoutPrograms", id);
@@ -77,7 +74,13 @@ export function usePlanView() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast, navigate]);
+
+  useEffect(() => {
+    if (planId) {
+      fetchPlanDetails(planId);
+    }
+  }, [planId, fetchPlanDetails]);
 
   const handleSelectPlan = async () => {
     if (!currentUser || !plan) {
@@ -115,7 +118,7 @@ export function usePlanView() {
   };
 
   const formatExerciseDisplay = (
-    exercise: any,
+    exercise: WorkoutExercise,
     details: Exercise | undefined
   ) => {
     if (!details) return `${exercise.sets} sets`;

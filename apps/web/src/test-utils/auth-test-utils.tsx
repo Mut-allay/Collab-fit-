@@ -9,6 +9,7 @@ export const mockUser = {
     email: 'test@example.com',
     displayName: 'Test User',
     emailVerified: true,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
 } as any;
 
 export const mockUserProfile = {
@@ -35,7 +36,9 @@ export const mockAuthFunctions = {
 // Custom render function with auth context
 interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
     authState?: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         currentUser?: any;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         userProfile?: any;
         loading?: boolean;
     };

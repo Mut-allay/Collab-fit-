@@ -93,6 +93,7 @@ export const CreateWorkoutLogSchema = z.object({
 export type Exercise = z.infer<typeof ExerciseSchema>;
 export type WorkoutSet = z.infer<typeof WorkoutSetSchema>;
 export type WorkoutSession = z.infer<typeof WorkoutSessionSchema>;
+export type WorkoutPhase = z.infer<typeof WorkoutSessionSchema>; // Alias for clearer naming
 export type WorkoutProgram = z.infer<typeof WorkoutProgramSchema>;
 export type LoggedSet = z.infer<typeof LoggedSetSchema>;
 export type WorkoutLog = z.infer<typeof WorkoutLogSchema>;

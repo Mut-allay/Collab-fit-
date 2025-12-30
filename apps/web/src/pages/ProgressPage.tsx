@@ -210,7 +210,7 @@ export default function ProgressPage() {
                       <Select
                         value={timeRange}
                         onValueChange={(value) => {
-                          setTimeRange(value as any);
+                          setTimeRange(value as "week" | "month" | "quarter" | "year");
                           setSelectedWeek("default");
                           setSelectedMonth("default");
                         }}
@@ -441,7 +441,7 @@ export default function ProgressPage() {
                             }}
                           />
                           <Tooltip
-                            formatter={(value: any) => [
+                            formatter={(value: number) => [
                               `${value.toLocaleString()} kg`,
                               "Total Volume",
                             ]}
@@ -495,7 +495,7 @@ export default function ProgressPage() {
                             }}
                           />
                           <Tooltip
-                            formatter={(value: any) => [value, "Workouts"]}
+                            formatter={(value: number) => [value, "Workouts"]}
                             labelFormatter={(label) => `Day: ${label}`}
                           />
                           <Bar dataKey="workouts" fill="#f97316" />

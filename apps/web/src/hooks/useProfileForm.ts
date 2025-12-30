@@ -74,11 +74,16 @@ export function useProfileForm() {
       ProfileFormSchema.parse(formData);
       setErrors({});
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
       const newErrors: Record<string, string> = {};
-      error.errors?.forEach((err: any) => {
-        newErrors[err.path[0]] = err.message;
-      });
+      if (error && typeof error === 'object' && 'errors' in error) {
+        const zodError = error as { errors: Array<{ path: string[]; message: string }> };
+        zodError.errors?.forEach((err) => {
+          if (err.path && err.path.length > 0 && err.path[0]) {
+            newErrors[err.path[0]] = err.message;
+          }
+        });
+      }
       setErrors(newErrors);
       return false;
     }
@@ -128,7 +133,7 @@ export function useProfileForm() {
       console.error("Error updating profile:", error);
       toast({
         title: "Error",
-        description: `Failed to update profile: ${(error as any)?.message || "Unknown error"}`,
+        description: `Failed to update profile: ${error instanceof Error ? error.message : "Unknown error"}`,
         variant: "destructive",
       });
     } finally {

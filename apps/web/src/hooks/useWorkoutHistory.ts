@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
@@ -21,13 +21,9 @@ export function useWorkoutHistory() {
     null
   );
 
-  useEffect(() => {
-    if (currentUser) {
-      fetchWorkoutHistory();
-    }
-  }, [currentUser, timeRange, selectedWeek, selectedMonth]);
 
-  const fetchWorkoutHistory = async () => {
+
+  const fetchWorkoutHistory = useCallback(async () => {
     if (!currentUser) return;
 
     try {
@@ -108,7 +104,13 @@ export function useWorkoutHistory() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentUser, timeRange, selectedWeek, selectedMonth, toast]);
+
+  useEffect(() => {
+    if (currentUser) {
+      fetchWorkoutHistory();
+    }
+  }, [currentUser, timeRange, selectedWeek, selectedMonth, fetchWorkoutHistory]);
 
   const calculateExerciseStats = (logs: WorkoutLog[]) => {
     const exerciseMap = new Map<string, ExerciseStats>();

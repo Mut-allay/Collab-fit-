@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   collection,
@@ -27,14 +27,9 @@ export function useProgressData() {
   const [selectedRangeHasData, setSelectedRangeHasData] =
     useState<boolean>(true);
 
-  useEffect(() => {
-    if (currentUser) {
-      fetchProgressData();
-      checkUserWorkoutHistory();
-    }
-  }, [currentUser, timeRange, selectedWeek, selectedMonth]);
 
-  const checkUserWorkoutHistory = async () => {
+
+  const checkUserWorkoutHistory = useCallback(async () => {
     if (!currentUser) return;
 
     try {
@@ -51,9 +46,9 @@ export function useProgressData() {
     } catch (error) {
       console.error("Error checking user workout history:", error);
     }
-  };
+  }, [currentUser]);
 
-  const fetchProgressData = async () => {
+  const fetchProgressData = useCallback(async () => {
     if (!currentUser) return;
 
     try {
@@ -130,7 +125,14 @@ export function useProgressData() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentUser, timeRange, selectedWeek, selectedMonth]);
+
+  useEffect(() => {
+    if (currentUser) {
+      fetchProgressData();
+      checkUserWorkoutHistory();
+    }
+  }, [currentUser, timeRange, selectedWeek, selectedMonth, fetchProgressData, checkUserWorkoutHistory]);
 
   const calculateMetrics = (logs: WorkoutLog[]) => {
     if (logs.length === 0) {

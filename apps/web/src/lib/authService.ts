@@ -59,10 +59,12 @@ export async function loginUser(
       password
     );
     return userCredential.user;
-  } catch (error: any) {
-    console.error("Firebase Auth Error:", error.code, error.message);
+  } catch (error: unknown) {
+    // Type narrow the error to access Firebase auth error properties
+    const firebaseError = error as { code?: string; message?: string };
+    console.error("Firebase Auth Error:", firebaseError.code, firebaseError.message);
     // This detailed error handling is excellent. We keep it here.
-    switch (error.code) {
+    switch (firebaseError.code) {
       case "auth/invalid-credential":
         throw new Error(
           "The email or password you entered is incorrect. Please check your credentials and try again."
@@ -86,7 +88,7 @@ export async function loginUser(
       default:
         console.error("❌ Unhandled auth error:", error);
         throw new Error(
-          `Authentication error: ${error.message || "Unknown error occurred"}`
+          `Authentication error: ${firebaseError.message || "Unknown error occurred"}`
         );
     }
   }

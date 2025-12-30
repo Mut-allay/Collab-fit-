@@ -1,0 +1,43 @@
+﻿
+> @fitspark/web@0.1.0 lint C:\Users\ADMIN\Desktop\Progging\Projects\Personal_Projects\Fitness-application\apps\web
+> eslint .
+
+
+C:\Users\ADMIN\Desktop\Progging\Projects\Personal_Projects\Fitness-application\apps\web\src\hooks\useProfileForm.ts
+   77:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   79:35  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  131:61  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\ADMIN\Desktop\Progging\Projects\Personal_Projects\Fitness-application\apps\web\src\lib\apiService.ts
+  10:27  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\ADMIN\Desktop\Progging\Projects\Personal_Projects\Fitness-application\apps\web\src\lib\authService.ts
+  62:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\ADMIN\Desktop\Progging\Projects\Personal_Projects\Fitness-application\apps\web\src\pages\ProfilePage.tsx
+  197:50  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  293:50  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  325:50  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\ADMIN\Desktop\Progging\Projects\Personal_Projects\Fitness-application\apps\web\src\pages\ProgressPage.tsx
+  213:49  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  444:48  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  498:48  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\ADMIN\Desktop\Progging\Projects\Personal_Projects\Fitness-application\apps\web\src\pages\WorkoutHistoryPage.tsx
+  130:45  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  319:42  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  376:42  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\ADMIN\Desktop\Progging\Projects\Personal_Projects\Fitness-application\apps\web\src\setupTests.ts
+  10:6  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  18:6  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\ADMIN\Desktop\Progging\Projects\Personal_Projects\Fitness-application\apps\web\src\test-utils\auth-test-utils.tsx
+  12:6   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  38:23  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  39:23  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+Γ£û 19 problems (19 errors, 0 warnings)
+
+ΓÇëELIFECYCLEΓÇë Command failed with exit code 1.

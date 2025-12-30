@@ -6,7 +6,7 @@ export function toast({ title, description, variant, ...props }: {
   title?: string;
   description?: string;
   variant?: "default" | "destructive" | "success";
-  [key: string]: any;
+  [key: string]: unknown;
 }) {
   if (variant === "destructive") {
     return sonnerToast.error(title || description || "An error occurred", {

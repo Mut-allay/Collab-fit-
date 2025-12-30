@@ -2,11 +2,11 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Play, Dumbbell } from "lucide-react";
-import type { WorkoutProgram } from "@fitspark/shared";
+import type { WorkoutProgram, WorkoutPhase } from "@fitspark/shared";
 
 interface TodaysWorkoutProps {
     plan: WorkoutProgram;
-    workout: any; // Replace 'any' with Phase type
+    workout: WorkoutPhase;
 }
 
 export function TodaysWorkout({ plan, workout }: TodaysWorkoutProps) {

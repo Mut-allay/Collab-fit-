@@ -1,0 +1,4 @@
+﻿
+> @fitspark/web@0.1.0 lint C:\Users\ADMIN\Desktop\Progging\Projects\Personal_Projects\Fitness-application\apps\web
+> eslint .
+

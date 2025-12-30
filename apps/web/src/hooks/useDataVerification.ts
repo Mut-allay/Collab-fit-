@@ -59,8 +59,9 @@ export function useDataVerification() {
       };
 
       setResult(verificationResult);
-    } catch (err: any) {
-      setError(err.message || "An unknown error occurred during verification.");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "An unknown error occurred during verification.";
+      setError(errorMessage);
       console.error("Verification error:", err);
     } finally {
       setLoading(false);
