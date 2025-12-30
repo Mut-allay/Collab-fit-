@@ -7,12 +7,12 @@
       "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
     },
     "build:staging": {
-      "dependsOn": ["^build:staging"],
-      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
+      "dependsOn": ["^build", "^build:staging"],
+      "outputs": ["dist/**", "!.next/cache/**"]
     },
     "build:production": {
-      "dependsOn": ["^build:production"],
-      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
+      "dependsOn": ["^build", "^build:production"],
+      "outputs": ["dist/**", "!.next/cache/**"]
     },
     "lint": {
       "dependsOn": ["^lint"]

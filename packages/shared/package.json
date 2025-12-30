@@ -12,6 +12,8 @@
   },
   "scripts": {
     "build": "tsc",
+    "build:staging": "pnpm build",
+    "build:production": "pnpm build",
     "dev": "tsc --watch",
     "typecheck": "tsc --noEmit",
     "lint": "echo 'No linting for shared package yet'",
