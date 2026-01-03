@@ -5,6 +5,8 @@
     "module": "CommonJS",
     "moduleResolution": "node",
     "declaration": true,
+    "declarationMap": true,
+    "composite": true,
     "outDir": "./dist",
     "rootDir": "./src",
     "strict": true,

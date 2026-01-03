@@ -136,3 +136,4 @@ export type MetricSnapshot = z.infer<typeof MetricSnapshotSchema>;
 export type BiometricEntry = z.infer<typeof BiometricEntrySchema>;
 export type CreateMetricSnapshot = z.infer<typeof CreateMetricSnapshotSchema>;
 export type WearableData = z.infer<typeof WearableDataSchema>;
+//# sourceMappingURL=metrics.d.ts.map

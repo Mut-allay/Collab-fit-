@@ -530,3 +530,4 @@ export type LoggedSet = z.infer<typeof LoggedSetSchema>;
 export type WorkoutLog = z.infer<typeof WorkoutLogSchema>;
 export type CreateWorkoutProgram = z.infer<typeof CreateWorkoutProgramSchema>;
 export type CreateWorkoutLog = z.infer<typeof CreateWorkoutLogSchema>;
+//# sourceMappingURL=workout.d.ts.map

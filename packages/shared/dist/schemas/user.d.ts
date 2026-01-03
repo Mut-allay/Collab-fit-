@@ -141,3 +141,4 @@ export type TrainerProfile = z.infer<typeof TrainerProfileSchema>;
 export type UserRole = z.infer<typeof UserRoleSchema>;
 export type UserProfileUpdate = z.infer<typeof UserProfileUpdateSchema>;
 export type TrainerProfileUpdate = z.infer<typeof TrainerProfileUpdateSchema>;
+//# sourceMappingURL=user.d.ts.map
