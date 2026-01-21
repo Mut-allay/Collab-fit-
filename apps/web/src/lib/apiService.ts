@@ -1,9 +1,7 @@
-// API service for triggering serverless functions
-// This replaces the need for Firebase Functions
-
+// API service for backend API on Render
 const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://fitspark-2.vercel.app/api' 
-  : 'http://localhost:3000/api';
+  ? process.env.VITE_API_BASE_URL || 'https://your-render-backend.onrender.com'
+  : 'http://localhost:3000';
 
 const API_SECRET_KEY = process.env.VITE_API_SECRET_KEY;
 
