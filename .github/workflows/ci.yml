@@ -39,6 +39,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build shared package
+        run: pnpm exec turbo run build --filter=@fitspark/shared
+
       - name: Lint code
         run: pnpm exec turbo run lint
 
