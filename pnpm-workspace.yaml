@@ -1,3 +1,5 @@
 packages:
-  - "apps/*"
-  - "packages/*"
+  - 'apps/*'
+  - 'api'      # This line must match your folder name exactly
+  - 'packages/*'
+  - 'functions'
