@@ -1,9 +1,9 @@
-// API service for backend API on Render
-const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? process.env.VITE_API_BASE_URL || 'https://your-render-backend.onrender.com'
-  : 'http://localhost:3000';
+// Thin client for the Render backend.
+// Only exposes endpoints that are authenticated via Firebase ID token
+// (user-specific). The bulk cron endpoints require the API_SECRET_KEY
+// which must never be in the frontend — they are called by cron-job.org only.
 
-const API_SECRET_KEY = process.env.VITE_API_SECRET_KEY;
+const API_URL = import.meta.env.VITE_API_URL as string;
 
 interface ApiResponse<T = unknown> {
   success: boolean;
@@ -12,78 +12,33 @@ interface ApiResponse<T = unknown> {
   message?: string;
 }
 
-class ApiService {
-  private async makeRequest<T>(
-    endpoint: string, 
-    options: RequestInit = {}
-  ): Promise<ApiResponse<T>> {
-    try {
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        ...options,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${API_SECRET_KEY}`,
-          ...options.headers,
-        },
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        return {
-          success: false,
-          error: data.error || 'Request failed',
-        };
-      }
-
-      return {
-        success: true,
-        data,
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Network error',
-      };
-    }
-  }
-
-  /**
-   * Trigger Google Fit data sync for all connected users
-   */
-  async syncGoogleFitData(): Promise<ApiResponse> {
-    return this.makeRequest('/sync-google-fit', {
-      method: 'POST',
+async function makeRequest<T>(
+  endpoint: string,
+  options: RequestInit = {},
+): Promise<ApiResponse<T>> {
+  try {
+    const res = await fetch(`${API_URL}${endpoint}`, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
     });
-  }
-
-  /**
-   * Update monthly leaderboards
-   */
-  async updateLeaderboards(month: string, year: number): Promise<ApiResponse> {
-    return this.makeRequest('/update-leaderboards', {
-      method: 'POST',
-      body: JSON.stringify({ month, year }),
-    });
-  }
-
-  /**
-   * Update current month's leaderboard
-   */
-  async updateCurrentMonthLeaderboard(): Promise<ApiResponse> {
-    const now = new Date();
-    const month = now.toLocaleString('default', { month: 'long' });
-    const year = now.getFullYear();
-    
-    return this.updateLeaderboards(month, year);
+    const data = await res.json();
+    if (!res.ok) return { success: false, error: data.error || 'Request failed' };
+    return { success: true, data };
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : 'Network error' };
   }
 }
 
-export const apiService = new ApiService();
-
-// Export individual functions for easier use
-export const syncGoogleFitData = () => apiService.syncGoogleFitData();
-export const updateLeaderboards = (month: string, year: number) => 
-  apiService.updateLeaderboards(month, year);
-export const updateCurrentMonthLeaderboard = () => 
-  apiService.updateCurrentMonthLeaderboard();
+/**
+ * Trigger a sync for the currently logged-in user.
+ * Pass the Firebase ID token obtained via `currentUser.getIdToken()`.
+ */
+export async function syncCurrentUser(idToken: string): Promise<ApiResponse> {
+  return makeRequest('/api/sync-google-fit/me', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${idToken}` },
+  });
+}

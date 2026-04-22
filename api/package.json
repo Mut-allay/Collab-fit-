@@ -1,7 +1,7 @@
 {
   "name": "fitspark-api",
   "version": "1.0.0",
-  "description": "Backend API server for FitSpark team competition",
+  "description": "Backend API server for FitSpark",
   "type": "module",
   "main": "server.js",
   "scripts": {
@@ -9,12 +9,10 @@
     "dev": "node --watch server.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
     "cors": "^2.8.5",
-    "firebase": "^10.7.1",
-    "googleapis": "^128.0.0",
-    "google-auth-library": "^9.4.1",
-    "node-cron": "^3.0.3"
+    "express": "^4.18.2",
+    "firebase-admin": "^12.0.0",
+    "googleapis": "^128.0.0"
   },
   "engines": {
     "node": ">=18"

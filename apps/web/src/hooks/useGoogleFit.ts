@@ -1,196 +1,60 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { 
-  initGoogleFit, 
-  connectGoogleFit, 
-  disconnectGoogleFit, 
-  isGoogleFitConnected,
-  getLastSyncTime,
-  syncDailySteps,
-  syncCalories
+import {
+  initiateGoogleFitConnect,
+  disconnectGoogleFit,
+  syncGoogleFitNow,
 } from '@/lib/googleFitService';
-import { updateDoc, doc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
 
-interface GoogleFitState {
-  isConnected: boolean;
-  isLoading: boolean;
-  lastSyncTime: Date | null;
-  error: string | null;
-}
+export function useGoogleFit() {
+  const { currentUser, userProfile, updateUserProfile } = useAuth();
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [isDisconnecting, setIsDisconnecting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-interface GoogleFitActions {
-  connect: () => Promise<boolean>;
-  disconnect: () => Promise<void>;
-  syncData: () => Promise<void>;
-  clearError: () => void;
-}
-
-export function useGoogleFit(): GoogleFitState & GoogleFitActions {
-  const { currentUser } = useAuth();
-  const [state, setState] = useState<GoogleFitState>({
-    isConnected: false,
-    isLoading: true,
-    lastSyncTime: null,
-    error: null,
-  });
-
-  // Initialize Google Fit API on mount
-  useEffect(() => {
-    const initialize = async () => {
-      try {
-        setState(prev => ({ ...prev, isLoading: true, error: null }));
-        await initGoogleFit();
-        
-        const connected = await isGoogleFitConnected();
-        const lastSync = await getLastSyncTime();
-        
-        setState(prev => ({
-          ...prev,
-          isConnected: connected,
-          lastSyncTime: lastSync,
-          isLoading: false,
-        }));
-      } catch (error) {
-        console.error('Failed to initialize Google Fit:', error);
-        setState(prev => ({
-          ...prev,
-          isLoading: false,
-          error: error instanceof Error ? error.message : 'Failed to initialize Google Fit',
-        }));
-      }
-    };
-
-    if (currentUser) {
-      initialize();
-    } else {
-      setState(prev => ({ ...prev, isLoading: false }));
-    }
-  }, [currentUser]);
-
-  const connect = useCallback(async (): Promise<boolean> => {
-    if (!currentUser) {
-      setState(prev => ({ ...prev, error: 'User not authenticated' }));
-      return false;
-    }
-
-    try {
-      setState(prev => ({ ...prev, isLoading: true, error: null }));
-      
-      const success = await connectGoogleFit();
-      
-      if (success) {
-        // Update user's Google Fit connection status in Firestore
-        const userRef = doc(db, 'users', currentUser.uid);
-        await updateDoc(userRef, {
-          googleFitConnected: true,
-          googleFitLastSync: new Date(),
-        });
-
-        setState(prev => ({
-          ...prev,
-          isConnected: true,
-          lastSyncTime: new Date(),
-          isLoading: false,
-        }));
-      } else {
-        setState(prev => ({
-          ...prev,
-          isLoading: false,
-          error: 'Failed to connect to Google Fit',
-        }));
-      }
-      
-      return success;
-    } catch (error) {
-      console.error('Error connecting to Google Fit:', error);
-      setState(prev => ({
-        ...prev,
-        isLoading: false,
-        error: error instanceof Error ? error.message : 'Failed to connect to Google Fit',
-      }));
-      return false;
-    }
-  }, [currentUser]);
-
-  const disconnect = useCallback(async (): Promise<void> => {
+  const connect = useCallback(() => {
     if (!currentUser) return;
-
-    try {
-      setState(prev => ({ ...prev, isLoading: true, error: null }));
-      
-      await disconnectGoogleFit();
-      
-      // Update user's Google Fit connection status in Firestore
-      const userRef = doc(db, 'users', currentUser.uid);
-      await updateDoc(userRef, {
-        googleFitConnected: false,
-        googleFitLastSync: null,
-      });
-
-      setState(prev => ({
-        ...prev,
-        isConnected: false,
-        lastSyncTime: null,
-        isLoading: false,
-      }));
-    } catch (error) {
-      console.error('Error disconnecting from Google Fit:', error);
-      setState(prev => ({
-        ...prev,
-        isLoading: false,
-        error: error instanceof Error ? error.message : 'Failed to disconnect from Google Fit',
-      }));
-    }
+    initiateGoogleFitConnect(currentUser.uid);
   }, [currentUser]);
 
-  const syncData = useCallback(async (): Promise<void> => {
-    if (!currentUser || !state.isConnected) {
-      setState(prev => ({ ...prev, error: 'Google Fit not connected' }));
-      return;
-    }
-
+  const disconnect = useCallback(async () => {
+    if (!currentUser) return;
+    setIsDisconnecting(true);
+    setError(null);
     try {
-      setState(prev => ({ ...prev, isLoading: true, error: null }));
-      
-      // Sync data for the last 30 days
-      const endDate = new Date();
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() - 30);
-      
-      // Sync steps and calories
-      await Promise.all([
-        syncDailySteps(startDate, endDate),
-        syncCalories(startDate, endDate),
-      ]);
-      
-      // Update last sync time
-      const userRef = doc(db, 'users', currentUser.uid);
-      await updateDoc(userRef, {
-        googleFitLastSync: new Date(),
-      });
-
-      setState(prev => ({
-        ...prev,
-        lastSyncTime: new Date(),
-        isLoading: false,
-      }));
-    } catch (error) {
-      console.error('Error syncing Google Fit data:', error);
-      setState(prev => ({
-        ...prev,
-        isLoading: false,
-        error: error instanceof Error ? error.message : 'Failed to sync data',
-      }));
+      const idToken = await currentUser.getIdToken();
+      await disconnectGoogleFit(idToken);
+      await updateUserProfile({ googleFitConnected: false });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to disconnect');
+    } finally {
+      setIsDisconnecting(false);
     }
-  }, [currentUser, state.isConnected]);
+  }, [currentUser, updateUserProfile]);
 
-  const clearError = useCallback(() => {
-    setState(prev => ({ ...prev, error: null }));
-  }, []);
+  const syncData = useCallback(async () => {
+    if (!currentUser) return;
+    setIsSyncing(true);
+    setError(null);
+    try {
+      const idToken = await currentUser.getIdToken();
+      await syncGoogleFitNow(idToken);
+      await updateUserProfile({}); // Reload profile to pick up new googleFitLastSync
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Sync failed');
+    } finally {
+      setIsSyncing(false);
+    }
+  }, [currentUser, updateUserProfile]);
+
+  const clearError = useCallback(() => setError(null), []);
 
   return {
-    ...state,
+    isConnected: userProfile?.googleFitConnected ?? false,
+    lastSyncTime: userProfile?.googleFitLastSync ?? null,
+    isSyncing,
+    isDisconnecting,
+    error,
     connect,
     disconnect,
     syncData,

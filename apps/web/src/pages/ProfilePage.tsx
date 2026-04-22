@@ -1,4 +1,9 @@
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { useAuth } from "@/contexts/AuthContext";
+import { initiateGoogleFitConnect, disconnectGoogleFit, syncGoogleFitNow } from "@/lib/googleFitService";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -50,6 +55,9 @@ import {
   AlertTriangle,
   Save,
   Edit,
+  Activity,
+  RefreshCw,
+  Unlink,
 } from "lucide-react";
 import { useProfileForm } from "@/hooks/useProfileForm";
 import { GOAL_OPTIONS, EXPERIENCE_OPTIONS, GENDER_OPTIONS } from "@/types/profile";
@@ -83,6 +91,61 @@ export default function ProfilePage() {
   } = useProfileForm();
 
   const bmi = calculateBMI();
+
+  const { currentUser, userProfile, updateUserProfile } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [isDisconnecting, setIsDisconnecting] = useState(false);
+
+  // Handle redirect back from Google OAuth
+  useEffect(() => {
+    const googleFit = searchParams.get("googleFit");
+    if (!googleFit) return;
+    if (googleFit === "connected") {
+      toast.success("Google Fit connected! Your activity will sync automatically.");
+      updateUserProfile({ googleFitConnected: true });
+    } else if (googleFit === "error") {
+      toast.error("Could not connect Google Fit. Please try again.");
+    }
+    setSearchParams({}, { replace: true });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleConnectGoogleFit = () => {
+    if (!currentUser) return;
+    initiateGoogleFitConnect(currentUser.uid);
+  };
+
+  const handleDisconnectGoogleFit = async () => {
+    if (!currentUser) return;
+    setIsDisconnecting(true);
+    try {
+      const idToken = await currentUser.getIdToken();
+      await disconnectGoogleFit(idToken);
+      await updateUserProfile({ googleFitConnected: false });
+      toast.success("Google Fit disconnected.");
+    } catch {
+      toast.error("Failed to disconnect. Please try again.");
+    } finally {
+      setIsDisconnecting(false);
+    }
+  };
+
+  const handleSyncNow = async () => {
+    if (!currentUser) return;
+    setIsSyncing(true);
+    try {
+      const idToken = await currentUser.getIdToken();
+      await syncGoogleFitNow(idToken);
+      // Reload profile to pick up the updated googleFitLastSync timestamp
+      await updateUserProfile({});
+      toast.success("Sync complete!");
+    } catch {
+      toast.error("Sync failed. Please try again.");
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-black text-white relative">
@@ -500,11 +563,87 @@ export default function ProfilePage() {
               </Card>
             </motion.div>
 
-            {/* App Settings */}
+            {/* Connected Services */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.4 }}
+            >
+              <Card className="border-0 shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Activity className="h-5 w-5 text-spark-600" />
+                    Connected Services
+                  </CardTitle>
+                  <CardDescription>
+                    Sync your activity data automatically
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between p-3 rounded-lg border">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`h-2.5 w-2.5 rounded-full ${
+                          userProfile?.googleFitConnected
+                            ? "bg-green-500"
+                            : "bg-gray-300"
+                        }`}
+                      />
+                      <div>
+                        <p className="font-medium text-sm">Google Fit</p>
+                        <p className="text-xs text-muted-foreground">
+                          {userProfile?.googleFitConnected
+                            ? userProfile.googleFitLastSync
+                              ? `Last synced ${new Date(
+                                  userProfile.googleFitLastSync as unknown as string,
+                                ).toLocaleDateString()}`
+                              : "Connected — not yet synced"
+                            : "Not connected"}
+                        </p>
+                      </div>
+                    </div>
+
+                    {userProfile?.googleFitConnected ? (
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={handleSyncNow}
+                          disabled={isSyncing}
+                          title="Sync now"
+                        >
+                          <RefreshCw
+                            className={`h-3.5 w-3.5 ${isSyncing ? "animate-spin" : ""}`}
+                          />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={handleDisconnectGoogleFit}
+                          disabled={isDisconnecting}
+                          title="Disconnect"
+                        >
+                          <Unlink className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button
+                        size="sm"
+                        onClick={handleConnectGoogleFit}
+                      >
+                        Connect
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* App Settings */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
             >
               <Card className="border-0 shadow-lg">
                 <CardHeader>
@@ -569,7 +708,7 @@ export default function ProfilePage() {
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.5 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
             >
               <Card className="border-0 shadow-lg border-red-200 bg-red-50">
                 <CardHeader>
