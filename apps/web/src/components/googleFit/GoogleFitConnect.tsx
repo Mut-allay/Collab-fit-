@@ -4,11 +4,11 @@ import { useGoogleFit } from '@/hooks/useGoogleFit';
 import { Loader2, Activity } from 'lucide-react';
 
 export function GoogleFitConnect() {
-  const { isConnected, isLoading, error, connect, disconnect, clearError } = useGoogleFit();
+  const { isConnected, isSyncing, isDisconnecting, error, connect, disconnect, clearError } = useGoogleFit();
 
-  const handleConnect = async () => {
+  const handleConnect = () => {
     clearError();
-    await connect();
+    connect();
   };
 
   const handleDisconnect = async () => {
@@ -33,7 +33,7 @@ export function GoogleFitConnect() {
             {error}
           </div>
         )}
-        
+
         {isConnected ? (
           <div className="space-y-3">
             <div className="flex items-center gap-2 text-green-600">
@@ -43,10 +43,10 @@ export function GoogleFitConnect() {
             <Button
               variant="outline"
               onClick={handleDisconnect}
-              disabled={isLoading}
+              disabled={isDisconnecting}
               className="w-full"
             >
-              {isLoading ? (
+              {isDisconnecting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Disconnecting...
@@ -59,17 +59,10 @@ export function GoogleFitConnect() {
         ) : (
           <Button
             onClick={handleConnect}
-            disabled={isLoading}
+            disabled={isSyncing}
             className="w-full"
           >
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Connecting...
-              </>
-            ) : (
-              'Connect Google Fit'
-            )}
+            Connect Google Fit
           </Button>
         )}
       </CardContent>
