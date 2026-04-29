@@ -406,10 +406,89 @@ If you encounter issues:
 6. Check CORS configuration
 7. Verify build output in `apps/web/dist` directory
 
+## 🔥 Part 5: Deploy Firestore Indexes and Security Rules
+
+### Why This Matters
+
+Firestore requires **composite indexes** for complex queries (queries with multiple `where()` clauses and `orderBy()`). Without these indexes, your app will throw errors like:
+
+```
+FirebaseError: The query requires an index. You can create it here: https://console.firebase.google.com/...
+```
+
+### Step 1: Deploy Firestore Indexes
+
+Your project already has a `firestore.indexes.json` file with the required indexes. To deploy them:
+
+1. **Switch to the correct Firebase project:**
+   ```bash
+   firebase use fitspark-production  # or fitspark-staging
+   ```
+
+2. **Deploy the indexes:**
+   ```bash
+   firebase deploy --only firestore:indexes
+   ```
+
+3. **Wait for indexes to build:**
+   - Go to [Firebase Console → Firestore → Indexes](https://console.firebase.google.com/project/fitspark-production/firestore/indexes)
+   - Indexes will show status: "Building" → "Enabled" (takes 3-10 minutes)
+   - Your app will continue to throw errors until indexes are "Enabled"
+
+### Step 2: Deploy Security Rules
+
+Your `firestore.rules` file contains security rules. Deploy them:
+
+```bash
+firebase deploy --only firestore:rules
+```
+
+**Important:** The security rules allow:
+- ✅ Authenticated users can read `monthlyLeaderboards`
+- ✅ Users can only read/write their own `workoutLogs`
+- ✅ Users can only read/write their own `metricSnapshots`
+
+### Step 3: Verify Deployment
+
+1. **Check indexes status:**
+   ```bash
+   firebase firestore:indexes
+   ```
+
+2. **Test in Firebase Console:**
+   - Go to Firestore Database → Indexes tab
+   - Verify all indexes show "Enabled" status
+
+3. **Test security rules:**
+   - Go to Firestore Database → Rules tab
+   - Use the Rules Playground to test queries
+
+### Quick Fix for Missing Indexes
+
+If you see an error with a Firebase Console link:
+1. Click the link in the error message (it's pre-filled with the correct index)
+2. Click "Create Index" in the Firebase Console
+3. Wait 3-10 minutes for the index to build
+
+**Or** add the index to `firestore.indexes.json` and deploy:
+```bash
+firebase deploy --only firestore:indexes
+```
+
+### Current Indexes in `firestore.indexes.json`
+
+Your project includes indexes for:
+- `workoutLogs` collection: `userId` (ASC) + `startTime` (ASC) - for range queries
+- `workoutLogs` collection: `userId` (ASC) + `startTime` (DESC) - for simple orderBy queries
+
+These cover all your current query patterns.
+
 ## 📚 Additional Resources
 
 - [Firebase Hosting Documentation](https://firebase.google.com/docs/hosting)
 - [Firebase CLI Reference](https://firebase.google.com/docs/cli)
+- [Firestore Indexes Documentation](https://firebase.google.com/docs/firestore/query-data/indexing)
+- [Firestore Security Rules](https://firebase.google.com/docs/firestore/security/get-started)
 - [Render Documentation](https://render.com/docs)
 - [Vite Environment Variables](https://vitejs.dev/guide/env-and-mode.html)
 

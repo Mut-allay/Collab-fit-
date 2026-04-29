@@ -1,3 +1,6 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import dotenv from 'dotenv';
 import { initializeApp } from 'firebase-admin/app';
 import { cert } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
@@ -6,15 +9,35 @@ import { google } from 'googleapis';
 import express from 'express';
 import cors from 'cors';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.join(__dirname, '.env') });
+
+function getAdminCredential() {
+  const rawJson = process.env.FIREBASE_SERVICE_ACCOUNT?.trim();
+  if (rawJson?.startsWith('{')) {
+    const sa = JSON.parse(rawJson);
+    return cert({
+      projectId: sa.project_id,
+      clientEmail: sa.client_email,
+      privateKey: sa.private_key.replace(/\\n/g, '\n'),
+    });
+  }
+  const projectId = process.env.FIREBASE_PROJECT_ID;
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+  const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+  if (!projectId || !clientEmail || !privateKey) {
+    throw new Error(
+      'Set FIREBASE_SERVICE_ACCOUNT (JSON) or FIREBASE_PROJECT_ID + FIREBASE_CLIENT_EMAIL + FIREBASE_PRIVATE_KEY',
+    );
+  }
+  return cert({ projectId, clientEmail, privateKey });
+}
+
 // ---------------------------------------------------------------------------
 // Firebase Admin SDK — bypasses Firestore security rules entirely
 // ---------------------------------------------------------------------------
 initializeApp({
-  credential: cert({
-    projectId: process.env.FIREBASE_PROJECT_ID,
-    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-    privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-  }),
+  credential: getAdminCredential(),
 });
 
 const db = getFirestore();
