@@ -41,3 +41,22 @@ Leaderboard logic exists; daily behaviour depends on external cron. Firestore in
 | `apps/web/.env`, `apps/web/.env.development` | **Only `VITE_*`** — Firebase web config and `VITE_API_URL`. Safe for client builds. Never put Firebase **private keys**, `GOOGLE_CLIENT_SECRET`, or `API_SECRET_KEY` here. |
 | `api/.env` | **Express only** — `FIREBASE_SERVICE_ACCOUNT` (JSON single line) *or* `FIREBASE_PROJECT_ID` + `FIREBASE_CLIENT_EMAIL` + `FIREBASE_PRIVATE_KEY`, plus `GOOGLE_*`, `GOOGLE_REDIRECT_URI`, `FRONTEND_URL`, `API_SECRET_KEY`. Loaded via `dotenv` from `api/server.js`. |
 | Repo root `.env` | Optional duplicate **`VITE_*`** for tooling; backend secrets belong in **`api/`**. |
+
+## Local development
+
+See **[LOCAL_DEV.md](./LOCAL_DEV.md)** for running `api/` + `apps/web/` on localhost, `VITE_API_URL`, `FRONTEND_URL`, and Google OAuth redirect setup.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

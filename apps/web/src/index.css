@@ -5,6 +5,25 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Stitch / overhaul screens: align shadcn HSL tokens with kinetic palette */
+.overhaul {
+  --background: 220 20% 6%;
+  --foreground: 220 10% 98%;
+  --card: 220 18% 8%;
+  --card-foreground: 220 10% 98%;
+  --primary: 72 100% 88%;
+  --primary-foreground: 222 47% 11%;
+  --secondary: 54 76% 62%;
+  --secondary-foreground: 222 47% 11%;
+  --muted: 217 15% 16%;
+  --muted-foreground: 220 8% 70%;
+  --accent: 217 15% 16%;
+  --accent-foreground: 220 10% 98%;
+  --border: 220 12% 18%;
+  --input: 220 12% 18%;
+  --ring: 72 100% 70%;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -88,6 +107,10 @@
 }
 
 @layer utilities {
+  .bg-kinetic-gradient {
+    background: linear-gradient(135deg, #f3ffca 0%, #cafd00 100%);
+  }
+
   /* Mobile-specific improvements */
   @media (max-width: 640px) {
     .container {

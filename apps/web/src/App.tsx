@@ -9,28 +9,26 @@ import { Toaster } from "sonner";
 // Layouts
 import AppLayout from "@/components/layout/AppLayout";
 import PublicLayout from "@/components/layout/PublicLayout";
+import RequireAuth from "@/components/layout/RequireAuth";
 
 // Pages
 import LandingPage from "@/pages/LandingPage";
-import LoginPage from "@/pages/LoginPage";
-import SignupPage from "@/pages/SignupPage";
-import DashboardPage from "@/pages/DashboardPage";
+import OverhaulLoginPage from "@/pages/overhaul/OverhaulLoginPage";
+import OverhaulSignupPage from "@/pages/overhaul/OverhaulSignupPage";
+import OverhaulDashboardPage from "@/pages/overhaul/OverhaulDashboardPage";
+import OverhaulProfilePage from "@/pages/overhaul/OverhaulProfilePage";
+import OverhaulLeaderboardPage from "@/pages/overhaul/OverhaulLeaderboardPage";
 import { DataVerificationPage } from "@/pages/DataVerificationPage";
 import PlanSelectionPage from "@/pages/PlanSelectionPage";
 import ViewPlanPage from "@/pages/ViewPlanPage";
-import ProfilePage from "@/pages/ProfilePage";
 import WorkoutSessionPage from "@/pages/WorkoutSessionPage";
 import WorkoutSummaryPage from "@/pages/WorkoutSummaryPage";
 import WorkoutHistoryPage from "@/pages/WorkoutHistoryPage";
 import ProgressPage from "@/pages/ProgressPage";
 import TeamsPage from "@/pages/TeamsPage";
 import CreateTeamPage from "@/pages/CreateTeamPage";
-import LeaderboardPage from "@/pages/LeaderboardPage";
 import InvitationsPage from "@/pages/InvitationsPage";
 
-// Main App component with routing setup
-// Uses AuthProvider for global auth state
-// Defines public, protected, and special routes
 function App() {
   const router = createBrowserRouter([
     {
@@ -38,16 +36,16 @@ function App() {
       element: <LandingPage />,
     },
     {
+      path: "/login",
+      element: <OverhaulLoginPage />,
+    },
+    {
+      path: "/signup",
+      element: <OverhaulSignupPage />,
+    },
+    {
       element: <PublicLayout />,
       children: [
-        {
-          path: "/login",
-          element: <LoginPage />,
-        },
-        {
-          path: "/signup",
-          element: <SignupPage />,
-        },
         {
           path: "/verify",
           element: <DataVerificationPage />,
@@ -55,47 +53,52 @@ function App() {
       ],
     },
     {
-      element: <AppLayout />,
+      element: <RequireAuth />,
       children: [
         {
           path: "/dashboard",
-          element: <DashboardPage />,
+          element: <OverhaulDashboardPage />,
         },
         {
           path: "/profile",
-          element: <ProfilePage />,
-        },
-        {
-          path: "/plans",
-          element: <PlanSelectionPage />,
-        },
-        {
-          path: "/plans/:planId",
-          element: <ViewPlanPage />,
-        },
-        {
-          path: "/workout-history",
-          element: <WorkoutHistoryPage />,
-        },
-        {
-          path: "/progress",
-          element: <ProgressPage />,
-        },
-        {
-          path: "/teams",
-          element: <TeamsPage />,
-        },
-        {
-          path: "/teams/create",
-          element: <CreateTeamPage />,
+          element: <OverhaulProfilePage />,
         },
         {
           path: "/leaderboard",
-          element: <LeaderboardPage />,
+          element: <OverhaulLeaderboardPage />,
         },
         {
-          path: "/invitations",
-          element: <InvitationsPage />,
+          element: <AppLayout />,
+          children: [
+            {
+              path: "/plans",
+              element: <PlanSelectionPage />,
+            },
+            {
+              path: "/plans/:planId",
+              element: <ViewPlanPage />,
+            },
+            {
+              path: "/workout-history",
+              element: <WorkoutHistoryPage />,
+            },
+            {
+              path: "/progress",
+              element: <ProgressPage />,
+            },
+            {
+              path: "/teams",
+              element: <TeamsPage />,
+            },
+            {
+              path: "/teams/create",
+              element: <CreateTeamPage />,
+            },
+            {
+              path: "/invitations",
+              element: <InvitationsPage />,
+            },
+          ],
         },
       ],
     },
@@ -116,13 +119,13 @@ function App() {
   return (
     <AuthProvider>
       <RouterProvider router={router} />
-      <Toaster 
+      <Toaster
         position="top-right"
         toastOptions={{
           style: {
-            background: '#1f2937',
-            color: '#fff',
-            border: '1px solid rgba(6, 182, 212, 0.3)',
+            background: "#1f2937",
+            color: "#fff",
+            border: "1px solid rgba(6, 182, 212, 0.3)",
           },
         }}
       />

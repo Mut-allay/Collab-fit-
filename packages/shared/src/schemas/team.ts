@@ -32,6 +32,8 @@ export const DailyActivityLogSchema = z.object({
   date: z.string(), // YYYY-MM-DD format
   steps: z.number().min(0).default(0),
   calories: z.number().min(0).default(0),
+  /** Populated by Google Fit sync (meters per day). */
+  distanceMeters: z.number().min(0).optional(),
   source: z.enum(['google_fit', 'manual']).default('google_fit'),
   syncedAt: z.date(),
   lastUpdated: z.date(),
