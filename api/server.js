@@ -1,3 +1,6 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import dotenv from 'dotenv';
 import { initializeApp } from 'firebase-admin/app';
 import { cert } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
@@ -6,15 +9,89 @@ import { google } from 'googleapis';
 import express from 'express';
 import cors from 'cors';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.join(__dirname, '.env') });
+
+/** Comma-separated `FRONTEND_URL` values (e.g. prod + http://localhost:5173). */
+function parseFrontendUrls() {
+  const raw = process.env.FRONTEND_URL || '';
+  return raw
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+function getDefaultFrontendUrl() {
+  const list = parseFrontendUrls();
+  return list[0] || 'http://localhost:5173';
+}
+
+/**
+ * After Google Fit OAuth, redirect only to allowed origins (no open redirects).
+ * Allows localhost / 127.0.0.1 and any origin listed in FRONTEND_URL.
+ */
+function isAllowedReturnOrigin(returnOrigin) {
+  if (!returnOrigin || typeof returnOrigin !== 'string') return false;
+  let u;
+  try {
+    u = new URL(returnOrigin);
+  } catch {
+    return false;
+  }
+  if (u.pathname && u.pathname !== '/') return false;
+  const h = u.hostname;
+  if (h === 'localhost' || h === '127.0.0.1') return true;
+  for (const o of parseFrontendUrls()) {
+    try {
+      if (new URL(o).origin === u.origin) return true;
+    } catch {
+      /* ignore */
+    }
+  }
+  return false;
+}
+
+function resolveFrontendRedirect(returnOrigin) {
+  const fallback = getDefaultFrontendUrl().replace(/\/$/, '');
+  if (!returnOrigin || typeof returnOrigin !== 'string') return fallback;
+  const normalized = returnOrigin.replace(/\/$/, '');
+  if (!isAllowedReturnOrigin(normalized)) return fallback;
+  return normalized;
+}
+
+function getCorsOriginOption() {
+  const list = parseFrontendUrls();
+  if (list.length === 0) return '*';
+  if (list.length === 1) return list[0];
+  return list;
+}
+
+function getAdminCredential() {
+  const rawJson = process.env.FIREBASE_SERVICE_ACCOUNT?.trim();
+  if (rawJson?.startsWith('{')) {
+    const sa = JSON.parse(rawJson);
+    return cert({
+      projectId: sa.project_id,
+      clientEmail: sa.client_email,
+      privateKey: sa.private_key.replace(/\\n/g, '\n'),
+    });
+  }
+  const projectId = process.env.FIREBASE_PROJECT_ID;
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+  const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+  if (!projectId || !clientEmail || !privateKey) {
+    throw new Error(
+      'Set FIREBASE_SERVICE_ACCOUNT (JSON) or FIREBASE_PROJECT_ID + FIREBASE_CLIENT_EMAIL + FIREBASE_PRIVATE_KEY',
+    );
+  }
+  return cert({ projectId, clientEmail, privateKey });
+}
+
 // ---------------------------------------------------------------------------
 // Firebase Admin SDK — bypasses Firestore security rules entirely
 // ---------------------------------------------------------------------------
 initializeApp({
-  credential: cert({
-    projectId: process.env.FIREBASE_PROJECT_ID,
-    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-    privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-  }),
+  credential: getAdminCredential(),
 });
 
 const db = getFirestore();
@@ -26,7 +103,7 @@ const adminAuth = getAuth();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors({ origin: process.env.FRONTEND_URL || '*' }));
+app.use(cors({ origin: getCorsOriginOption() }));
 app.use(express.json());
 
 // ---------------------------------------------------------------------------
@@ -87,11 +164,23 @@ app.get('/health', (_req, res) => {
  * Query params: userId (Firebase UID of the logged-in user)
  */
 app.get('/api/auth/google', (req, res) => {
-  const { userId } = req.query;
+  const { userId, returnOrigin } = req.query;
   if (!userId) return res.status(400).json({ error: 'userId is required' });
 
-  // Encode userId into the state param so we know who authorised after callback
-  const state = Buffer.from(JSON.stringify({ userId, ts: Date.now() })).toString('base64');
+  const originStr =
+    typeof returnOrigin === 'string' ? returnOrigin.replace(/\/$/, '') : '';
+  if (originStr && !isAllowedReturnOrigin(originStr)) {
+    return res.status(400).json({ error: 'Invalid returnOrigin' });
+  }
+
+  // Encode userId (and optional returnOrigin) into state for post-callback redirect
+  const state = Buffer.from(
+    JSON.stringify({
+      userId,
+      ts: Date.now(),
+      ...(originStr ? { returnOrigin: originStr } : {}),
+    }),
+  ).toString('base64');
 
   const authUrl = createOAuth2Client().generateAuthUrl({
     access_type: 'offline',
@@ -113,20 +202,36 @@ app.get('/api/auth/google', (req, res) => {
  * Then redirects the user back to the frontend.
  */
 app.get('/api/auth/google/callback', async (req, res) => {
-  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+  const fallbackFront = getDefaultFrontendUrl().replace(/\/$/, '');
   const { code, state, error } = req.query;
+
+  const frontendFromState = () => {
+    if (!state || typeof state !== 'string') return fallbackFront;
+    try {
+      const parsed = JSON.parse(Buffer.from(state, 'base64').toString());
+      return resolveFrontendRedirect(parsed.returnOrigin);
+    } catch {
+      return fallbackFront;
+    }
+  };
 
   if (error) {
     console.error('OAuth denied:', error);
-    return res.redirect(`${frontendUrl}/profile?googleFit=error`);
+    const fu = frontendFromState();
+    return res.redirect(`${fu}/profile?googleFit=error`);
   }
 
   let userId;
+  let returnOrigin;
   try {
-    ({ userId } = JSON.parse(Buffer.from(state, 'base64').toString()));
+    const parsed = JSON.parse(Buffer.from(state, 'base64').toString());
+    userId = parsed.userId;
+    returnOrigin = parsed.returnOrigin;
   } catch {
-    return res.redirect(`${frontendUrl}/profile?googleFit=error`);
+    return res.redirect(`${fallbackFront}/profile?googleFit=error`);
   }
+
+  const frontendUrl = resolveFrontendRedirect(returnOrigin);
 
   try {
     const client = createOAuth2Client();
@@ -136,7 +241,9 @@ app.get('/api/auth/google/callback', async (req, res) => {
       // Can happen if the user already authorized without 'prompt: consent'.
       // The initiation URL uses prompt:'consent' to prevent this.
       console.error('No refresh_token received for user', userId);
-      return res.redirect(`${frontendUrl}/profile?googleFit=error&reason=no_refresh_token`);
+      return res.redirect(
+        `${frontendUrl}/profile?googleFit=error&reason=no_refresh_token`,
+      );
     }
 
     await db.collection('users').doc(userId).update({

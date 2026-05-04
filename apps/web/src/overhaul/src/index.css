@@ -1,0 +1,107 @@
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&family=Manrope:wght@200..800&family=Inter:wght@100..900&display=swap');
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-headline: "Lexend", sans-serif;
+  --font-body: "Manrope", sans-serif;
+  --font-label: "Inter", sans-serif;
+  
+  /* Map custom colors to theme variables */
+  --color-outline: #747579;
+  --color-on-tertiary-container: #5d5000;
+  --color-primary-dim: #beee00;
+  --color-on-secondary-fixed-variant: #605e00;
+  --color-on-primary-fixed: #3a4a00;
+  --color-secondary-dim: #ddda49;
+  --color-on-secondary-container: #fffca4;
+  --color-tertiary-fixed: #fce047;
+  --color-surface-bright: #292c31;
+  --color-on-primary-fixed-variant: #526900;
+  --color-surface-container-high: #1d2024;
+  --color-error: #ff7351;
+  --color-on-tertiary-fixed-variant: #685900;
+  --color-inverse-on-surface: #535559;
+  --color-on-secondary-fixed: #434100;
+  --color-secondary-fixed-dim: #ddda49;
+  --color-surface-container-lowest: #000000;
+  --color-tertiary-dim: #edd13a;
+  --color-error-container: #b92902;
+  --color-surface-container-highest: #23262a;
+  --color-on-background: #f9f9fd;
+  --color-primary-fixed: #cafd00;
+  --color-on-tertiary-fixed: #483d00;
+  --color-on-secondary: #565400;
+  --color-surface-tint: #f3ffca;
+  --color-on-error-container: #ffd2c8;
+  --color-tertiary: #ffeea5;
+  --color-on-tertiary: #665800;
+  --color-outline-variant: #46484b;
+  --color-surface-container: #171a1d;
+  --color-tertiary-container: #fce047;
+  --color-surface-dim: #0c0e11;
+  --color-on-surface: #f9f9fd;
+  --color-on-error: #450900;
+  --color-background: #0c0e11;
+  --color-on-primary-container: #4a5e00;
+  --color-surface-variant: #23262a;
+  --color-on-surface-variant: #aaabaf;
+  --color-on-primary: #516700;
+  --color-surface-container-low: #111417;
+  --color-secondary-fixed: #ece856;
+  --color-inverse-primary: #516700;
+  --color-tertiary-fixed-dim: #edd13a;
+  --color-secondary-container: #636100;
+  --color-inverse-surface: #f9f9fd;
+  --color-primary-container: #cafd00;
+  --color-primary: #f3ffca;
+  --color-primary-fixed-dim: #beee00;
+  --color-secondary: #ece856;
+  --color-surface: #0c0e11;
+  --color-error-dim: #d53d18;
+
+  --radius-default: 1rem;
+  --radius-lg: 2rem;
+  --radius-xl: 3rem;
+  --radius-full: 9999px;
+
+  /* shadcn mappings */
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+}
+
+:root {
+  --radius: 1rem;
+}
+
+.dark {
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+}
+
+@layer base {
+  * {
+    @apply border-outline-variant outline-primary-dim/50;
+  }
+  body {
+    @apply bg-background text-on-surface font-body;
+  }
+}
+
+@layer utilities {
+  .bg-kinetic-gradient {
+    background: linear-gradient(135deg, #f3ffca 0%, #cafd00 100%);
+  }
+  .asymmetric-clip {
+    clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+  }
+}

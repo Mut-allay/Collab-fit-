@@ -8,6 +8,8 @@
     "build:staging": "turbo run build:staging",
     "build:production": "turbo run build:production",
     "dev": "turbo run dev",
+    "dev:web": "pnpm --filter @fitspark/web dev",
+    "dev:api": "pnpm --filter fitspark-api dev",
     "lint": "turbo run lint",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck",

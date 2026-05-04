@@ -1,15 +1,19 @@
 =========================== GIT SHORTCUTS & COMMANDS
+
+
+Deploy the frontend
+
+pnpm deploy:hosting:production
+
+
+
 ⚙️ INITIAL SETUP
 git init # Initialize a new Git repository
 git clone <repo-url> # Clone a remote repo to your local machine
 git remote add origin <url> # Add remote repository
-git remote -v # View configured remotes
 git remote set-url origin <url> # Change the remote URL
 
 🌿 BRANCHING
-git branch # List all local branches
-git branch <branch-name> # Create a new branch
-git checkout <branch-name> # Switch to another branch
 git checkout -b <branch-name> # Create AND switch to a new branch
 git fetch origin # Download latest branches from remote
 git pull origin <branch> # Pull latest changes from remote branch
@@ -119,3 +123,5 @@ npm run build
 npm run serve
 npm test
 npm run type-check
+
+

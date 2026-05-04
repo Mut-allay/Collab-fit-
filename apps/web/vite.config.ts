@@ -23,10 +23,17 @@ export default defineConfig({
     },
   },
   resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-      "@fitspark/shared": path.resolve(__dirname, "../../packages/shared/src"),
-      "~": path.resolve(__dirname, "../../node_modules"),
-    },
+    alias: [
+      {
+        find: "@/src",
+        replacement: path.resolve(__dirname, "./src/overhaul/src"),
+      },
+      { find: "@", replacement: path.resolve(__dirname, "./src") },
+      {
+        find: "@fitspark/shared",
+        replacement: path.resolve(__dirname, "../../packages/shared/src"),
+      },
+      { find: "~", replacement: path.resolve(__dirname, "../../node_modules") },
+    ],
   },
 });

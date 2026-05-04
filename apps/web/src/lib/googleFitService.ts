@@ -12,9 +12,17 @@ const API_URL = import.meta.env.VITE_API_URL as string;
  * Redirects the browser to the backend OAuth consent screen.
  * After the user grants access, Google redirects back to the backend callback,
  * which stores the refresh token and redirects to /profile?googleFit=connected.
+ *
+ * Sends `returnOrigin` (current browser origin) so a **deployed** API can send
+ * the user back to **local Vite** (http://localhost:5173) when that origin is
+ * allowed by the API (`FRONTEND_URL` list or localhost rules in server.js).
  */
 export function initiateGoogleFitConnect(userId: string): void {
-  window.location.href = `${API_URL}/api/auth/google?userId=${encodeURIComponent(userId)}`;
+  const params = new URLSearchParams({ userId });
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    params.set('returnOrigin', window.location.origin);
+  }
+  window.location.href = `${API_URL}/api/auth/google?${params.toString()}`;
 }
 
 /**
