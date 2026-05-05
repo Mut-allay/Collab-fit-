@@ -4,7 +4,7 @@ import { X, User, Mail, Lock, Check, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/contexts/AuthContext";
-import type { AuthProps } from "@/src/types";
+import type { AuthProps } from "@/overhaul/src/types";
 
 function validatePassword(pw: string): string | null {
   if (pw.length < 8) return "Password must be at least 8 characters.";

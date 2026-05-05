@@ -1,9 +1,9 @@
 import { Navigate, useNavigate } from "react-router-dom";
-import Login from "@/overhaul/src/components/Login";
+import SignUp from "@/overhaul/src/components/SignUp";
 import { useAuth } from "@/contexts/AuthContext";
 import { createOverhaulNavigate } from "@/lib/overhaulNavigate";
 
-export default function OverhaulLoginPage() {
+export default function SignupRoute() {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
   const onNav = createOverhaulNavigate(navigate);
@@ -14,7 +14,7 @@ export default function OverhaulLoginPage() {
 
   return (
     <div className="overhaul dark min-h-screen">
-      <Login
+      <SignUp
         onNavigate={onNav}
         onSuccess={() => navigate("/dashboard")}
       />

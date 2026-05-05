@@ -7,7 +7,7 @@ import { VerificationHeader } from "@/components/verification/VerificationHeader
 import { VerificationResultCard } from "@/components/verification/VerificationResultCard";
 import { VerificationDetailsCard } from "@/components/verification/VerificationDetailsCard";
 
-export function DataVerificationPage() {
+export default function DataVerificationRoute() {
   const { result, loading, error, runVerification } = useDataVerification();
 
   return (

@@ -130,38 +130,46 @@ The backend server is located in the `api/` directory. Make sure you have:
 3. Connect your GitHub repository
 4. Configure the service:
 
-**Settings:**
+**Settings (monorepo — build from repo root):**
 - **Name:** `fitspark-api` (or your preferred name)
 - **Region:** Choose closest to your users
 - **Branch:** `main` (or your deployment branch)
-- **Root Directory:** `api`
+- **Root Directory:** leave **empty** (repository root), unless you only copy the `api/` folder into its own repo
 - **Runtime:** `Node`
-- **Build Command:** `npm install`
-- **Start Command:** `npm start`
-- **Environment:** `Node`
+- **Build Command:** `pnpm install` (uses `pnpm-lock.yaml`; requires **pnpm** — see [Render pnpm](https://render.com/docs/using-pnpm))
+- **Start Command:** `pnpm --filter fitspark-api start` (runs `node server.js` in `api/`)
+- **Environment:** `Node` 20.x
 
 ### Step 3: Set Environment Variables in Render
 
-In your Render service dashboard, go to **Environment** and add:
+In your Render service dashboard, go to **Environment** and add variables. The API uses **Firebase Admin SDK** credentials (not the web client `VITE_FIREBASE_*` keys).
 
-**Firebase Configuration:**
-```
-FIREBASE_API_KEY=your-firebase-api-key
-FIREBASE_AUTH_DOMAIN=your-firebase-auth-domain
-FIREBASE_PROJECT_ID=your-firebase-project-id
-FIREBASE_STORAGE_BUCKET=your-firebase-storage-bucket
-FIREBASE_MESSAGING_SENDER_ID=your-messaging-sender-id
-FIREBASE_APP_ID=your-firebase-app-id
-FIREBASE_MEASUREMENT_ID=your-measurement-id
-```
+**Firebase Admin (choose one approach):**
 
-**Google OAuth (for Google Fit):**
+*Option A — single JSON (common on Render):* paste the full service account JSON as one line into **`FIREBASE_SERVICE_ACCOUNT`** (must start with `{`). From Google Cloud Console → IAM & Admin → Service Accounts → your account → Keys → Add key → JSON.
+
+*Option B — three separate fields:*
+```
+FIREBASE_PROJECT_ID=your-project-id
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxxxx@your-project.iam.gserviceaccount.com
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+```
+Use literal `\n` in the private key string if Render’s editor does not preserve newlines.
+
+**Google OAuth (Google Fit):**
 ```
 GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
+GOOGLE_REDIRECT_URI=https://your-service.onrender.com/api/auth/google/callback
+```
+`GOOGLE_REDIRECT_URI` must match an **Authorized redirect URI** in Google Cloud Console (OAuth 2.0 Client).
+
+**Frontend + CORS (comma-separated if you use local Vite + hosted app):**
+```
+FRONTEND_URL=https://your-app.web.app,http://localhost:5173
 ```
 
-**API Security:**
+**API Security (cron / bulk endpoints):**
 ```
 API_SECRET_KEY=your-strong-secret-key-here
 ```
@@ -180,7 +188,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 ### Step 5: Update Frontend with Backend URL
 
-1. Update `VITE_API_BASE_URL` in your `.env.staging` or `.env.production` file
+1. Update **`VITE_API_URL`** in your `.env.staging` or `.env.production` (or Firebase Hosting env at build time) to your Render URL, e.g. `https://your-service.onrender.com`
 2. Rebuild and redeploy:
    ```bash
    # For staging
@@ -192,15 +200,11 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 ---
 
-## 🔄 Scheduled Tasks (Cron Jobs)
+## 🔄 Scheduled Tasks (external cron)
 
-The backend server includes scheduled tasks using `node-cron`:
-- **Google Fit Sync:** Daily at 12:00 PM UTC
-- **Leaderboard Update:** Daily at midnight UTC
+The Express API exposes secured HTTP endpoints (e.g. **`POST /api/sync-google-fit`**, **`POST /api/update-leaderboards`**) meant to be called by **cron-job.org** (or similar) with header **`Authorization: Bearer <API_SECRET_KEY>`**. The service does not run `node-cron` inside the process.
 
-These run automatically on Render. You can also trigger them manually via API calls.
-
-**Note:** On Render's free tier, services may sleep after inactivity. Consider upgrading to keep the service always running for reliable cron jobs, or use Render's Cron Jobs feature.
+**Note:** On Render's free tier, services may sleep after inactivity. Use a keep-alive ping on **`GET /health`** and schedule crons slightly after the service is likely awake, or upgrade the instance for predictable wake windows.
 
 ---
 
@@ -376,22 +380,17 @@ For support, check the logs in both Firebase Console and Render dashboards.
 - [ ] VITE_FIREBASE_MESSAGING_SENDER_ID
 - [ ] VITE_FIREBASE_APP_ID
 - [ ] VITE_FIREBASE_MEASUREMENT_ID
-- [ ] VITE_API_BASE_URL
-- [ ] VITE_API_SECRET_KEY
+- [ ] VITE_API_URL (Render base URL, no trailing slash)
 
 **Note:** These are set in `.env` files and baked into the build at build time.
 
-**Render (Backend):**
-- [ ] FIREBASE_API_KEY
-- [ ] FIREBASE_AUTH_DOMAIN
-- [ ] FIREBASE_PROJECT_ID
-- [ ] FIREBASE_STORAGE_BUCKET
-- [ ] FIREBASE_MESSAGING_SENDER_ID
-- [ ] FIREBASE_APP_ID
-- [ ] FIREBASE_MEASUREMENT_ID
-- [ ] GOOGLE_CLIENT_ID
-- [ ] GOOGLE_CLIENT_SECRET
-- [ ] API_SECRET_KEY
+**Render (Backend — Firebase Admin + OAuth):**
+- [ ] **`FIREBASE_SERVICE_ACCOUNT`** (JSON one line) **or** **`FIREBASE_PROJECT_ID`** + **`FIREBASE_CLIENT_EMAIL`** + **`FIREBASE_PRIVATE_KEY`**
+- [ ] `GOOGLE_CLIENT_ID`
+- [ ] `GOOGLE_CLIENT_SECRET`
+- [ ] `GOOGLE_REDIRECT_URI` (must match Google Cloud OAuth redirect for this Render URL)
+- [ ] `FRONTEND_URL` (hosted app URL; add `http://localhost:5173` if you develop against live API)
+- [ ] `API_SECRET_KEY`
 
 ---
 

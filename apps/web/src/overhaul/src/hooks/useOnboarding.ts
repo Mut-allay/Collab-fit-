@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { UserMetrics, ScreenState } from "@/src/types";
+import { UserMetrics, ScreenState } from "@/overhaul/src/types";
 
 export function useOnboarding() {
   const [screen, setScreen] = useState<ScreenState>("landing");
@@ -29,6 +29,7 @@ export function useOnboarding() {
     setScreen("dashboard");
   };
 
+  /** UI only: Firebase session + AuthContext `currentUser` are set inside Login/Signup via `useAuth`. */
   const handleAuthSuccess = () => {
     setScreen("dashboard");
   };

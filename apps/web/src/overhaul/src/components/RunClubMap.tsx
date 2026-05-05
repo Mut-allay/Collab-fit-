@@ -14,7 +14,7 @@ import {
   Clock,
   ArrowRight,
 } from "lucide-react";
-import { ScreenState } from "@/src/types";
+import { ScreenState } from "@/overhaul/src/types";
 
 interface RunClubMapProps {
   onNavigate: (screen: ScreenState) => void;

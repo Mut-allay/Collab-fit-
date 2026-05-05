@@ -7,7 +7,7 @@ import {
   RefreshCw 
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import { OnboardingProps, FitnessGoal } from "@/src/types";
+import { OnboardingProps, FitnessGoal } from "@/overhaul/src/types";
 
 export default function OnboardingStep2({
   metrics,

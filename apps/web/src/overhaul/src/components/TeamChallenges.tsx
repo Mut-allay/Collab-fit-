@@ -17,7 +17,7 @@ import {
   Swords,
   ChevronRight
 } from "lucide-react";
-import { ScreenState } from "@/src/types";
+import { ScreenState } from "@/overhaul/src/types";
 
 interface TeamChallengesProps {
   onNavigate: (screen: ScreenState) => void;

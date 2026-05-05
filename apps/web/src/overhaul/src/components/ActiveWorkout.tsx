@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Bell, Bolt, Check, Lock, Play, Plus } from "lucide-react";
-import { ScreenState } from "@/src/types";
+import { ScreenState } from "@/overhaul/src/types";
 
 interface ActiveWorkoutProps {
   onNavigate: (screen: ScreenState) => void;
