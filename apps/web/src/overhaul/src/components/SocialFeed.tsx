@@ -13,7 +13,7 @@ import {
   Activity,
   Trophy,
 } from "lucide-react";
-import { ScreenState } from "@/src/types";
+import { ScreenState } from "@/overhaul/src/types";
 
 interface SocialFeedProps {
   onNavigate: (screen: ScreenState) => void;

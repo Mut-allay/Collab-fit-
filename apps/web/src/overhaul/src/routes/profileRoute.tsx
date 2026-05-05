@@ -3,7 +3,7 @@ import { Zap } from "lucide-react";
 import ProfileView from "@/components/overhaul/ProfileView";
 import { createOverhaulNavigate } from "@/lib/overhaulNavigate";
 
-export default function OverhaulProfilePage() {
+export default function ProfileRoute() {
   const navigate = useNavigate();
   const onNav = createOverhaulNavigate(navigate);
 

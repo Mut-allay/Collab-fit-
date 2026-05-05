@@ -15,12 +15,17 @@ function normalizeLastUpdated(
   return { ...doc, lastUpdated };
 }
 
-export function useMonthlyLeaderboardQuery(month: string, year: number) {
+export function useMonthlyLeaderboardQuery(
+  month: string,
+  year: number,
+  options?: { enabled?: boolean }
+) {
   return useQuery({
     queryKey: ["monthlyLeaderboard", year, month],
     queryFn: async () => {
       const raw = await getMonthlyLeaderboard(month, year);
       return raw ? normalizeLastUpdated(raw) : null;
     },
+    enabled: options?.enabled !== false,
   });
 }

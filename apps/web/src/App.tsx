@@ -6,49 +6,47 @@ import {
 import { AuthProvider } from "@/contexts/AuthContext";
 import { Toaster } from "sonner";
 
-// Layouts
-import AppLayout from "@/components/layout/AppLayout";
 import PublicLayout from "@/components/layout/PublicLayout";
 import RequireAuth from "@/components/layout/RequireAuth";
+import OverhaulAppLayout from "@/overhaul/src/components/AppLayout";
 
-// Pages
-import LandingPage from "@/pages/LandingPage";
-import OverhaulLoginPage from "@/pages/overhaul/OverhaulLoginPage";
-import OverhaulSignupPage from "@/pages/overhaul/OverhaulSignupPage";
-import OverhaulDashboardPage from "@/pages/overhaul/OverhaulDashboardPage";
-import OverhaulProfilePage from "@/pages/overhaul/OverhaulProfilePage";
-import OverhaulLeaderboardPage from "@/pages/overhaul/OverhaulLeaderboardPage";
-import { DataVerificationPage } from "@/pages/DataVerificationPage";
-import PlanSelectionPage from "@/pages/PlanSelectionPage";
-import ViewPlanPage from "@/pages/ViewPlanPage";
-import WorkoutSessionPage from "@/pages/WorkoutSessionPage";
-import WorkoutSummaryPage from "@/pages/WorkoutSummaryPage";
-import WorkoutHistoryPage from "@/pages/WorkoutHistoryPage";
-import ProgressPage from "@/pages/ProgressPage";
-import TeamsPage from "@/pages/TeamsPage";
-import CreateTeamPage from "@/pages/CreateTeamPage";
-import InvitationsPage from "@/pages/InvitationsPage";
+import LandingRoute from "@/overhaul/src/routes/landingRoute";
+import LoginRoute from "@/overhaul/src/routes/loginRoute";
+import SignupRoute from "@/overhaul/src/routes/signupRoute";
+import DashboardRoute from "@/overhaul/src/routes/dashboardRoute";
+import ProfileRoute from "@/overhaul/src/routes/profileRoute";
+import LeaderboardRoute from "@/overhaul/src/routes/leaderboardRoute";
+import DataVerificationRoute from "@/overhaul/src/routes/DataVerificationRoute";
+import PlanSelectionPage from "@/overhaul/src/routes/PlanSelectionPage";
+import ViewPlanPage from "@/overhaul/src/routes/ViewPlanPage";
+import WorkoutSessionPage from "@/overhaul/src/routes/WorkoutSessionPage";
+import WorkoutSummaryPage from "@/overhaul/src/routes/WorkoutSummaryPage";
+import WorkoutHistoryPage from "@/overhaul/src/routes/WorkoutHistoryPage";
+import ProgressPage from "@/overhaul/src/routes/ProgressPage";
+import TeamsPage from "@/overhaul/src/routes/TeamsPage";
+import CreateTeamPage from "@/overhaul/src/routes/CreateTeamPage";
+import InvitationsPage from "@/overhaul/src/routes/InvitationsPage";
 
 function App() {
   const router = createBrowserRouter([
     {
       path: "/",
-      element: <LandingPage />,
+      element: <LandingRoute />,
     },
     {
       path: "/login",
-      element: <OverhaulLoginPage />,
+      element: <LoginRoute />,
     },
     {
       path: "/signup",
-      element: <OverhaulSignupPage />,
+      element: <SignupRoute />,
     },
     {
       element: <PublicLayout />,
       children: [
         {
           path: "/verify",
-          element: <DataVerificationPage />,
+          element: <DataVerificationRoute />,
         },
       ],
     },
@@ -57,18 +55,18 @@ function App() {
       children: [
         {
           path: "/dashboard",
-          element: <OverhaulDashboardPage />,
+          element: <DashboardRoute />,
         },
         {
           path: "/profile",
-          element: <OverhaulProfilePage />,
+          element: <ProfileRoute />,
         },
         {
           path: "/leaderboard",
-          element: <OverhaulLeaderboardPage />,
+          element: <LeaderboardRoute />,
         },
         {
-          element: <AppLayout />,
+          element: <OverhaulAppLayout />,
           children: [
             {
               path: "/plans",

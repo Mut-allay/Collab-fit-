@@ -169,5 +169,5 @@ Ensuring fitness data (steps, calories, distance) is stored daily in `dailyActiv
 
 - Backend: [api/server.js](api/server.js) — all OAuth, sync, and leaderboard endpoints
 - Frontend service: [apps/web/src/lib/googleFitService.ts](apps/web/src/lib/googleFitService.ts)
-- UI: [apps/web/src/pages/ProfilePage.tsx](apps/web/src/pages/ProfilePage.tsx) — Connected Services card
+- UI: [apps/web/src/overhaul/src/routes/profileRoute.tsx](apps/web/src/overhaul/src/routes/profileRoute.tsx) (wraps `ProfileView`) — Connected Services card
 - Leaderboard display: [apps/web/src/pages/LeaderboardPage.tsx](apps/web/src/pages/LeaderboardPage.tsx)

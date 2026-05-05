@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Globe } from "lucide-react";
-import { AuthProps } from "@/src/types";
+import { AuthProps } from "@/overhaul/src/types";
 
 export default function AuthLanding({ onNavigate }: AuthProps) {
   return (

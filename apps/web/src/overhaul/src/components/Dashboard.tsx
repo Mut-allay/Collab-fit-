@@ -15,7 +15,7 @@ import {
   Link2,
   RefreshCw,
 } from "lucide-react";
-import type { ScreenState } from "@/src/types";
+import type { ScreenState } from "@/overhaul/src/types";
 
 interface DashboardProps {
   onNavigate: (screen: ScreenState) => void;

@@ -1,9 +1,10 @@
-import React from "react";
+import type { ReactNode } from "react";
+import { Outlet } from "react-router-dom";
 import { Zap } from "lucide-react";
 
 interface AppLayoutProps {
-  children: React.ReactNode;
-  key?: string;
+  /** Standalone overhaul demo (`overhaul/src/App.tsx`). In the main app, use React Router and omit this — `<Outlet />` is rendered instead. */
+  children?: ReactNode;
 }
 
 export default function AppLayout({ children }: AppLayoutProps) {
@@ -17,13 +18,16 @@ export default function AppLayout({ children }: AppLayoutProps) {
             FIT&LIT
           </h1>
         </div>
-        <button className="text-on-surface-variant font-label text-sm uppercase tracking-widest hover:text-primary transition-colors">
+        <button
+          type="button"
+          className="text-on-surface-variant font-label text-sm uppercase tracking-widest hover:text-primary transition-colors"
+        >
           Help
         </button>
       </header>
 
       <main className="pt-28 pb-12 px-6 max-w-2xl mx-auto relative z-10">
-        {children}
+        {children ?? <Outlet />}
       </main>
 
       {/* Visual Texture Elements */}

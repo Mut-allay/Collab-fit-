@@ -18,6 +18,7 @@
     "deploy": "pnpm run build:production && firebase deploy",
     "deploy:staging": "pnpm run build:staging && firebase use fitspark-staging && firebase deploy",
     "deploy:production": "pnpm run build:production && firebase use fitspark-production && firebase deploy",
+    "deploy:no-storage": "firebase deploy --only firestore,functions,hosting",
     "deploy:hosting": "pnpm run build:production --filter=@fitspark/web && firebase deploy --only hosting",
     "deploy:hosting:staging": "pnpm run build:staging --filter=@fitspark/web && firebase use fitspark-staging && firebase deploy --only hosting",
     "deploy:hosting:production": "pnpm run build:production --filter=@fitspark/web && firebase use fitspark-production && firebase deploy --only hosting",

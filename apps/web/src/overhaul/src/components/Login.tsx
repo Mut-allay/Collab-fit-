@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Apple } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
-import type { AuthProps } from "@/src/types";
+import type { AuthProps } from "@/overhaul/src/types";
 
 export default function Login({ onNavigate, onSuccess }: AuthProps) {
   const { login } = useAuth();
