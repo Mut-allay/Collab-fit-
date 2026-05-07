@@ -1,6 +1,9 @@
 import { AnimatePresence } from "framer-motion";
 import AppLayout from "@/overhaul/src/components/AppLayout";
+import OnboardingStep1 from "@/overhaul/src/components/OnboardingStep1";
 import OnboardingStep2 from "@/overhaul/src/components/OnboardingStep2";
+import OnboardingStep4 from "@/overhaul/src/components/OnboardingStep4";
+import OnboardingSuccess from "@/overhaul/src/components/OnboardingSuccess";
 import AuthLanding from "@/overhaul/src/components/AuthLanding";
 import Login from "@/overhaul/src/components/Login";
 import SignUp from "@/overhaul/src/components/SignUp";
@@ -21,10 +24,13 @@ export default function App() {
   const {
     screen,
     setScreen,
+    step,
+    isLoading,
     metrics,
     updateMetrics,
     handleBack,
     handleContinue,
+    handleComplete,
     handleAuthSuccess,
     connectGoogleFit,
   } = useOnboarding();
@@ -59,13 +65,39 @@ export default function App() {
 
       {screen === "onboarding" && (
         <AppLayout key="onboarding">
-          <OnboardingStep2
-            metrics={metrics}
-            onUpdateMetrics={updateMetrics}
-            onBack={handleBack}
-            onContinue={handleContinue}
-            onConnectGoogleFit={connectGoogleFit}
-          />
+          {step === 1 && (
+            <OnboardingStep1
+              metrics={metrics}
+              onUpdateMetrics={updateMetrics}
+              onContinue={handleContinue}
+              isLoading={isLoading}
+            />
+          )}
+          {step === 2 && (
+            <OnboardingStep2
+              metrics={metrics}
+              onUpdateMetrics={updateMetrics}
+              onBack={handleBack}
+              onContinue={handleContinue}
+              isLoading={isLoading}
+            />
+          )}
+          {step === 3 && (
+            <OnboardingStep4
+              metrics={metrics}
+              onUpdateMetrics={updateMetrics}
+              onBack={handleBack}
+              onComplete={handleComplete}
+              onConnectGoogleFit={connectGoogleFit}
+              isLoading={isLoading}
+            />
+          )}
+          {step === 4 && (
+            <OnboardingSuccess
+              metrics={metrics}
+              onComplete={() => setScreen("dashboard")}
+            />
+          )}
         </AppLayout>
       )}
 

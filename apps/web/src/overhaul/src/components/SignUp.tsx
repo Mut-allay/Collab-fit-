@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { X, User, Mail, Lock, Check, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
-import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/contexts/AuthContext";
 import type { AuthProps } from "@/overhaul/src/types";
 
@@ -63,24 +62,13 @@ export default function SignUp({ onNavigate, onSuccess }: AuthProps) {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-lg mt-24 px-6 mb-12"
       >
-        {/* Progress Indicator */}
-        <div className="mb-10 flex flex-col gap-3">
-          <div className="flex justify-between items-end">
-            <span className="font-headline font-black text-4xl text-primary tracking-tighter uppercase">Step 01</span>
-            <span className="font-label text-on-surface-variant text-xs uppercase tracking-[0.2em]">Profile Setup</span>
-          </div>
-          <Progress value={33} className="h-1.5 bg-surface-container-highest" />
-        </div>
-
-        {/* Header */}
-        <div className="relative mb-12">
-          <div className="absolute -top-8 -left-4 text-[120px] font-headline font-black text-white/[0.03] leading-none select-none pointer-events-none">
-            JOIN
-          </div>
-          <h1 className="font-headline text-5xl font-black text-on-surface tracking-tight relative z-10 leading-[1.1]">
-            START YOUR <br />
-            <span className="text-primary italic">EVOLUTION.</span>
+        <div className="mb-10">
+          <h1 className="font-headline text-5xl font-black text-on-surface tracking-tight leading-[1.1]">
+            Create your <span className="text-primary italic">account</span>
           </h1>
+          <p className="mt-4 text-on-surface-variant max-w-xl">
+            Enter your name, email, and password to get started. Your profile details will be completed in the next step.
+          </p>
         </div>
 
         {/* Signup Form */}
