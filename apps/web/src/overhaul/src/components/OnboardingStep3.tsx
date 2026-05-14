@@ -35,7 +35,7 @@ export default function OnboardingStep3({
           </span>
         </div>
         <div className="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
-          <div className="h-full bg-primary-container w-[65%] rounded-full" />
+          <div className="h-full bg-primary-container w-[75%] rounded-full" />
         </div>
       </div>
 

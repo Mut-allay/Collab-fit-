@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useOnboardingStore } from "@/store/onboardingStore";
 import OnboardingStep1 from "./OnboardingStep1";
 import OnboardingStep2 from "./OnboardingStep2";
@@ -8,8 +9,9 @@ import OnboardingSuccess from "./OnboardingSuccess";
 import type { OnboardingMetrics } from "@/overhaul/src/types";
 
 export default function OnboardingFlow() {
-  const { step, metrics, updateMetrics, setStep } = useOnboardingStore();
+  const { step, metrics, updateMetrics, setStep, reset } = useOnboardingStore();
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleUpdateMetrics = (data: Partial<OnboardingMetrics>) =>
     updateMetrics(data);
@@ -24,7 +26,7 @@ export default function OnboardingFlow() {
   };
 
   const handleComplete = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e?.preventDefault();
     setIsLoading(true);
     // Simulate API call
     await new Promise((r) => setTimeout(r, 800));
@@ -53,7 +55,15 @@ export default function OnboardingFlow() {
         {step === 2 && <OnboardingStep2 {...commonProps} />}
         {step === 3 && <OnboardingStep3 {...commonProps} />}
         {step === 4 && <OnboardingStep4 {...commonProps} />}
-        {step === 5 && <OnboardingSuccess />}
+        {step === 5 && (
+          <OnboardingSuccess
+            metrics={metrics}
+            onComplete={() => {
+              reset();
+              navigate("/dashboard");
+            }}
+          />
+        )}
       </div>
     </div>
   );

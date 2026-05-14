@@ -53,10 +53,10 @@ export default function OnboardingStep4({
       <div className="mb-12">
         <div className="flex justify-between items-end mb-4">
           <span className="font-headline font-black text-4xl text-surface-container-highest tracking-tighter opacity-50">
-            03
+            04
           </span>
           <span className="font-label text-xs uppercase tracking-[0.3em] text-on-surface-variant">
-            Step 3 of 3
+            Step 4 of 4
           </span>
         </div>
         <div className="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">

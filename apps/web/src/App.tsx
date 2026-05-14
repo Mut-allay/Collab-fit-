@@ -9,6 +9,7 @@ import { Toaster } from "sonner";
 import PublicLayout from "@/components/layout/PublicLayout";
 import RequireAuth from "@/components/layout/RequireAuth";
 import OverhaulAppLayout from "@/overhaul/src/components/AppLayout";
+import OnboardingFlow from "@/overhaul/src/components/OnboardingFlow";
 
 import LandingRoute from "@/overhaul/src/routes/landingRoute";
 import LoginRoute from "@/overhaul/src/routes/loginRoute";
@@ -56,6 +57,10 @@ function App() {
         {
           path: "/dashboard",
           element: <DashboardRoute />,
+        },
+        {
+          path: "/onboarding",
+          element: <OnboardingFlow />,
         },
         {
           path: "/profile",

@@ -20,10 +20,10 @@ export default function OnboardingStep1({
             01
           </span>
           <span className="font-label text-xs uppercase tracking-[0.3em] text-on-surface-variant">
-            Step 1 of 3
+            Step 1 of 4
           </span>
         </div>
-        <Progress value={33} className="h-1.5" />
+        <Progress value={25} className="h-1.5" />
       </div>
 
       <div>
