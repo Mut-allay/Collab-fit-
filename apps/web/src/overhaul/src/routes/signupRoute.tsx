@@ -16,7 +16,7 @@ export default function SignupRoute() {
     <div className="overhaul dark min-h-screen">
       <SignUp
         onNavigate={onNav}
-        onSuccess={() => navigate("/dashboard")}
+        onSuccess={() => navigate("/onboarding")}
       />
     </div>
   );
