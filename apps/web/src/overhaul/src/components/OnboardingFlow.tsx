@@ -8,6 +8,8 @@ import OnboardingStep4 from "./OnboardingStep4";
 import OnboardingSuccess from "./OnboardingSuccess";
 import type { OnboardingMetrics } from "@/overhaul/src/types";
 
+const ONBOARDING_FLAG = "fitlit-onboarding-complete";
+
 export default function OnboardingFlow() {
   const { step, metrics, updateMetrics, setStep, reset } = useOnboardingStore();
   const [isLoading, setIsLoading] = useState(false);
@@ -19,7 +21,6 @@ export default function OnboardingFlow() {
   const handleContinue = async (e?: React.FormEvent) => {
     e?.preventDefault();
     setIsLoading(true);
-    // Simulate network save
     await new Promise((r) => setTimeout(r, 400));
     setIsLoading(false);
     if (step < 4) setStep(step + 1);
@@ -28,10 +29,10 @@ export default function OnboardingFlow() {
   const handleComplete = async (e: React.FormEvent) => {
     e?.preventDefault();
     setIsLoading(true);
-    // Simulate API call
     await new Promise((r) => setTimeout(r, 800));
     setIsLoading(false);
-    setStep(5); // Success screen
+    window.localStorage.setItem(ONBOARDING_FLAG, "true");
+    setStep(5);
   };
 
   const handleBack = () => {

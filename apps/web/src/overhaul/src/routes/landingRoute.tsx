@@ -4,18 +4,29 @@ import AuthLanding from "@/overhaul/src/components/AuthLanding";
 import { useAuth } from "@/contexts/AuthContext";
 import { createOverhaulNavigate } from "@/lib/overhaulNavigate";
 
+const ONBOARDING_FLAG = "fitlit-onboarding-complete";
+
+function shouldRedirectToOnboarding() {
+  if (typeof window === "undefined") return false;
+  return window.localStorage.getItem(ONBOARDING_FLAG) !== "true";
+}
+
 export default function LandingRoute() {
-  const { currentUser } = useAuth();
+  const { currentUser, loading } = useAuth();
   const navigate = useNavigate();
   const onNav = createOverhaulNavigate(navigate);
 
   useEffect(() => {
-    if (currentUser) {
-      navigate("/dashboard", { replace: true });
+    if (!loading && currentUser) {
+      if (shouldRedirectToOnboarding()) {
+        navigate("/onboarding", { replace: true });
+      } else {
+        navigate("/dashboard", { replace: true });
+      }
     }
-  }, [currentUser, navigate]);
+  }, [currentUser, loading, navigate]);
 
-  if (currentUser) {
+  if (loading || currentUser) {
     return null;
   }
 
@@ -23,7 +34,7 @@ export default function LandingRoute() {
     <div className="overhaul dark min-h-screen">
       <AuthLanding
         onNavigate={onNav}
-        onSuccess={() => navigate("/dashboard")}
+        onSuccess={() => navigate(shouldRedirectToOnboarding() ? "/onboarding" : "/dashboard")}
       />
     </div>
   );

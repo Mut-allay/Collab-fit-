@@ -1,18 +1,13 @@
 import { useMemo, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import type { TeamLeaderboardEntry } from "@fitspark/shared";
+import { motion } from "framer-motion";
 import {
   Zap,
   Bell,
-  TrendingUp,
-  Award,
   LayoutDashboard,
   Dumbbell,
   User,
-  Medal,
   Trophy,
   Briefcase,
-  ChevronDown,
 } from "lucide-react";
 import type { ScreenState } from "@/overhaul/src/types";
 import type { LeaderboardTeamRow } from "@/lib/leaderboardUi";
@@ -35,16 +30,8 @@ const MONTHS = [
   "December",
 ] as const;
 
-function sortLbTeams(
-  teams: TeamLeaderboardEntry[],
-  metric: "steps" | "calories"
-): TeamLeaderboardEntry[] {
-  return [...teams].sort((a, b) =>
-    metric === "calories"
-      ? b.totalCalories - a.totalCalories
-      : b.totalSteps - a.totalSteps
-  );
-}
+const DEFAULT_LEADERBOARD_AVATAR =
+  "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=512&auto=format&fit=crop";
 
 function LeaderboardSkeleton() {
   return (
@@ -83,21 +70,16 @@ interface LeaderboardProps {
 export default function Leaderboard({
   onNavigate,
   teams: teamsFromProps,
-  heroTrendText = null,
   lastUpdatedText: lastUpdatedProp,
-  monthLabel: monthLabelProp,
-  onPrevMonth: onPrevMonthProp,
-  onNextMonth: onNextMonthProp,
   errorMessage: errorProp,
   metric: metricProp,
-  onMetricChange: onMetricChangeProp,
 }: LeaderboardProps) {
   const { userProfile } = useAuth();
-  const [activeTab, setActiveTab] = useState<"weekly" | "monthly" | "annual">(
-    "monthly"
+  const [activeFilter, setActiveFilter] = useState<"global" | "regional" | "friends">(
+    "global"
   );
 
-  const [period, setPeriod] = useState(() => {
+  const [period] = useState(() => {
     const n = new Date();
     return {
       month: MONTHS[n.getMonth()] ?? "January",
@@ -108,7 +90,6 @@ export default function Leaderboard({
   const [internalMetric, setInternalMetric] = useState<"steps" | "calories">(
     "steps"
   );
-  const [expandedRank, setExpandedRank] = useState<string | null>(null);
 
   const controlled = teamsFromProps !== undefined;
 
@@ -124,34 +105,6 @@ export default function Leaderboard({
   } = useMonthlyLeaderboardQuery(period.month, period.year, {
     enabled: !controlled,
   });
-
-  const shiftMonth = (delta: number) => {
-    setPeriod(({ month, year }) => {
-      let idx = MONTHS.indexOf(month as (typeof MONTHS)[number]);
-      if (idx < 0) idx = new Date().getMonth();
-      idx += delta;
-      let y = year;
-      if (idx < 0) {
-        idx = 11;
-        y -= 1;
-      } else if (idx > 11) {
-        idx = 0;
-        y += 1;
-      }
-      return { month: MONTHS[idx] ?? "January", year: y };
-    });
-    setExpandedRank(null);
-  };
-
-  const onPrevMonth = controlled ? onPrevMonthProp : () => shiftMonth(-1);
-  const onNextMonth = controlled ? onNextMonthProp : () => shiftMonth(1);
-
-  const monthLabel = controlled ? monthLabelProp : `${period.month} ${period.year}`;
-
-  const sortedEntries = useMemo(() => {
-    if (!lb?.teams?.length) return [];
-    return sortLbTeams(lb.teams, metric);
-  }, [lb, metric]);
 
   const teamsRowsFromQuery = useMemo(() => {
     if (!lb) return [];
@@ -192,103 +145,14 @@ export default function Leaderboard({
 
   const mergedError = errorProp ?? queryError ?? null;
 
-  const toggleExpand = (rank: string) => {
-    setExpandedRank((prev) => (prev === rank ? null : rank));
-  };
-
-  const expandedEntry = useMemo(() => {
-    if (!expandedRank || sortedEntries.length === 0) return null;
-    const idx = Number.parseInt(expandedRank, 10) - 1;
-    if (idx >= 0 && idx < sortedEntries.length) return sortedEntries[idx]!;
-    return sortedEntries.find(
-      (_t, i) => String(i + 1).padStart(2, "0") === expandedRank
-    ) ?? null;
-  }, [expandedRank, sortedEntries]);
-
   const userTeam = teamsRows.find((t) => t.isUserTeam);
-  const heroRank = userTeam?.rank ?? "—";
-  const heroName = userTeam?.name ?? "Join a team to compete";
-  const heroPoints = userTeam?.points ?? "—";
+  const podiumRows = teamsRows.slice(0, 3);
   const scoreColumnLabel =
     metric === "calories" ? "KCAL (approx)" : "STEPS (approx)";
-
-  const metricToggle =
-    controlled && onMetricChangeProp ? (
-      <div className="flex gap-2 justify-center">
-        <button
-          type="button"
-          onClick={() => onMetricChangeProp("steps")}
-          className={`px-4 py-2 rounded-xl font-headline text-[10px] font-black uppercase tracking-widest transition-all ${
-            metric === "steps"
-              ? "bg-kinetic-gradient text-on-primary-fixed shadow-lg"
-              : "bg-surface-container-highest text-on-surface-variant hover:text-on-surface"
-          }`}
-        >
-          Steps
-        </button>
-        <button
-          type="button"
-          onClick={() => onMetricChangeProp("calories")}
-          className={`px-4 py-2 rounded-xl font-headline text-[10px] font-black uppercase tracking-widest transition-all ${
-            metric === "calories"
-              ? "bg-kinetic-gradient text-on-primary-fixed shadow-lg"
-              : "bg-surface-container-highest text-on-surface-variant hover:text-on-surface"
-          }`}
-        >
-          Calories
-        </button>
-      </div>
-    ) : !controlled ? (
-      <div className="flex gap-2 justify-center">
-        <button
-          type="button"
-          onClick={() => setInternalMetric("steps")}
-          className={`px-4 py-2 rounded-xl font-headline text-[10px] font-black uppercase tracking-widest transition-all ${
-            metric === "steps"
-              ? "bg-kinetic-gradient text-on-primary-fixed shadow-lg"
-              : "bg-surface-container-highest text-on-surface-variant hover:text-on-surface"
-          }`}
-        >
-          Steps
-        </button>
-        <button
-          type="button"
-          onClick={() => setInternalMetric("calories")}
-          className={`px-4 py-2 rounded-xl font-headline text-[10px] font-black uppercase tracking-widest transition-all ${
-            metric === "calories"
-              ? "bg-kinetic-gradient text-on-primary-fixed shadow-lg"
-              : "bg-surface-container-highest text-on-surface-variant hover:text-on-surface"
-          }`}
-        >
-          Calories
-        </button>
-      </div>
-    ) : null;
-
-  const monthNavSlot =
-    monthLabel && (onPrevMonth || onNextMonth) ? (
-      <div className="flex items-center gap-3 w-full justify-center">
-        <button
-          type="button"
-          onClick={onPrevMonth}
-          className="px-3 py-2 rounded-xl bg-surface-container-highest text-primary hover:bg-surface-bright transition-colors disabled:opacity-40"
-          disabled={!onPrevMonth}
-        >
-          ‹
-        </button>
-        <span className="text-on-surface font-bold tracking-normal normal-case text-sm">
-          {monthLabel}
-        </span>
-        <button
-          type="button"
-          onClick={onNextMonth}
-          className="px-3 py-2 rounded-xl bg-surface-container-highest text-primary hover:bg-surface-bright transition-colors disabled:opacity-40"
-          disabled={!onNextMonth}
-        >
-          ›
-        </button>
-      </div>
-    ) : null;
+  const avatarUrl = userProfile?.photoURL ?? DEFAULT_LEADERBOARD_AVATAR;
+  const heroName = userTeam?.name ?? "Team Titan";
+  const heroRank = userTeam?.rank ?? "--";
+  const heroPoints = userTeam?.points ?? 0;
 
   return (
     <div className="min-h-screen bg-background text-on-surface font-body pb-32 selection:bg-primary-container selection:text-on-primary-container">
@@ -306,10 +170,15 @@ export default function Leaderboard({
           >
             <Bell className="w-5 h-5" />
           </button>
+          <img
+            src={avatarUrl}
+            alt="Your avatar"
+            className="h-10 w-10 rounded-full object-cover border border-outline-variant/10"
+          />
         </div>
       </header>
 
-      <main className="pt-28 px-6 max-w-2xl mx-auto space-y-10">
+      <main className="pt-28 px-4 pb-32 max-w-5xl mx-auto">
         {mergedError ? (
           <p className="text-sm text-error font-label">{mergedError}</p>
         ) : null}
@@ -318,256 +187,185 @@ export default function Leaderboard({
           <LeaderboardSkeleton />
         ) : (
           <>
-            <section className="relative overflow-hidden rounded-3xl p-8 bg-surface-container-low shadow-2xl border border-outline-variant/10 group">
-              <div className="absolute -right-10 -top-10 opacity-5 transition-transform duration-700 group-hover:scale-110">
-                <span className="font-headline font-black text-[12rem] italic tracking-tighter leading-none select-none">
-                  #{heroRank}
-                </span>
-              </div>
-              <div className="relative z-10">
-                <span className="font-label text-xs uppercase tracking-[0.2em] text-on-surface-variant font-bold">
-                  Current Team Standing
-                </span>
-                <div className="mt-4 flex items-end gap-4">
-                  <h2 className="font-headline text-7xl font-black italic text-primary-fixed leading-none">
-                    Rank {heroRank}
-                  </h2>
-                  {heroTrendText ? (
-                    <div className="pb-1 flex items-center gap-1">
-                      <TrendingUp className="text-primary-fixed w-5 h-5" />
-                      <span className="font-label text-sm text-primary-fixed font-bold">
-                        {heroTrendText}
-                      </span>
-                    </div>
-                  ) : null}
+            <section className="rounded-[2.5rem] border border-outline-variant/10 bg-surface-container-low shadow-2xl p-6 md:p-8">
+              <div className="grid gap-8 lg:grid-cols-[1.6fr_1fr] lg:items-end">
+                <div className="space-y-5">
+                  <div className="inline-flex items-center gap-2 rounded-full bg-primary-container/10 px-4 py-2 text-[11px] uppercase font-black tracking-[0.24em] text-primary">
+                    <Trophy className="w-4 h-4" />
+                    Leaderboard
+                  </div>
+                  <div className="max-w-2xl">
+                    <p className="text-xs uppercase tracking-[0.24em] text-on-surface-variant font-bold">
+                      Your team status
+                    </p>
+                    <h2 className="mt-3 text-4xl font-headline font-black tracking-tight text-on-surface">
+                      {heroName}
+                    </h2>
+                    <p className="mt-3 text-sm text-on-surface-variant max-w-xl">
+                      {userTeam
+                        ? "Your team is currently competing for the top spot in the monthly leaderboard. Keep the streak going."
+                        : "Join a team to start earning leaderboard points and unlock team rewards."}
+                    </p>
+                  </div>
                 </div>
-                <p className="font-headline text-2xl mt-2 text-on-surface font-bold">
-                  {heroName}
-                </p>
-                <div className="mt-8 flex items-center justify-between">
-                  <div className="flex flex-col">
-                    <span className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant font-black">
-                      Team score ({metric})
-                    </span>
-                    <span className="font-headline text-3xl font-black text-on-surface">
-                      {heroPoints}{" "}
-                      <span className="text-sm font-normal text-on-surface-variant italic">
+
+                <div className="rounded-[2rem] border border-outline-variant/10 bg-background p-5 shadow-lg">
+                  <p className="text-[10px] uppercase tracking-[0.24em] text-on-surface-variant font-black">
+                    Current rank
+                  </p>
+                  <div className="mt-4 flex items-center gap-4">
+                    <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-primary/10 text-primary text-4xl font-black">
+                      {heroRank}
+                    </div>
+                    <div>
+                      <p className="text-sm uppercase tracking-[0.18em] text-on-surface-variant font-bold">
+                        Score
+                      </p>
+                      <p className="mt-2 text-3xl font-black text-on-surface">
+                        {heroPoints}
+                      </p>
+                      <p className="text-xs uppercase tracking-[0.24em] text-on-surface-variant font-bold">
                         {scoreColumnLabel}
-                      </span>
-                    </span>
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex -space-x-3">
-                    {userTeam?.avatars.map((url, i) => (
-                      <img
-                        key={i}
-                        className="w-10 h-10 rounded-full border-2 border-surface-container-low object-cover shadow-lg"
-                        src={url}
-                        alt="Member"
-                      />
-                    ))}
-                    {userTeam ? (
-                      <div className="w-10 h-10 rounded-full border-2 border-surface-container-low bg-surface-container-highest flex items-center justify-center text-[10px] font-black text-primary shadow-lg">
-                        +
-                        {Math.max(
-                          0,
-                          userTeam.members - (userTeam.avatars?.length ?? 0)
-                        )}
-                      </div>
-                    ) : null}
-                  </div>
+                </div>
+              </div>
+
+              <div className="mt-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div className="flex flex-wrap gap-2">
+                  {(["global", "regional", "friends"] as const).map((filter) => (
+                    <button
+                      key={filter}
+                      type="button"
+                      onClick={() => setActiveFilter(filter)}
+                      className={`rounded-2xl px-4 py-2 text-xs font-bold uppercase tracking-[0.24em] transition ${
+                        activeFilter === filter
+                          ? "bg-primary text-on-primary-fixed shadow-lg"
+                          : "bg-surface-container-highest text-on-surface-variant hover:bg-surface-container"
+                      }`}
+                    >
+                      {filter}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {(["steps", "calories"] as const).map((option) => (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => setInternalMetric(option)}
+                      className={`rounded-2xl px-4 py-2 text-xs font-black uppercase tracking-[0.24em] transition ${
+                        metric === option
+                          ? "bg-kinetic-gradient text-on-primary-fixed shadow-lg"
+                          : "bg-surface-container-highest text-on-surface-variant hover:bg-surface-container"
+                      }`}
+                    >
+                      {option}
+                    </button>
+                  ))}
                 </div>
               </div>
             </section>
 
-            {(monthLabel && (onPrevMonth || onNextMonth)) ||
-            lastUpdatedText ? (
-              <div className="flex flex-col gap-2 font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
-                <div className="flex items-center justify-between gap-4">
-                  {monthNavSlot}
-                </div>
-                {lastUpdatedText ? (
-                  <p className="text-center text-on-surface-variant/80 normal-case tracking-normal">
-                    Last updated: {lastUpdatedText}
-                  </p>
-                ) : null}
-              </div>
-            ) : null}
-
-            {metricToggle}
-
-            <div className="flex space-x-2 p-1.5 bg-surface-container-low rounded-2xl shadow-inner border border-outline-variant/10">
-              {(["weekly", "monthly", "annual"] as const).map((tab) => (
-                <button
-                  type="button"
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`flex-1 py-3 px-4 rounded-xl font-headline text-xs font-black uppercase tracking-widest transition-all ${
-                    activeTab === tab
-                      ? "bg-kinetic-gradient text-on-primary-fixed shadow-lg"
-                      : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"
-                  }`}
+            <div className="grid gap-4 mt-6 md:grid-cols-3">
+              {podiumRows.map((team, idx) => (
+                <div
+                  key={team.rank}
+                  className={`rounded-[2rem] border border-outline-variant/10 bg-surface-container-low p-5 shadow-lg ${
+                    idx === 1 ? "md:col-span-1" : ""
+                  } ${team.isUserTeam ? "border-primary-container/70 ring-1 ring-primary-container/20" : ""}`}
                 >
-                  {tab}
-                </button>
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-[10px] uppercase tracking-[0.24em] text-on-surface-variant font-black">
+                        {team.rank === "01" ? "Leader" : `#${team.rank}`}
+                      </p>
+                      <h3 className="mt-3 text-xl font-headline font-black tracking-tight text-on-surface">
+                        {team.name}
+                      </h3>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-on-surface-variant uppercase tracking-[0.2em] font-bold">
+                        {scoreColumnLabel}
+                      </p>
+                      <p className="mt-2 text-2xl font-black text-on-surface">
+                        {team.points}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="mt-4 flex items-center gap-2">
+                    {team.avatars.slice(0, 4).map((avatar, index) => (
+                      <img
+                        key={index}
+                        src={avatar}
+                        alt="Team avatar"
+                        className="h-10 w-10 rounded-full border border-background object-cover"
+                      />
+                    ))}
+                    {team.members > (team.avatars?.length ?? 0) ? (
+                      <span className="text-xs uppercase tracking-[0.3em] text-on-surface-variant font-bold">
+                        +{team.members - (team.avatars?.length ?? 0)}
+                      </span>
+                    ) : null}
+                  </div>
+                </div>
               ))}
             </div>
 
-            <div className="space-y-4">
-              {showEmpty ? (
-                <p className="text-center text-on-surface-variant font-body text-sm py-12">
-                  No data for this month yet
-                </p>
-              ) : teamsRows.length === 0 ? (
-                <p className="text-center text-on-surface-variant font-body text-sm py-12">
-                  No data for this month yet
-                </p>
-              ) : (
-                <AnimatePresence mode="popLayout">
-                  {teamsRows.map((team, idx) => {
-                  const expanded = expandedRank === team.rank;
-                  const sortedEntryForRow =
-                    sortedEntries[idx] ??
-                    sortedEntries.find((e) => e.teamName === team.name);
-
-                  return (
-                    <motion.div
-                      layout
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: idx * 0.05 }}
-                      key={`${team.rank}-${team.name}`}
-                      className={`rounded-2xl transition-all shadow-lg border border-outline-variant/5 overflow-hidden ${
-                        team.isUserTeam
-                          ? "bg-primary-container/10 border-primary-container/50 ring-1 ring-primary-container/20"
-                          : "bg-surface-container hover:bg-surface-container-highest"
-                      }`}
+            <div className="rounded-[2rem] border border-outline-variant/10 bg-surface-container-low p-4 shadow-lg mt-6">
+              <div className="hidden md:grid grid-cols-[1.5fr_0.8fr_0.8fr_0.6fr] gap-4 px-2 py-3 text-xs uppercase tracking-[0.24em] text-on-surface-variant font-black">
+                <span>Team</span>
+                <span className="text-right">Members</span>
+                <span className="text-right">Score</span>
+                <span className="text-right">Rank</span>
+              </div>
+              <div className="space-y-3">
+                {showEmpty || teamsRows.length === 0 ? (
+                  <div className="py-12 text-center text-sm text-on-surface-variant">
+                    No leaderboard data available yet.
+                  </div>
+                ) : (
+                  teamsRows.slice(0, 10).map((team) => (
+                    <div
+                      key={team.rank}
+                      className={`grid gap-4 rounded-3xl border border-outline-variant/10 bg-background p-4 text-sm ${
+                        team.isUserTeam ? "border-primary-container/60 bg-primary-container/5" : ""
+                      } md:grid-cols-[1.5fr_0.8fr_0.8fr_0.6fr] md:items-center`}
                     >
-                      <motion.button
-                        type="button"
-                        layout="position"
-                        onClick={() => {
-                          if (!controlled && sortedEntryForRow?.members?.length)
-                            toggleExpand(team.rank);
-                        }}
-                        disabled={
-                          controlled ||
-                          !sortedEntryForRow?.members?.length ||
-                          sortedEntryForRow.members.length === 0
-                        }
-                        className="flex items-center gap-4 p-5 w-full text-left cursor-pointer disabled:cursor-default"
-                      >
-                        <div className="w-12 flex flex-col items-center">
-                          <span
-                            className={`font-headline text-2xl font-black italic ${
-                              team.rank === "01" || team.isUserTeam
-                                ? "text-primary"
-                                : "text-on-surface-variant"
-                            }`}
-                          >
-                            {team.rank}
-                          </span>
-                          {team.rank === "01" && (
-                            <Medal className="text-primary w-4 h-4 mt-0.5" />
-                          )}
-                          {team.isUserTeam && team.rank !== "01" && (
-                            <Award className="text-primary w-4 h-4 mt-0.5" />
-                          )}
+                      <div className="flex items-center gap-3">
+                        <div className="flex -space-x-2">
+                          {team.avatars.slice(0, 3).map((avatar, index) => (
+                            <img
+                              key={index}
+                              src={avatar}
+                              alt="Team avatar"
+                              className="h-8 w-8 rounded-full border border-background object-cover"
+                            />
+                          ))}
                         </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <h3
-                              className={`font-headline font-bold text-lg ${
-                                team.isUserTeam ? "text-primary" : "text-on-surface"
-                              }`}
-                            >
-                              {team.name}
-                            </h3>
-                            {!controlled &&
-                            (sortedEntryForRow?.members?.length ?? 0) > 0 ? (
-                              <ChevronDown
-                                className={`w-5 h-5 shrink-0 text-on-surface-variant transition-transform ${expanded ? "rotate-180" : ""}`}
-                              />
-                            ) : null}
-                          </div>
-                          <div className="flex items-center gap-3 mt-1">
-                            <div className="flex -space-x-2">
-                              {team.avatars.map((url, i) => (
-                                <img
-                                  key={i}
-                                  className="w-6 h-6 rounded-full object-cover border border-background shadow-xs"
-                                  src={url}
-                                  alt="Avatar"
-                                />
-                              ))}
-                            </div>
-                            <span className="font-label text-[10px] text-on-surface-variant font-black uppercase tracking-tighter">
-                              {team.members} members
-                            </span>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <span
-                            className={`font-headline font-black block tracking-tighter ${
-                              team.isUserTeam ? "text-primary" : "text-on-surface"
-                            }`}
-                          >
-                            {team.points}
-                          </span>
-                          <p className="font-label text-[10px] uppercase text-on-surface-variant tracking-tighter font-bold">
-                            {scoreColumnLabel}
+                        <div>
+                          <p className="font-semibold text-on-surface">{team.name}</p>
+                          <p className="text-[10px] uppercase tracking-[0.24em] text-on-surface-variant">
+                            {team.members} members
                           </p>
                         </div>
-                      </motion.button>
-
-                      {!controlled &&
-                      expanded &&
-                      expandedRank === team.rank &&
-                      (expandedEntry?.members?.length ?? 0) > 0 ? (
-                        <AnimatePresence mode="sync">
-                          <motion.div
-                            key="members"
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.2 }}
-                            className="border-t border-outline-variant/10 overflow-hidden bg-surface-container-low/80"
-                          >
-                            <div className="px-5 py-4 space-y-3">
-                              <p className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
-                                Member breakdown
-                              </p>
-                              <AnimatePresence mode="popLayout">
-                                {(expandedEntry?.members ?? []).map((m, mi) => (
-                                  <motion.div
-                                    key={m.userId}
-                                    layout
-                                    initial={{ opacity: 0, x: -8 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    exit={{ opacity: 0 }}
-                                    transition={{ delay: mi * 0.03 }}
-                                    className="flex justify-between text-sm font-body"
-                                  >
-                                    <span className="text-on-surface">
-                                      {m.displayName || "Member"}
-                                    </span>
-                                    <span className="text-on-surface-variant font-mono tabular-nums">
-                                      {metric === "calories"
-                                        ? `${Math.round(m.calories)} kcal`
-                                        : `${Math.round(m.steps)} steps`}
-                                    </span>
-                                  </motion.div>
-                                ))}
-                              </AnimatePresence>
-                            </div>
-                          </motion.div>
-                        </AnimatePresence>
-                      ) : null}
-                    </motion.div>
-                  );
-                })}
-                </AnimatePresence>
-              )}
+                      </div>
+                      <p className="text-right font-semibold text-on-surface">{team.members}</p>
+                      <p className="text-right font-bold text-on-surface">{team.points}</p>
+                      <p className="text-right font-black text-primary">{team.rank}</p>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
+
+            {lastUpdatedText ? (
+              <p className="mt-4 text-center text-sm text-on-surface-variant">
+                Last updated: {lastUpdatedText}
+              </p>
+            ) : null}
           </>
         )}
       </main>

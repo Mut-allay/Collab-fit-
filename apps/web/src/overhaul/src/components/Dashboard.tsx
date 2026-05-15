@@ -34,6 +34,9 @@ interface DashboardProps {
   onConnectGoogleFit?: () => void;
   onSyncGoogleFit?: () => void | Promise<void>;
   isSyncingGoogleFit?: boolean;
+  teamLeaderboardName?: string | null;
+  teamLeaderboardRank?: string | null;
+  teamLeaderboardPoints?: string | null;
 }
 
 const DEFAULT_WEEKLY = [40, 65, 90, 55, 75, 30, 45];
@@ -57,6 +60,9 @@ export default function Dashboard({
   onConnectGoogleFit,
   onSyncGoogleFit,
   isSyncingGoogleFit = false,
+  teamLeaderboardName,
+  teamLeaderboardRank,
+  teamLeaderboardPoints,
 }: DashboardProps) {
   const weeklyData = weeklyBarPercentages ?? DEFAULT_WEEKLY;
   const days = ["M", "T", "W", "T", "F", "S", "S"];
@@ -295,6 +301,35 @@ export default function Dashboard({
                     )}
                   </button>
                 )}
+              </div>
+            </div>
+
+            {/* Team leaderboard card */}
+            <div className="bg-surface-container rounded-3xl p-6 shadow-lg border border-outline-variant/10">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <span className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">
+                    Your Team
+                  </span>
+                  <h3 className="font-headline text-2xl font-black mt-2">Leaderboard</h3>
+                </div>
+                <div className="text-right">
+                  <p className="font-headline text-4xl font-black text-primary-fixed">
+                    {teamLeaderboardRank ? teamLeaderboardRank.replace(/^0+/, "") : "—"}
+                  </p>
+                  <span className="block text-[10px] uppercase tracking-widest text-on-surface-variant">
+                    Team rank
+                  </span>
+                </div>
+              </div>
+              <div className="mt-6 border-t border-outline-variant/10 pt-5">
+                <p className="text-on-surface-variant text-sm">
+                  {teamLeaderboardName ?? "No team joined yet"}
+                </p>
+                <p className="font-headline text-3xl font-black mt-3">
+                  {teamLeaderboardPoints ?? "—"}
+                  <span className="text-sm font-semibold text-on-surface-variant ml-2">pts</span>
+                </p>
               </div>
             </div>
 

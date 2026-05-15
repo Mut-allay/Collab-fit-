@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import Dashboard from "@/overhaul/src/components/Dashboard";
@@ -8,6 +8,8 @@ import {
   summarizeDailyLogs,
   useDailyActivityLogsQuery,
 } from "@/hooks/useDailyActivityLogsQuery";
+import { useMonthlyLeaderboardQuery } from "@/hooks/useMonthlyLeaderboardQuery";
+import { mapLeaderboardToRows } from "@/lib/leaderboardUi";
 import {
   initiateGoogleFitConnect,
   syncGoogleFitNow,
@@ -54,6 +56,38 @@ export function DashboardShell({
     }
   }, [currentUser, updateUserProfile, queryClient]);
 
+  const now = new Date();
+  const MONTHS = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ] as const;
+  const leaderboardMonth = MONTHS[now.getMonth()] ?? "January";
+  const leaderboardYear = now.getFullYear();
+
+  const { data: leaderboard } = useMonthlyLeaderboardQuery(
+    leaderboardMonth,
+    leaderboardYear,
+    { enabled: Boolean(userProfile?.teamId) }
+  );
+
+  const currentTeamLeaderboard = useMemo(() => {
+    if (!leaderboard || !userProfile?.teamId) return null;
+    return mapLeaderboardToRows(leaderboard, {
+      userTeamId: userProfile.teamId,
+      metric: "steps",
+    }).find((row) => row.isUserTeam) ?? null;
+  }, [leaderboard, userProfile?.teamId]);
+
   const avatar = userProfile?.photoURL ?? currentUser?.photoURL ?? null;
 
   return (
@@ -75,6 +109,9 @@ export function DashboardShell({
         onConnectGoogleFit={handleConnectGoogleFit}
         onSyncGoogleFit={handleSyncGoogleFit}
         isSyncingGoogleFit={isSyncingGoogleFit}
+        teamLeaderboardName={currentTeamLeaderboard?.name}
+        teamLeaderboardRank={currentTeamLeaderboard?.rank}
+        teamLeaderboardPoints={currentTeamLeaderboard?.points}
       />
     </div>
   );

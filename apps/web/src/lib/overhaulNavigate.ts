@@ -7,15 +7,15 @@ const ROUTES: Partial<Record<ScreenState, string>> = {
   signup: "/signup",
   dashboard: "/dashboard",
   leaderboard: "/leaderboard",
-  workouts: "/plans",
-  map: "/teams",
-  social: "/leaderboard",
-  corporate: "/teams",
-  challenges: "/teams",
+  workouts: "/workouts",
+  map: "/map",
+  social: "/social",
+  corporate: "/corporate",
+  challenges: "/challenges",
   profile: "/profile",
-  onboarding: "/profile",
-  clubs: "/teams",
-  "active-workout": "/dashboard",
+  onboarding: "/onboarding",
+  clubs: "/clubs",
+  "active-workout": "/active-workout",
 };
 
 export function createOverhaulNavigate(navigate: NavigateFunction) {
