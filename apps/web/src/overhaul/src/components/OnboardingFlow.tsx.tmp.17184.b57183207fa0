@@ -16,7 +16,6 @@ export default function OnboardingFlow() {
   const { step, metrics, updateMetrics, setStep, reset } = useOnboardingStore();
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { currentUser } = useAuth();
 
   const handleUpdateMetrics = (data: Partial<OnboardingMetrics>) =>
     updateMetrics(data);
@@ -39,11 +38,7 @@ export default function OnboardingFlow() {
   };
 
   const handleBack = () => {
-    if (step > 1) {
-      setStep(step - 1);
-    } else {
-      navigate("/");
-    }
+    if (step > 1) setStep(step - 1);
   };
 
   const commonProps = {
@@ -52,7 +47,7 @@ export default function OnboardingFlow() {
     onBack: handleBack,
     onContinue: handleContinue,
     onComplete: handleComplete,
-    onConnectGoogleFit: () => connectGoogleFit(currentUser?.uid ?? ""),
+    onConnectGoogleFit: () => console.log("Connecting Google Fit..."),
     isLoading,
   };
 

@@ -5,6 +5,7 @@ import type { Gender, OnboardingProps } from "@/overhaul/src/types";
 export default function OnboardingStep1({
   metrics,
   onUpdateMetrics,
+  onBack,
   onContinue,
   isLoading,
 }: OnboardingProps) {
@@ -70,13 +71,22 @@ export default function OnboardingStep1({
           </div>
         </div>
 
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full py-5 rounded-full bg-kinetic-gradient text-on-primary-fixed font-headline font-black uppercase tracking-widest disabled:opacity-70 transition-opacity"
-        >
-          {isLoading ? "Saving..." : "Continue"}
-        </button>
+        <div className="flex items-center gap-4 pt-4">
+          <button
+            type="button"
+            onClick={onBack}
+            className="flex-1 py-5 rounded-full bg-surface-container-highest text-primary font-headline font-bold uppercase tracking-widest text-sm hover:bg-surface-variant active:scale-95 transition-all"
+          >
+            Back
+          </button>
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="flex-[2] py-5 rounded-full bg-kinetic-gradient text-on-primary-fixed font-headline font-black uppercase tracking-[0.2em] text-sm shadow-[0_20px_40px_rgba(202,253,0,0.2)] active:scale-95 transition-all disabled:opacity-70"
+          >
+            {isLoading ? "Saving..." : "Continue"}
+          </button>
+        </div>
       </form>
     </motion.div>
   );

@@ -6,7 +6,12 @@ function onboardingComplete() {
   return window.localStorage.getItem("fitlit-onboarding-complete") === "true";
 }
 
-export default function ProtectedRoute() {
+interface Props {
+  /** When false, skips the onboarding-redirect guard (used for the /onboarding route itself). */
+  onboardingGuard?: boolean;
+}
+
+export default function ProtectedRoute({ onboardingGuard = true }: Props) {
   const { currentUser, loading } = useAuth();
   const location = useLocation();
 
@@ -24,7 +29,7 @@ export default function ProtectedRoute() {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
-  if (!onboardingComplete() && location.pathname !== "/onboarding") {
+  if (onboardingGuard && !onboardingComplete()) {
     return <Navigate to="/onboarding" replace />;
   }
 

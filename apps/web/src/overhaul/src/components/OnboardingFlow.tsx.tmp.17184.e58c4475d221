@@ -39,11 +39,7 @@ export default function OnboardingFlow() {
   };
 
   const handleBack = () => {
-    if (step > 1) {
-      setStep(step - 1);
-    } else {
-      navigate("/");
-    }
+    if (step > 1) setStep(step - 1);
   };
 
   const commonProps = {
