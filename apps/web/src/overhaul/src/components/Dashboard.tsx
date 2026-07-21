@@ -6,8 +6,6 @@ import {
   Dumbbell,
   Trophy,
   User,
-  Scale,
-  Award,
   Clock,
   MapPin,
   Briefcase,
@@ -372,25 +370,6 @@ export default function Dashboard({
                 Colleague Battle • Rank #01
               </p>
             </motion.div>
-
-            {/* Quick Actions */}
-            <div className="bg-surface-container-low rounded-3xl p-6 shadow-lg border border-outline-variant/10">
-              <h3 className="font-headline text-xl font-bold mb-4">Quick Actions</h3>
-              <div className="grid grid-cols-2 gap-3">
-                <button className="flex flex-col items-center justify-center p-4 bg-surface-container rounded-2xl group hover:bg-surface-container-highest transition-all">
-                  <div className="w-12 h-12 rounded-full bg-background flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                    <Scale className="text-primary-container w-6 h-6" />
-                  </div>
-                  <span className="font-label text-[10px] uppercase font-bold text-on-surface text-center tracking-tighter">Log Weight</span>
-                </button>
-                <button className="flex flex-col items-center justify-center p-4 bg-surface-container rounded-2xl group hover:bg-surface-container-highest transition-all">
-                  <div className="w-12 h-12 rounded-full bg-background flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                    <Award className="text-primary-container w-6 h-6" />
-                  </div>
-                  <span className="font-label text-[10px] uppercase font-bold text-on-surface text-center tracking-tighter">Join Challenge</span>
-                </button>
-              </div>
-            </div>
           </div>
         </div>
 
