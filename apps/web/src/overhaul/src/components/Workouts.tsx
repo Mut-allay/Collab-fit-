@@ -1,22 +1,17 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import {
   Zap,
-  Search,
-  Settings2,
   ArrowRight,
   Dumbbell,
   Activity,
   Flower2 as Yoga,
-  PlayCircle,
-  Clock,
-  BarChart3,
-  LayoutDashboard,
-  Trophy,
-  User,
+  Footprints,
   Bell,
-  MapPin,
-  Briefcase,
   Bolt,
+  PlusCircle,
+  Users,
+  MapPin,
 } from "lucide-react";
 import { ScreenState } from "@/overhaul/src/types";
 
@@ -25,7 +20,15 @@ interface WorkoutsProps {
   key?: string;
 }
 
+const DEFAULT_AVATAR =
+  "https://images.unsplash.com/photo-1548690312-e3b507d17a12?q=80&w=2574&auto=format&fit=crop";
+const START_RUN_BG =
+  "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?q=80&w=2070&auto=format&fit=crop";
+
 export default function Workouts({ onNavigate }: WorkoutsProps) {
+  const [slide, setSlide] = useState(0);
+  const slideCount = 3;
+
   const programs = [
     {
       id: 1,
@@ -52,11 +55,6 @@ export default function Workouts({ onNavigate }: WorkoutsProps) {
     { id: "cardio", label: "Cardio", icon: <Zap className="w-8 h-8" />, img: "https://images.unsplash.com/photo-1541625602330-2277a1cd1f59?q=80&w=2070&auto=format&fit=crop" },
   ];
 
-  const popularWorkouts = [
-    { id: 1, title: "Fire Core Blaster", time: "15 MIN", level: "INTER", img: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=2070&auto=format&fit=crop" },
-    { id: 2, title: "Total Body Shred", time: "45 MIN", level: "ADVANCED", img: "https://images.unsplash.com/photo-1534367507873-dcd108500206?q=80&w=2070&auto=format&fit=crop" },
-  ];
-
   return (
     <div className="min-h-screen bg-background text-on-surface font-body pb-32">
        {/* Top Bar */}
@@ -67,30 +65,157 @@ export default function Workouts({ onNavigate }: WorkoutsProps) {
             FIT&LIT
           </h1>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <button className="text-on-surface-variant hover:text-primary transition-colors p-2 rounded-full hover:bg-surface-container">
             <Bell className="w-5 h-5" />
+          </button>
+          <button
+            onClick={() => onNavigate("profile")}
+            className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container shrink-0"
+          >
+            <img className="w-full h-full object-cover" src={DEFAULT_AVATAR} alt="Profile" />
           </button>
         </div>
       </header>
 
       <main className="pt-28 space-y-12">
-        {/* Search Section */}
+        {/* Hero Carousel: Start Run / Create a Running Trail / Club Hub */}
         <section className="px-6">
-          <div className="relative group">
-            <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
-              <Search className="w-5 h-5 text-on-surface-variant" />
-            </div>
-            <input 
-              className="w-full bg-surface-container-high border-none rounded-2xl py-5 pl-14 pr-6 text-on-surface placeholder:text-on-surface-variant focus:ring-2 focus:ring-primary-container transition-all outline-none" 
-              placeholder="Search movements, trainers..." 
-              type="text"
-            />
-            <div className="absolute inset-y-0 right-4 flex items-center">
-              <button className="bg-surface-container-highest p-2 rounded-lg text-primary hover:bg-surface-bright transition-colors">
-                <Settings2 className="w-5 h-5" />
-              </button>
-            </div>
+          <div className="relative overflow-hidden rounded-3xl shadow-lg">
+            <motion.div
+              className="flex"
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.15}
+              animate={{ x: `-${slide * 100}%` }}
+              transition={{ type: "spring", stiffness: 300, damping: 32 }}
+              onDragEnd={(_, info) => {
+                const threshold = 60;
+                if (info.offset.x < -threshold && slide < slideCount - 1) {
+                  setSlide(slide + 1);
+                } else if (info.offset.x > threshold && slide > 0) {
+                  setSlide(slide - 1);
+                }
+              }}
+            >
+              {/* Slide 1: Start Run */}
+              <div className="relative w-full shrink-0 p-8 min-h-[320px] flex items-end">
+                <img
+                  className="absolute inset-0 w-full h-full object-cover"
+                  src={START_RUN_BG}
+                  alt=""
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/20" />
+                <div className="relative z-10 space-y-4">
+                  <span className="font-label text-xs uppercase tracking-[0.2em] text-primary-dim font-bold">
+                    Today's Focus
+                  </span>
+                  <h2 className="font-headline text-4xl font-black italic uppercase leading-[0.9]">
+                    Start a Run
+                  </h2>
+                  <p className="text-on-surface-variant text-sm max-w-md font-body">
+                    Lace up and log the miles. Track pace, distance, and calories in real time.
+                  </p>
+                  <button
+                    onClick={() => onNavigate("active-workout")}
+                    className="inline-flex items-center gap-2 bg-kinetic-gradient text-on-primary-fixed px-10 py-4 rounded-xl font-headline font-bold text-lg uppercase tracking-widest active:scale-95 transition-all shadow-xl shadow-primary/20"
+                  >
+                    <Footprints className="w-5 h-5" />
+                    Start Run
+                  </button>
+                </div>
+              </div>
+
+              {/* Slide 2: Create a Running Trail */}
+              <div className="relative w-full shrink-0 p-8 min-h-[320px] flex items-end bg-surface-container-low border border-outline-variant/10">
+                <div className="absolute -right-6 -bottom-8 opacity-5">
+                  <MapPin className="w-48 h-48" />
+                </div>
+                <div className="relative z-10 space-y-4">
+                  <span className="font-label text-xs uppercase tracking-[0.2em] text-primary-dim font-bold">
+                    Build Your Own
+                  </span>
+                  <h2 className="font-headline text-4xl font-black italic uppercase leading-[0.9]">
+                    Create a Running Trail
+                  </h2>
+                  <p className="text-on-surface-variant text-sm max-w-md font-body">
+                    Map out a custom route, save your favorite paths, and share them with your club.
+                  </p>
+                  <button
+                    onClick={() => onNavigate("map")}
+                    className="inline-flex items-center gap-2 bg-kinetic-gradient text-on-primary-fixed px-10 py-4 rounded-xl font-headline font-bold text-lg uppercase tracking-widest active:scale-95 transition-all shadow-xl shadow-primary/20"
+                  >
+                    <PlusCircle className="w-5 h-5" />
+                    Create Trail
+                  </button>
+                </div>
+              </div>
+
+              {/* Slide 3: Club Hub */}
+              <div className="relative w-full shrink-0 p-8 min-h-[320px] flex items-end bg-surface-container-low border border-outline-variant/10">
+                <div className="absolute -right-6 -bottom-8 opacity-5">
+                  <Users className="w-48 h-48" />
+                </div>
+                <div className="relative z-10 space-y-4">
+                  <span className="font-label text-xs uppercase tracking-[0.2em] text-primary-dim font-bold">
+                    Community
+                  </span>
+                  <h2 className="font-headline text-4xl font-black italic uppercase leading-[0.9]">
+                    Club Hub
+                  </h2>
+                  <p className="text-on-surface-variant text-sm max-w-md font-body">
+                    Join or create a run club, compete in live challenges, and train together.
+                  </p>
+                  <button
+                    onClick={() => onNavigate("social")}
+                    className="inline-flex items-center gap-2 bg-kinetic-gradient text-on-primary-fixed px-10 py-4 rounded-xl font-headline font-bold text-lg uppercase tracking-widest active:scale-95 transition-all shadow-xl shadow-primary/20"
+                  >
+                    <Users className="w-5 h-5" />
+                    Join or Create a Club
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Dot indicators */}
+          <div className="flex justify-center gap-2 mt-4">
+            {Array.from({ length: slideCount }).map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setSlide(i)}
+                aria-label={`Go to slide ${i + 1}`}
+                className={`h-1.5 rounded-full transition-all ${
+                  i === slide ? "w-6 bg-primary" : "w-1.5 bg-surface-container-highest"
+                }`}
+              />
+            ))}
+          </div>
+        </section>
+
+        {/* Categories Grid */}
+        <section className="px-6">
+          <h2 className="text-2xl font-headline font-black tracking-tight mb-6">Browse by Discipline</h2>
+          <div className="grid grid-cols-2 gap-4">
+            {categories.map((cat) => (
+              <motion.div 
+                key={cat.id}
+                whileTap={{ scale: 0.95 }}
+                className="relative h-40 rounded-3xl overflow-hidden group cursor-pointer bg-surface-container border border-outline-variant/10 shadow-lg"
+              >
+                <img 
+                  className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:scale-110 transition-transform duration-500" 
+                  src={cat.img}
+                  alt={cat.label}
+                />
+                <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
+                  <div className="text-primary mb-2 transition-transform group-hover:scale-110">
+                    {cat.icon}
+                  </div>
+                  <span className="font-headline font-bold text-lg uppercase tracking-wider">{cat.label}</span>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </section>
 
@@ -141,124 +266,7 @@ export default function Workouts({ onNavigate }: WorkoutsProps) {
             ))}
           </div>
         </section>
-
-        {/* Categories Grid */}
-        <section className="px-6">
-          <h2 className="text-2xl font-headline font-black tracking-tight mb-6">Browse by Discipline</h2>
-          <div className="grid grid-cols-2 gap-4">
-            {categories.map((cat) => (
-              <motion.div 
-                key={cat.id}
-                whileTap={{ scale: 0.95 }}
-                className="relative h-40 rounded-3xl overflow-hidden group cursor-pointer bg-surface-container border border-outline-variant/10 shadow-lg"
-              >
-                <img 
-                  className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:scale-110 transition-transform duration-500" 
-                  src={cat.img}
-                  alt={cat.label}
-                />
-                <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
-                  <div className="text-primary mb-2 transition-transform group-hover:scale-110">
-                    {cat.icon}
-                  </div>
-                  <span className="font-headline font-bold text-lg uppercase tracking-wider">{cat.label}</span>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </section>
-
-        {/* Popular Workouts */}
-        <section className="px-6">
-          <h2 className="text-2xl font-headline font-black tracking-tight mb-6">Popular Workouts</h2>
-          <div className="space-y-4">
-            {popularWorkouts.map((workout) => (
-              <motion.div 
-                key={workout.id}
-                whileTap={{ scale: 0.98 }}
-                className="bg-surface-container-low rounded-3xl p-4 flex gap-4 group cursor-pointer hover:bg-surface-container transition-colors border border-outline-variant/10 shadow-sm"
-              >
-                <div className="w-24 h-24 rounded-2xl overflow-hidden flex-shrink-0 relative">
-                  <img 
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
-                    src={workout.img}
-                    alt={workout.title}
-                  />
-                  <div className="absolute inset-0 bg-background/20" />
-                  <span className="absolute inset-0 flex items-center justify-center text-primary opacity-0 group-hover:opacity-100 transition-opacity">
-                    <PlayCircle className="w-10 h-10 fill-background" />
-                  </span>
-                </div>
-                <div className="flex-grow flex flex-col justify-center space-y-1">
-                  <div className="flex items-center gap-3">
-                    <span className="text-[10px] font-label font-bold uppercase text-on-surface-variant flex items-center gap-1">
-                      <Clock className="w-3 h-3" /> {workout.time}
-                    </span>
-                    <span className="text-[10px] font-label font-bold uppercase text-on-surface-variant flex items-center gap-1">
-                      <BarChart3 className="w-3 h-3" /> {workout.level}
-                    </span>
-                  </div>
-                  <h4 className="font-headline font-bold text-lg leading-tight group-hover:text-primary transition-colors">{workout.title}</h4>
-                  <p className="text-on-surface-variant text-xs mt-1">Sculpt and strengthen with non-stop movement.</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </section>
       </main>
-
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 w-full pb-8 pt-4 px-6 z-50 bg-background/80 backdrop-blur-xl border-t border-outline-variant/10 shadow-[0_-20px_40px_rgba(0,0,0,0.6)] rounded-t-[3rem] flex justify-around items-end">
-        {/* Dashboard */}
-        <button 
-          onClick={() => onNavigate("dashboard")}
-          className="flex flex-col items-center justify-center text-on-surface-variant px-4 py-2 hover:text-primary transition-all group"
-        >
-          <LayoutDashboard className="w-6 h-6 transition-transform group-hover:scale-110" />
-          <span className="font-headline font-bold text-[8px] tracking-[0.2em] uppercase mt-1">Dashboard</span>
-        </button>
-        
-        {/* Workouts (Active) */}
-        <motion.button 
-          whileTap={{ scale: 0.9 }}
-          className="flex flex-col items-center justify-center bg-kinetic-gradient text-on-primary-fixed rounded-full h-14 w-14 -translate-y-4 shadow-xl shadow-primary/20"
-        >
-          <Dumbbell className="w-6 h-6 fill-current" />
-        </motion.button>
-        
-        {/* Corporate */}
-        <button 
-          onClick={() => onNavigate("corporate")}
-          className="flex flex-col items-center justify-center text-on-surface-variant px-4 py-2 hover:text-primary transition-all group"
-        >
-          <Briefcase className="w-6 h-6 transition-transform group-hover:scale-110" />
-          <span className="font-headline font-bold text-[8px] tracking-[0.2em] uppercase mt-1">Work</span>
-        </button>
-        
-        {/* Map */}
-        <button 
-          onClick={() => onNavigate("map")}
-          className="flex flex-col items-center justify-center text-on-surface-variant px-4 py-2 hover:text-primary transition-all group"
-        >
-          <MapPin className="w-6 h-6 transition-transform group-hover:scale-110" />
-          <span className="font-headline font-bold text-[8px] tracking-[0.2em] uppercase mt-1">Clubs</span>
-        </button>
-        
-        {/* Social */}
-        <button 
-          onClick={() => onNavigate("social")}
-          className="flex flex-col items-center justify-center text-on-surface-variant px-4 py-2 hover:text-primary transition-all group"
-        >
-          <Trophy className="w-6 h-6 transition-transform group-hover:scale-110" />
-          <span className="font-headline font-bold text-[8px] tracking-[0.2em] uppercase mt-1">Social</span>
-        </button>
-        
-        {/* Profile */}
-        <button className="flex flex-col items-center justify-center text-on-surface-variant px-4 py-2 hover:text-primary transition-all group">
-          <User className="w-6 h-6 transition-transform group-hover:scale-110" />
-          <span className="font-headline font-bold text-[8px] tracking-[0.2em] uppercase mt-1">Profile</span>
-        </button>
-      </nav>
     </div>
   );
 }

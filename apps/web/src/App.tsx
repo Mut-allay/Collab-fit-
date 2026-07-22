@@ -32,7 +32,6 @@ import InvitationsPage from "@/overhaul/src/routes/InvitationsPage";
 
 // Feature components with onNavigate prop — wrapped below
 import Workouts from "@/overhaul/src/components/Workouts";
-import Clubs from "@/overhaul/src/components/Clubs";
 import RunClubMap from "@/overhaul/src/components/RunClubMap";
 import SocialFeed from "@/overhaul/src/components/SocialFeed";
 import ActiveWorkout from "@/overhaul/src/components/ActiveWorkout";
@@ -45,10 +44,6 @@ import { createOverhaulNavigate } from "@/lib/overhaulNavigate";
 function WorkoutsPage() {
   const nav = createOverhaulNavigate(useNavigate());
   return <Workouts onNavigate={nav} />;
-}
-function ClubsPage() {
-  const nav = createOverhaulNavigate(useNavigate());
-  return <Clubs onNavigate={nav} />;
 }
 function MapPage() {
   const nav = createOverhaulNavigate(useNavigate());
@@ -103,7 +98,6 @@ const router = createBrowserRouter([
           { path: "/social", element: <SocialPage /> },
           { path: "/map", element: <MapPage /> },
           { path: "/workouts", element: <WorkoutsPage /> },
-          { path: "/clubs", element: <ClubsPage /> },
           { path: "/corporate", element: <CorporatePage /> },
           { path: "/challenges", element: <ChallengesPage /> },
           { path: "/active-workout", element: <ActiveWorkoutPage /> },

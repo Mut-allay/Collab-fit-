@@ -14,7 +14,6 @@ const ROUTES: Partial<Record<ScreenState, string>> = {
   challenges: "/challenges",
   profile: "/profile",
   onboarding: "/onboarding",
-  clubs: "/clubs",
   "active-workout": "/active-workout",
 };
 
