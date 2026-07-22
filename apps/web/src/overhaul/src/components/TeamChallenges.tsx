@@ -1,20 +1,15 @@
 import { motion } from "framer-motion";
-import { 
-  Bell, 
-  Search, 
-  Timer, 
-  Star, 
-  Flashlight as Flash, 
-  Mountain, 
-  Info, 
-  Check, 
-  X, 
+import {
+  Bell,
+  Search,
+  Timer,
+  Star,
+  Flashlight as Flash,
+  Mountain,
+  Info,
+  Check,
+  X,
   Plus,
-  LayoutDashboard,
-  Dumbbell,
-  Trophy,
-  User,
-  Swords,
   ChevronRight
 } from "lucide-react";
 import { ScreenState } from "@/overhaul/src/types";
@@ -24,7 +19,7 @@ interface TeamChallengesProps {
   key?: string;
 }
 
-export default function TeamChallenges({ onNavigate }: TeamChallengesProps) {
+export default function TeamChallenges({}: TeamChallengesProps) {
   return (
     <div className="min-h-screen bg-background text-on-surface font-body pb-32 selection:bg-primary-container selection:text-on-primary-container">
       {/* Top Bar */}
@@ -249,51 +244,6 @@ export default function TeamChallenges({ onNavigate }: TeamChallengesProps) {
           <Plus className="w-8 h-8" />
         </motion.button>
       </div>
-
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 w-full pb-8 pt-4 px-6 z-50 bg-background/80 backdrop-blur-xl border-t border-outline-variant/10 shadow-[0_-20px_40px_rgba(0,0,0,0.6)] rounded-t-[3rem] flex justify-around items-end">
-        {/* Dashboard */}
-        <button 
-          onClick={() => onNavigate("dashboard")}
-          className="flex flex-col items-center justify-center text-on-surface-variant px-4 py-2 hover:text-primary transition-all group"
-        >
-          <LayoutDashboard className="w-6 h-6 transition-transform group-hover:scale-110" />
-          <span className="font-headline font-bold text-[8px] tracking-[0.2em] uppercase mt-1">Dashboard</span>
-        </button>
-        
-        {/* Workouts */}
-        <button 
-          onClick={() => onNavigate("workouts")}
-          className="flex flex-col items-center justify-center text-on-surface-variant px-4 py-2 hover:text-primary transition-all group"
-        >
-          <Dumbbell className="w-6 h-6 transition-transform group-hover:scale-110" />
-          <span className="font-headline font-bold text-[8px] tracking-[0.2em] uppercase mt-1">Workouts</span>
-        </button>
-        
-        {/* Challenges (Active) */}
-        <motion.button 
-          whileTap={{ scale: 0.9 }}
-          className="flex flex-col items-center justify-center bg-kinetic-gradient text-on-primary-fixed rounded-full h-14 w-14 -translate-y-4 shadow-xl shadow-primary/20"
-        >
-          <Swords className="w-6 h-6 fill-current" />
-          <span className="sr-only">Challenges</span>
-        </motion.button>
-        
-        {/* Social */}
-        <button 
-          onClick={() => onNavigate("social")}
-          className="flex flex-col items-center justify-center text-on-surface-variant px-4 py-2 hover:text-primary transition-all group"
-        >
-          <Trophy className="w-6 h-6 transition-transform group-hover:scale-110" />
-          <span className="font-headline font-bold text-[8px] tracking-[0.2em] uppercase mt-1">Social</span>
-        </button>
-
-        {/* Profile */}
-        <button className="flex flex-col items-center justify-center text-on-surface-variant px-4 py-2 hover:text-primary transition-all group">
-          <User className="w-6 h-6 transition-transform group-hover:scale-110" />
-          <span className="font-headline font-bold text-[8px] tracking-[0.2em] uppercase mt-1">Profile</span>
-        </button>
-      </nav>
     </div>
   );
 }

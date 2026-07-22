@@ -7,7 +7,6 @@ export type ScreenState =
   | "onboarding"
   | "dashboard"
   | "workouts"
-  | "clubs"
   | "leaderboard"
   | "map"
   | "corporate"

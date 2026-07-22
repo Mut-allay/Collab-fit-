@@ -2,18 +2,18 @@ import { motion } from "framer-motion";
 import {
   Zap,
   Bell,
-  LayoutDashboard,
-  Dumbbell,
   Trophy,
-  User,
   Clock,
-  MapPin,
   Briefcase,
   Loader2,
   Link2,
   RefreshCw,
+  Footprints,
+  Flame,
+  Route,
 } from "lucide-react";
 import type { ScreenState } from "@/overhaul/src/types";
+import { ActivityRingGroup } from "@/overhaul/src/components/ui/ActivityRing";
 
 interface DashboardProps {
   onNavigate: (screen: ScreenState) => void;
@@ -70,7 +70,6 @@ export default function Dashboard({
     1,
     todayDistanceMeters / Math.max(1, distanceGoalMeters)
   );
-  const ring = 553;
   const distKm = todayDistanceMeters / 1000;
   const distGoalKm = distanceGoalMeters / 1000;
 
@@ -99,126 +98,63 @@ export default function Dashboard({
       </header>
 
       <main className="pt-28 px-6 max-w-5xl mx-auto space-y-12">
-        {/* Daily Activity Stats */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Steps Chart */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-surface-container-low rounded-3xl p-8 relative overflow-hidden group shadow-lg border border-outline-variant/10"
-          >
-            <div className="absolute -right-4 -bottom-8 opacity-5">
-              <span className="font-headline text-[12rem] font-black leading-none italic">01</span>
-            </div>
-            <div className="relative z-10 space-y-4">
-              <span className="font-label text-xs uppercase tracking-[0.2em] text-on-surface-variant">Daily Activity</span>
-              <h3 className="font-headline text-3xl font-bold">Steps Tracked</h3>
-              <div className="relative flex items-center justify-center w-48 h-48 mt-4 mx-auto lg:mx-0">
-                <svg className="absolute w-full h-full -rotate-90">
-                  <circle className="text-surface-container-lowest" cx="96" cy="96" fill="transparent" r="88" stroke="currentColor" strokeWidth="12" />
-                  <circle 
-                    className="text-primary-container" 
-                    cx="96" cy="96" fill="transparent" r="88" stroke="currentColor" 
-                    strokeWidth="12" 
-                    strokeDasharray={ring} 
-                    strokeDashoffset={ring - ring * stepsRatio} 
-                    strokeLinecap="round"
-                  />
-                </svg>
-                <div className="text-center">
-                  <span className="block font-headline text-4xl font-black">{todaySteps.toLocaleString()}</span>
-                  <span className="block font-label text-xs text-on-surface-variant mt-1">/ {stepsGoal.toLocaleString()}</span>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Calories Chart */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="bg-surface-container-low rounded-3xl p-8 relative overflow-hidden group shadow-lg border border-outline-variant/10"
-          >
-            <div className="absolute -right-4 -bottom-8 opacity-5">
-              <span className="font-headline text-[12rem] font-black leading-none italic">02</span>
-            </div>
-            <div className="relative z-10 space-y-4">
-              <span className="font-label text-xs uppercase tracking-[0.2em] text-on-surface-variant">Metabolic Load</span>
-              <h3 className="font-headline text-3xl font-bold">Calories Burned</h3>
-              <div className="relative flex items-center justify-center w-48 h-48 mt-4 mx-auto lg:mx-0">
-                <svg className="absolute w-full h-full -rotate-90">
-                  <circle className="text-surface-container-lowest" cx="96" cy="96" fill="transparent" r="88" stroke="currentColor" strokeWidth="12" />
-                  <circle 
-                    className="text-error" 
-                    cx="96" cy="96" fill="transparent" r="88" stroke="currentColor" 
-                    strokeWidth="12" 
-                    strokeDasharray={ring} 
-                    strokeDashoffset={ring - ring * calRatio} 
-                    strokeLinecap="round"
-                  />
-                </svg>
-                <div className="text-center">
-                  <span className="block font-headline text-4xl font-black">{todayCalories.toLocaleString()}</span>
-                  <span className="block font-label text-xs text-on-surface-variant mt-1">/ {caloriesGoal.toLocaleString()} KCAL</span>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Distance */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-            className="bg-surface-container-low rounded-3xl p-8 relative overflow-hidden group shadow-lg border border-outline-variant/10"
-          >
-            <div className="absolute -right-4 -bottom-8 opacity-5">
-              <span className="font-headline text-[12rem] font-black leading-none italic">
-                03
+        {/* Daily Activity Rings — compact, single-screen, Apple Fitness style */}
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-surface-container-low rounded-3xl p-6 shadow-lg border border-outline-variant/10 flex items-center gap-6"
+        >
+          <div className="relative flex items-center justify-center shrink-0 w-44 h-44">
+            <ActivityRingGroup
+              size={176}
+              strokeWidth={13}
+              gap={5}
+              rings={[
+                { ratio: stepsRatio, colorClassName: "text-primary-container" },
+                { ratio: calRatio, colorClassName: "text-error" },
+                { ratio: distRatio, colorClassName: "text-secondary" },
+              ]}
+            />
+            <div className="absolute text-center">
+              <span className="block font-headline text-3xl font-black">
+                {Math.round(((stepsRatio + calRatio + distRatio) / 3) * 100)}%
+              </span>
+              <span className="block font-label text-[10px] text-on-surface-variant mt-0.5 uppercase tracking-widest">
+                Today
               </span>
             </div>
-            <div className="relative z-10 space-y-4">
-              <span className="font-label text-xs uppercase tracking-[0.2em] text-on-surface-variant">
-                Movement
+          </div>
+
+          <div className="flex-1 space-y-3 min-w-0">
+            <div className="flex items-center gap-3">
+              <Footprints className="w-4 h-4 text-primary-container shrink-0" />
+              <span className="font-headline font-bold text-lg leading-none">
+                {todaySteps.toLocaleString()}
               </span>
-              <h3 className="font-headline text-3xl font-bold">Distance</h3>
-              <div className="relative flex items-center justify-center w-48 h-48 mt-4 mx-auto lg:mx-0">
-                <svg className="absolute w-full h-full -rotate-90">
-                  <circle
-                    className="text-surface-container-lowest"
-                    cx="96"
-                    cy="96"
-                    fill="transparent"
-                    r="88"
-                    stroke="currentColor"
-                    strokeWidth="12"
-                  />
-                  <circle
-                    className="text-secondary"
-                    cx="96"
-                    cy="96"
-                    fill="transparent"
-                    r="88"
-                    stroke="currentColor"
-                    strokeWidth="12"
-                    strokeDasharray={ring}
-                    strokeDashoffset={ring - ring * distRatio}
-                    strokeLinecap="round"
-                  />
-                </svg>
-                <div className="text-center">
-                  <span className="block font-headline text-4xl font-black">
-                    {distKm.toFixed(1)}
-                  </span>
-                  <span className="block font-label text-xs text-on-surface-variant mt-1">
-                    / {distGoalKm.toFixed(1)} km
-                  </span>
-                </div>
-              </div>
+              <span className="font-label text-[10px] text-on-surface-variant uppercase tracking-widest">
+                / {stepsGoal.toLocaleString()} steps
+              </span>
             </div>
-          </motion.div>
-        </section>
+            <div className="flex items-center gap-3">
+              <Flame className="w-4 h-4 text-error shrink-0" />
+              <span className="font-headline font-bold text-lg leading-none">
+                {todayCalories.toLocaleString()}
+              </span>
+              <span className="font-label text-[10px] text-on-surface-variant uppercase tracking-widest">
+                / {caloriesGoal.toLocaleString()} kcal
+              </span>
+            </div>
+            <div className="flex items-center gap-3">
+              <Route className="w-4 h-4 text-secondary shrink-0" />
+              <span className="font-headline font-bold text-lg leading-none">
+                {distKm.toFixed(1)}
+              </span>
+              <span className="font-label text-[10px] text-on-surface-variant uppercase tracking-widest">
+                / {distGoalKm.toFixed(1)} km
+              </span>
+            </div>
+          </div>
+        </motion.section>
 
         {/* Main Grid Section */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -408,54 +344,6 @@ export default function Dashboard({
           </div>
         </section>
       </main>
-
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 w-full pb-8 pt-4 px-6 z-50 bg-background/80 backdrop-blur-xl border-t border-outline-variant/10 shadow-[0_-20px_40px_rgba(0,0,0,0.6)] rounded-t-[3rem] flex justify-around items-end">
-        {/* Dashboard (Active) */}
-        <motion.button 
-          whileTap={{ scale: 0.9 }}
-          className="flex flex-col items-center justify-center bg-kinetic-gradient text-on-primary-fixed rounded-full h-14 w-14 -translate-y-4 shadow-xl shadow-primary/20"
-        >
-          <LayoutDashboard className="w-6 h-6 fill-current" />
-        </motion.button>
-        
-        {/* Workouts */}
-        <button 
-          onClick={() => onNavigate("workouts")}
-          className="flex flex-col items-center justify-center text-on-surface-variant px-4 py-2 hover:text-primary transition-all group"
-        >
-          <Dumbbell className="w-6 h-6 transition-transform group-hover:scale-110" />
-          <span className="font-headline font-bold text-[8px] tracking-[0.2em] uppercase mt-1">Explore</span>
-        </button>
-        
-        {/* Map */}
-        <button 
-          onClick={() => onNavigate("map")}
-          className="flex flex-col items-center justify-center text-on-surface-variant px-4 py-2 hover:text-primary transition-all group"
-        >
-          <MapPin className="w-6 h-6 transition-transform group-hover:scale-110" />
-          <span className="font-headline font-bold text-[8px] tracking-[0.2em] uppercase mt-1">Clubs</span>
-        </button>
-        
-        {/* Social */}
-        <button 
-          onClick={() => onNavigate("social")}
-          className="flex flex-col items-center justify-center text-on-surface-variant px-4 py-2 hover:text-primary transition-all group"
-        >
-          <Trophy className="w-6 h-6 transition-transform group-hover:scale-110" />
-          <span className="font-headline font-bold text-[8px] tracking-[0.2em] uppercase mt-1">Social</span>
-        </button>
-        
-        {/* Profile */}
-        <button
-          type="button"
-          onClick={() => onNavigate("profile")}
-          className="flex flex-col items-center justify-center text-on-surface-variant px-4 py-2 hover:text-primary transition-all group"
-        >
-          <User className="w-6 h-6 transition-transform group-hover:scale-110" />
-          <span className="font-headline font-bold text-[8px] tracking-[0.2em] uppercase mt-1">Profile</span>
-        </button>
-      </nav>
     </div>
   );
 }

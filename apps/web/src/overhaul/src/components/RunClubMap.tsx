@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   PlusCircle,
   Settings,
@@ -7,12 +7,11 @@ import {
   SlidersHorizontal,
   MapPin,
   AlertTriangle,
-  Compass,
-  Users,
-  Bell,
-  User,
+  X,
+  Route,
   Clock,
   ArrowRight,
+  Trash2,
 } from "lucide-react";
 import { ScreenState } from "@/overhaul/src/types";
 
@@ -21,8 +20,50 @@ interface RunClubMapProps {
   key?: string;
 }
 
+interface DangerFlag {
+  id: number;
+  label: string;
+  x: number;
+  y: number;
+}
+
 export default function RunClubMap({ onNavigate }: RunClubMapProps) {
   const [isSheetExpanded, setIsSheetExpanded] = useState(false);
+  const [isBuildingRoute, setIsBuildingRoute] = useState(false);
+  const [waypoints, setWaypoints] = useState<string[]>([]);
+  const [isFlagging, setIsFlagging] = useState(false);
+  const [dangerFlags, setDangerFlags] = useState<DangerFlag[]>([
+    { id: 1, label: "Poor lighting at night", x: 66, y: 62 },
+  ]);
+  const [flagReason, setFlagReason] = useState("");
+  const [pendingFlag, setPendingFlag] = useState<{ x: number; y: number } | null>(null);
+
+  const handleMapClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isFlagging) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    setPendingFlag({ x, y });
+  };
+
+  const confirmFlag = () => {
+    if (!pendingFlag || !flagReason.trim()) return;
+    setDangerFlags((prev) => [
+      ...prev,
+      { id: Date.now(), label: flagReason.trim(), x: pendingFlag.x, y: pendingFlag.y },
+    ]);
+    setPendingFlag(null);
+    setFlagReason("");
+    setIsFlagging(false);
+  };
+
+  const addWaypoint = () => {
+    setWaypoints((prev) => [...prev, `Waypoint ${prev.length + 1}`]);
+  };
+
+  const removeWaypoint = (index: number) => {
+    setWaypoints((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const nearbyClubs = [
     {
@@ -74,26 +115,29 @@ export default function RunClubMap({ onNavigate }: RunClubMapProps) {
 
       <main className="relative h-full w-full pt-20">
         {/* Map Background */}
-        <div className="absolute inset-0 z-0 bg-surface-container-lowest">
-          <img 
-            className="w-full h-full object-cover opacity-40 grayscale contrast-125" 
+        <div
+          onClick={handleMapClick}
+          className={`absolute inset-0 z-0 bg-surface-container-lowest ${isFlagging ? "cursor-crosshair" : ""}`}
+        >
+          <img
+            className="w-full h-full object-cover opacity-40 grayscale contrast-125"
             src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?q=80&w=2066&auto=format&fit=crop"
             alt="Dark Map Grid"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/40" />
-          
+
           {/* Decorative Mesh Overlay */}
-          <div className="absolute inset-0 opacity-20" 
-               style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(202, 253, 0, 0.1) 1px, transparent 0)', backgroundSize: '24px 24px' }} 
+          <div className="absolute inset-0 opacity-20 pointer-events-none"
+               style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(202, 253, 0, 0.1) 1px, transparent 0)', backgroundSize: '24px 24px' }}
           />
 
           {/* Map Interactive Elements */}
           {/* Safe Zone */}
-          <div className="absolute top-1/4 left-1/3 w-48 h-48 bg-primary-container/10 rounded-full blur-3xl animate-pulse" />
-          <motion.div 
+          <div className="absolute top-1/4 left-1/3 w-48 h-48 bg-primary-container/10 rounded-full blur-3xl animate-pulse pointer-events-none" />
+          <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            className="absolute top-1/4 left-1/3 mt-20 ml-20 flex flex-col items-center group cursor-pointer"
+            className="absolute top-1/4 left-1/3 mt-20 ml-20 flex flex-col items-center group cursor-pointer pointer-events-none"
           >
             <div className="bg-primary-container text-on-primary-container px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase mb-1 shadow-lg shadow-primary-container/20 translate-y-2 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all">
               Safe Zone
@@ -101,19 +145,32 @@ export default function RunClubMap({ onNavigate }: RunClubMapProps) {
             <MapPin className="w-8 h-8 text-primary-container fill-current" />
           </motion.div>
 
-          {/* Caution Zone */}
-          <div className="absolute bottom-1/3 right-1/4 w-32 h-32 bg-error/10 rounded-full blur-2xl" />
-          <motion.div 
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2 }}
-            className="absolute bottom-1/3 right-1/4 mt-12 ml-12 flex flex-col items-center group cursor-pointer"
-          >
-            <div className="bg-error text-on-error px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase mb-1 shadow-lg shadow-error/20 translate-y-2 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all">
-              Caution Area
+          {/* Danger flags — user-reported + seed data */}
+          {dangerFlags.map((flag) => (
+            <motion.div
+              key={flag.id}
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              style={{ left: `${flag.x}%`, top: `${flag.y}%` }}
+              className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center group cursor-pointer pointer-events-auto"
+            >
+              <div className="absolute inset-0 -m-4 bg-error/10 rounded-full blur-2xl" />
+              <div className="relative bg-error text-on-error px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase mb-1 shadow-lg shadow-error/20 translate-y-2 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all whitespace-nowrap">
+                {flag.label}
+              </div>
+              <AlertTriangle className="relative w-8 h-8 text-error fill-current" />
+            </motion.div>
+          ))}
+
+          {/* Pending flag marker awaiting a reason */}
+          {pendingFlag && (
+            <div
+              style={{ left: `${pendingFlag.x}%`, top: `${pendingFlag.y}%` }}
+              className="absolute -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+            >
+              <AlertTriangle className="w-8 h-8 text-error/60 animate-pulse" />
             </div>
-            <AlertTriangle className="w-8 h-8 text-error fill-current" />
-          </motion.div>
+          )}
 
           {/* Active Club Pin */}
           <motion.div 
@@ -154,6 +211,111 @@ export default function RunClubMap({ onNavigate }: RunClubMapProps) {
               <SlidersHorizontal className="w-5 h-5" />
             </button>
           </div>
+
+          {/* Route builder / danger-flag toggles */}
+          <div className="flex gap-3 mt-4">
+            <button
+              onClick={() => setIsBuildingRoute((v) => !v)}
+              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl font-headline font-black text-xs uppercase tracking-widest shadow-lg transition-all ${
+                isBuildingRoute
+                  ? "bg-kinetic-gradient text-on-primary-fixed"
+                  : "bg-surface-container-high/80 backdrop-blur-md text-on-surface"
+              }`}
+            >
+              <Route className="w-4 h-4" />
+              {isBuildingRoute ? "Building Route…" : "Build a Route"}
+            </button>
+            <button
+              onClick={() => setIsFlagging((v) => !v)}
+              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl font-headline font-black text-xs uppercase tracking-widest shadow-lg transition-all ${
+                isFlagging
+                  ? "bg-error text-on-error"
+                  : "bg-surface-container-high/80 backdrop-blur-md text-on-surface"
+              }`}
+            >
+              <AlertTriangle className="w-4 h-4" />
+              {isFlagging ? "Tap Map to Flag…" : "Flag Danger Zone"}
+            </button>
+          </div>
+
+          {/* Route builder waypoint panel */}
+          <AnimatePresence>
+            {isBuildingRoute && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="mt-3 bg-surface-container-high/90 backdrop-blur-xl rounded-2xl p-5 shadow-2xl border border-outline-variant/10"
+              >
+                <div className="flex justify-between items-center mb-3">
+                  <p className="font-headline font-black text-xs uppercase tracking-widest text-on-surface-variant">
+                    Trail Waypoints
+                  </p>
+                  <button
+                    onClick={addWaypoint}
+                    className="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-primary-container hover:scale-105 transition-transform"
+                  >
+                    <PlusCircle className="w-4 h-4" /> Add Stop
+                  </button>
+                </div>
+                {waypoints.length === 0 ? (
+                  <p className="text-on-surface-variant text-xs">
+                    Tap "Add Stop" to start plotting your trail. Full drag-to-place on the live map lands once real map tiles are wired up.
+                  </p>
+                ) : (
+                  <div className="space-y-2">
+                    {waypoints.map((wp, i) => (
+                      <div
+                        key={i}
+                        className="flex items-center justify-between bg-surface-container p-3 rounded-xl"
+                      >
+                        <span className="text-sm font-bold">{wp}</span>
+                        <button onClick={() => removeWaypoint(i)} className="text-on-surface-variant hover:text-error transition-colors">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Danger-flag reason confirm panel */}
+          <AnimatePresence>
+            {pendingFlag && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="mt-3 bg-surface-container-high/90 backdrop-blur-xl rounded-2xl p-5 shadow-2xl border border-error/20"
+              >
+                <div className="flex justify-between items-center mb-3">
+                  <p className="font-headline font-black text-xs uppercase tracking-widest text-error">
+                    Flag This Area
+                  </p>
+                  <button onClick={() => setPendingFlag(null)} className="text-on-surface-variant hover:text-error transition-colors">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    value={flagReason}
+                    onChange={(e) => setFlagReason(e.target.value)}
+                    placeholder="e.g. poor lighting, unsafe crossing…"
+                    className="flex-1 bg-surface-container rounded-xl px-4 py-3 text-sm placeholder:text-on-surface-variant focus:ring-1 focus:ring-error outline-none"
+                  />
+                  <button
+                    onClick={confirmFlag}
+                    disabled={!flagReason.trim()}
+                    className="px-5 py-3 bg-error text-on-error rounded-xl font-black text-xs uppercase tracking-widest disabled:opacity-40 transition-opacity"
+                  >
+                    Flag
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Bottom Sheet UI */}
@@ -165,8 +327,8 @@ export default function RunClubMap({ onNavigate }: RunClubMapProps) {
           <div className="max-w-4xl mx-auto w-full px-6">
             {/* Create Button */}
             <div className="flex justify-center mb-6">
-              <button 
-                onClick={() => onNavigate("clubs")}
+              <button
+                onClick={() => setIsBuildingRoute(true)}
                 className="bg-kinetic-gradient text-on-primary-fixed px-10 py-5 rounded-2xl font-headline font-black text-sm tracking-[0.2em] uppercase shadow-[0_20px_40px_rgba(202,253,0,0.3)] hover:scale-105 active:scale-95 transition-all flex items-center gap-3 group"
               >
                 <PlusCircle className="w-6 h-6 group-hover:rotate-90 transition-transform" />
@@ -238,8 +400,8 @@ export default function RunClubMap({ onNavigate }: RunClubMapProps) {
               </div>
 
               {/* Browse All Link */}
-              <button 
-                onClick={() => onNavigate("clubs")}
+              <button
+                onClick={() => onNavigate("social")}
                 className="mt-8 w-full py-4 border border-outline-variant/20 rounded-2xl flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant hover:text-primary-container hover:border-primary-container/40 transition-all group"
               >
                 Browse Club Hub <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
@@ -248,47 +410,6 @@ export default function RunClubMap({ onNavigate }: RunClubMapProps) {
           </div>
         </motion.div>
       </main>
-
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 w-full pb-8 pt-4 px-6 z-50 bg-background/80 backdrop-blur-xl border-t border-outline-variant/10 shadow-[0_-20px_40px_rgba(0,0,0,0.6)] rounded-t-[3rem] flex justify-around items-end">
-        {/* Explore */}
-        <button 
-          onClick={() => onNavigate("workouts")}
-          className="flex flex-col items-center justify-center text-on-surface-variant px-4 py-2 hover:text-primary transition-all group"
-        >
-          <Compass className="w-6 h-6 transition-transform group-hover:scale-110" />
-          <span className="font-headline font-bold text-[8px] tracking-[0.2em] uppercase mt-1">Explore</span>
-        </button>
-        
-        {/* Map / Clubs (Active) */}
-        <motion.button 
-          whileTap={{ scale: 0.9 }}
-          className="flex flex-col items-center justify-center bg-kinetic-gradient text-on-primary-fixed rounded-full h-14 w-14 -translate-y-4 shadow-xl shadow-primary/20"
-        >
-          <Users className="w-6 h-6 fill-current" />
-        </motion.button>
-        
-        {/* Add */}
-        <button 
-          onClick={() => onNavigate("clubs")}
-          className="flex flex-col items-center justify-center text-on-surface-variant px-4 py-2 hover:text-primary transition-all group"
-        >
-          <PlusCircle className="w-6 h-6 transition-transform group-hover:scale-110" />
-          <span className="font-headline font-bold text-[8px] tracking-[0.2em] uppercase mt-1">Create</span>
-        </button>
-        
-        {/* Alerts */}
-        <button className="flex flex-col items-center justify-center text-on-surface-variant px-4 py-2 hover:text-primary transition-all group">
-          <Bell className="w-6 h-6 transition-transform group-hover:scale-110" />
-          <span className="font-headline font-bold text-[8px] tracking-[0.2em] uppercase mt-1">Alerts</span>
-        </button>
-
-        {/* Profile */}
-        <button className="flex flex-col items-center justify-center text-on-surface-variant px-4 py-2 hover:text-primary transition-all group">
-          <User className="w-6 h-6 transition-transform group-hover:scale-110" />
-          <span className="font-headline font-bold text-[8px] tracking-[0.2em] uppercase mt-1">Profile</span>
-        </button>
-      </nav>
     </div>
   );
 }

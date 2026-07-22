@@ -23,7 +23,6 @@ import InvitationsPage from "./routes/InvitationsPage";
 import DataVerificationRoute from "./routes/DataVerificationRoute";
 import OnboardingFlow from "./components/OnboardingFlow";
 import Workouts from "./components/Workouts";
-import Clubs from "./components/Clubs";
 import RunClubMap from "./components/RunClubMap";
 import SocialFeed from "./components/SocialFeed";
 import ActiveWorkout from "./components/ActiveWorkout";
@@ -38,11 +37,6 @@ function onboardingComplete() {
 function WorkoutsRoute() {
   const navigate = useNavigate();
   return <Workouts onNavigate={createOverhaulNavigate(navigate)} />;
-}
-
-function ClubsRoute() {
-  const navigate = useNavigate();
-  return <Clubs onNavigate={createOverhaulNavigate(navigate)} />;
 }
 
 function RunClubMapRoute() {
@@ -134,7 +128,6 @@ export default function AppRoutes() {
           <Route path="teams/create" element={<CreateTeamPage />} />
           <Route path="teams/invitations" element={<InvitationsPage />} />
           <Route path="verification" element={<DataVerificationRoute />} />
-          <Route path="clubs" element={<ClubsRoute />} />
           <Route path="corporate" element={<CorporateRoute />} />
           <Route path="challenges" element={<ChallengesRoute />} />
           <Route path="active-workout" element={<ActiveWorkoutRoute />} />
